@@ -54,7 +54,7 @@ Ver [[Routine-Informe-Mensual]] para el diseño completo y el prompt.
 - [x] Edge Function `disparar-informe-mensual` escrita.
 
 - [x] **Migración `009_borradores_no_son_desviacion.sql` aplicada** (2026-10-06, registrada como `borradores_no_son_desviacion`). Añade el valor `borrador` a `audit_mes_dias.clasificacion`: un parte sin cerrar ya no se cuenta como caída de producción, igual que en el dashboard. Escrita sobre la versión de la vista que dejó la 007, no sobre la 006. Verificado después de aplicar: las 25 columnas siguen ahí y las 7 filas conservan `dotacion_hotel`, así que el join de la 007 no se perdió; los 2 partes en borrador del 5-oct pasan a `borrador` y los días a cero siguen en `sin_datos` (la precedencia sin_datos > borrador > umbrales funciona).
-- [ ] **Sincronizar el prompt de la routine con la 009** (por API, como las veces anteriores): la lista de valores de `clasificacion` ya está actualizada en [[Routine-Informe-Mensual]], pero el prompt que vive en la routine de la nube todavía no incluye `borrador`. Si se aplica la migración sin tocar el prompt, la IA verá una etiqueta que no sabe interpretar.
+- [x] **Prompt de la routine sincronizado con la 009** (2026-10-06, pegado a mano en el campo *Instructions*). Ya conoce el valor `borrador` y separa explícitamente los días desviados de los partes sin cerrar, para no contar dos veces la misma jornada. El texto vigente está en [[Routine-Informe-Mensual]].
 
 **Para poner en marcha (pasos manuales, en este orden):**
 
