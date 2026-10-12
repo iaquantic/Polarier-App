@@ -181,7 +181,9 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 - **Qué es:** una fila por año × hoja × periodo × partida, con plan/real/Qp/desviación, la celda de origen y `codigo_fila`. La clave es determinista: `row_uid = "<año>|<hoja>|<AAAA-MM>|<codigo_fila>|<metric_path_key>"`, así que se puede volver a cargar con un upsert sin duplicar.
 - **Lo consume:** Wisin (herramientas `global_ai_dato_exacto`, `global_ai_polo_periodo`, `global_ai_comparar_partida`) y, en el diseño nuevo, el agente de la TABLA CA.
 - **Estado:** carga **única** del 2026-08-30 (6 hojas, enero–junio 2026, 2.313 filas). No se sabe qué la cargó y `global_import_runs` está vacía. **Desactualizada**: el GLOBAL del VPS ya tiene más meses.
-- **Decisión (2026-10-12):** al terminar cada Modelo 1, se normaliza la hoja del polo actualizada y se hace upsert en `global_ai` (registrando la pasada en `global_import_runs`).
+- **Decisión (2026-10-12):** al terminar cada Modelo 1, se recarga `global_ai` desde el GLOBAL del VPS.
+- **Cómo (Fase 3, ver [[Pendientes]]):** `Normalizar GLOBAL` ejecuta `Leslie/sync_global_ai.py` (versionado en `vps/` del repo) y `Cargar en global_ai` llama a la RPC `sync_global_ai()` (migración 010). La RPC reemplaza, en una transacción, todas las hojas de polo del año y deja la pasada en `global_import_runs`. La jerarquía (grupo, subgrupo, ruta) sale de `global_ai_catalogo`; si aparece un código nuevo, entra con su nombre como ruta y se avisa en `codigos_sin_catalogo`.
+- **Regla de meses vacíos:** un mes sin cargar **no tiene filas**; no es un mes con ceros. Un mes cuenta como cargado si «Ventas Totales» (código 1) tiene plan o real.
 
 ### D7 — PDF del parte diario de auditoría
 
