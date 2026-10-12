@@ -96,13 +96,18 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 **Fase 1 — Reglas escritas**
 - [x] Nota [[Generacion-Documentos]] + puntero en CLAUDE.md + incoherencias del vault corregidas.
 
-**Fase 2 — Limpieza de n8n** (en borrador; publicar solo tras probar)
-- [ ] Correo: apuntar la app al workflow «Emails» del self-hosted (`TIwrYY0MIntv5GLj`) en `.env` y en los Build Args de Easypanel; prueba de punta a punta; dar por obsoleto el de cloud.
-- [ ] Quitar la service_role key hardcodeada del nodo `HTTP Request` y pasarla a una credencial.
-- [ ] Corregir los `numberToDelete` que desbordan INT32.
-- [ ] `Search files and folders` + `Delete a file` (rama ZIP): acotar la búsqueda a la carpeta «Modelo 1» y al nombre exacto, para que no borre otros `GLOBAL*` del Drive.
-- [ ] Migrar los 5 nodos Code con `items` legacy a `$input`.
-- [ ] Prompt de Wisin: quitar el «solo enero y febrero» fijo; que consulte qué periodos hay.
+**Fase 2 — Limpieza de n8n** (borrador `c60c4bce-0aaa-4bfb-bf58-4f8d7a763c63` de «Polarier Auto App», **sin publicar**; producción sigue en `53dec2de`)
+- [x] `HTTP Request` y `HTTP Request8` descargan de Storage con la credencial `supabaseApi` «Polarier» (`a0l4Y70xe5eaZYNH`, comprobado con una sonda que es service_role). Se quita la service_role key que iba escrita a mano en el header `apikey`. Descarga comprobada con otra sonda: el PDF baja completo.
+- [x] `Search files and folders` (rama ZIP) ya solo busca `GLOBALCP-26` dentro de la carpeta «Modelo 1» (`1QRhYDffKNfDikZZdspFZf1YTDIzFXTME`). Antes buscaba `GLOBAL` en **todo** el Drive y `Delete a file` borraba todo lo que encontrara.
+- [x] `Code in JavaScript2` y `7`: `items[0]` → `$input.first()`. **No eran 5 nodos sino 3:** en `Code in JavaScript` y `6` la palabra `items` solo salía en un comentario. `Code in JavaScript3` se deja con `items` porque está en la rama `Integral`, que no se toca.
+- [x] Wisin: sin meses fijos; el periodo es AAAA-MM con el año que diga el usuario o, si no lo dice, el actual (`$now`). Probado con el chat de prueba `prueba-claude-2026-10-12`: Varadero, marzo de 2026 → 5.971.811,58 CUP, igual que en `global_ai`.
+- [x] ~~`numberToDelete` fuera de INT32~~: **ya estaba corregido** en producción (los 12 nodos usan `9999`).
+- [ ] **Publicar** el borrador (pendiente del OK de Leo).
+- [ ] **Bucket `documents` público.** Todo lo que se sube al chat se puede descargar sin sesión si se conoce la ruta; las políticas de `storage.objects` ya limitan la lectura a la carpeta de cada usuario, pero el flag `public` las salta. La app solo usa URLs firmadas, así que cerrarlo no la rompe; n8n tampoco, una vez publicado el borrador. Hacerlo **después** de publicar.
+- [ ] **Rotar la service_role key**: estuvo en claro en el JSON del workflow y sigue en el historial de versiones. Al rotarla hay que actualizar la credencial «Polarier» de n8n.
+- [ ] Correo: «Emails» del self-hosted (`TIwrYY0MIntv5GLj`) acepta el mismo payload que la app y usa el **mismo path** de webhook (`19a7f802-…`), así que basta cambiar el host en `VITE_N8N_EMAIL_WEBHOOK_URL(_TEST)` (`.env` + Build Args de Easypanel + Deploy). Antes: añadirle `replyTo = body.remitente`, que el de cloud sí tenía, y probar el envío a una dirección de Leo.
+- [ ] El webhook de correo no tiene autenticación: cualquiera que conozca la URL puede mandar correos con adjunto desde la cuenta de Quantic. Pasa igual en el de cloud. Un secreto en `VITE_*` no sirve (acaba en el bundle); la vía buena sería que la app llame a una Edge Function que firme la petición.
+- [ ] «Emails» no está en la carpeta Polarier de n8n (está en la raíz del proyecto).
 
 **Fase 3 — Global → Supabase**
 - [ ] Script en el pythonrunner que normaliza la hoja `<COD>CP<año>` actualizada al formato de `global_ai` (mismo `row_uid`), y upsert desde n8n con credencial al final de cada Modelo 1 (rama PDF y rama ZIP). Registrar la pasada en `global_import_runs`.

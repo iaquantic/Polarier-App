@@ -108,6 +108,10 @@ Ojo con los que no son obvios: Habana es `HA` en los PDF pero `LH` en el GLOBAL 
 - **Correo:** el PDF viaja como base64 en `adjunto.base64` y n8n lo convierte en binario.
 - **Respuesta al chat:** si es un fichero, binario con `Content-Disposition: attachment; filename="…"` y `Access-Control-Expose-Headers: Content-Disposition`. Si es texto, en una clave que la app reconozca (`respuesta`, `output`…). Ver [[Integracion-n8n]].
 
+### 5b. Ficheros subidos al chat
+
+La app sube cada fichero al bucket `documents` de Supabase en `<user_id>/<timestamp>-<nombre>`, y a `<user_id>/assistant/…` lo que devuelve n8n. A n8n solo le llegan los metadatos (`file.file_path`), y n8n lo descarga de Storage con la credencial `supabaseApi` «Polarier». **Nunca** con una clave escrita en un nodo. La app solo usa URLs firmadas.
+
 ### 6. Cómo se ejecuta Python
 
 El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://polarierauto_pythonrunner:8000/run` y `{ "script": "<carpeta>/<script>.py", "args": [] }`. La respuesta trae `stdout`/`stderr`. **Nunca** con `Execute Command`: los nodos que aún lo usan son la deuda de la rama Carla.
@@ -137,7 +141,7 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
   - El PDF suelto **no** refresca la copia de Drive; solo lo hace el ZIP.
   - `Search files and folders` busca `GLOBAL` en **todo** el Drive y `Delete a file` borra **todo** lo que encuentre, incluido un posible `GLOBAL-CP25`.
   - Como el script elige el Modelo 1 «más reciente», dos subidas simultáneas pueden cruzarse.
-  - Varios `Delete rows…` usan `numberToDelete` fuera de INT32 (ver [[Pendientes]]).
+  - La rama ZIP borraba cualquier `GLOBAL*` del Drive: corregido en el borrador `c60c4bce`, que está pendiente de publicar (ver [[Pendientes]]).
 
 ### D2 — TABLA CA \<año\>.xlsx (indicadores mensuales por lavandería)
 
