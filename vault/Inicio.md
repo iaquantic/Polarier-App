@@ -12,6 +12,7 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Integracion-n8n]] — Webhooks, modos prod/test, formato de respuestas.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).
 - [[Routine-Informe-Mensual]] — Informe mensual: capa de datos plana para la IA, cola y routine de Claude en la nube.
+- [[Generacion-Documentos]] — **Reglas de generación de documentos**: qué fichero dispara qué, maestros, códigos de polo, formatos, año.
 - [[Referencias-Formularios]] — Mapeo Excel original ↔ módulo de la app.
 - [[Deploy-Easypanel]] — Cómo desplegar en la VPS de Hostinger.
 - [[Decisiones]] — Registro de decisiones tomadas y su porqué.
@@ -34,6 +35,8 @@ La aplicación está **desplegada y conectada**:
 - **Supervisión (2026-09-23):** el módulo deja de ser estrictamente personal. Un **administrador** del hotel ve en el histórico los partes de todo su equipo, con el nombre de quien firmó cada uno, y los abre en solo lectura. La escritura sigue siendo personal. Migración `008` **aplicada** y `leodev0211@gmail.com` es ya **administrador** del Muthu. Detalle en [[Modulo-Auditoria]] y [[Decisiones]].
 
 **Pendiente inmediato:** commitear y desplegar el frontend (la RLS ya está abierta, pero el código que deja entrar al admin sigue en local), y decidir si el cron de la routine vuelve a ser diario. Ver [[Pendientes]].
+
+**Limpieza y reglas de documentos (2026-10-12):** se escribió [[Generacion-Documentos]] (catálogo completo de lo que genera el proyecto y de qué ficheros sale). Decisiones del día: la TABLA CA la generará un agente de n8n, `global_ai` se sincronizará al final de cada Modelo 1, el año sale del fichero y el correo pasa al n8n self-hosted. Plan por fases en [[Pendientes]].
 
 ## Cómo mantener esta memoria
 

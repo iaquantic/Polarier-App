@@ -80,7 +80,7 @@ Ver [[Routine-Informe-Mensual]] para el diseño completo y el prompt.
 ## n8n — rama Carla y enrutado de polos (2026-10-05)
 
 - [~] **Rama Carla: DESCARTADA por decision de Leo (2026-10-05).** Se queda rota en produccion, de forma consciente. El diagnostico completo y lo que haria falta para retomarla estan en [[Integracion-n8n]]. Falla en silencio: quien suba un fichero con `MU` recibe el mensaje de `error3` y no se procesa nada.
-- [ ] **Publicar el borrador `53dec2de-7a48-4c13-8bed-db505eeccd86`**, que corrige solo `Switch4`/`Switch5`. Diff reverificado el 2026-10-06: las unicas diferencias frente a produccion (`e2fa038a-20c8-46d8-a65f-d470a834c029`) son cuatro valores de comparacion; mismos 142 nodos, mismas conexiones y `Execute Command` identico. Ojo: el cambio de `Switch4` si tiene efecto real (rama Leslie, operativa), pero el de `Switch5` es inerte hasta que se arregle la rama Carla. Prueba antes de publicar: subir un `HACP...` y un `CCCP...` y comprobar que llegan a `Delete rows or columns from sheet3` y `sheet5`, las dos salidas que nunca se habian ejecutado.
+- [x] **Borrador `53dec2de-7a48-4c13-8bed-db505eeccd86` publicado**: comprobado el 2026-10-12, es la versión activa (`versionId = activeVersionId`). No consta que se hiciera la prueba con un `HACP…` y un `CCCP…`; hacerla en cuanto se suban ficheros reales. Texto original: **Publicar el borrador**, que corrige solo `Switch4`/`Switch5`. Diff reverificado el 2026-10-06: las unicas diferencias frente a produccion (`e2fa038a-20c8-46d8-a65f-d470a834c029`) son cuatro valores de comparacion; mismos 142 nodos, mismas conexiones y `Execute Command` identico. Ojo: el cambio de `Switch4` si tiene efecto real (rama Leslie, operativa), pero el de `Switch5` es inerte hasta que se arregle la rama Carla. Prueba antes de publicar: subir un `HACP...` y un `CCCP...` y comprobar que llegan a `Delete rows or columns from sheet3` y `sheet5`, las dos salidas que nunca se habian ejecutado.
 - [x] **`Switch4` y `Switch5` corregidos como borrador** (2026-10-05, borrador `f15de71c-8dfa-4705-8fbb-82618bb85f22`, sin publicar). Estaban en modo primera-coincidencia con `contains 'C'`, lo que descartaba en silencio los datos de Habana y metia los de Cayo Coco en la hoja de Cayo Cruz. Ver [[Integracion-n8n]].
 - [ ] **Revisar con el mismo criterio los demas switch** (`Switch`, `Switch1`, `Switch3`, `Switch6`): que ningun valor de regla sea subcadena de otro, dado que operan en primera-coincidencia.
 - [ ] **`Switch6` le falta la regla de Holguin** (5 salidas en vez de 6); hoy Holguin va por `If4` → `Edit Fields5`. Decidir si se unifica con `Switch1`.
@@ -88,6 +88,30 @@ Ver [[Routine-Informe-Mensual]] para el diseño completo y el prompt.
 - [ ] **`Update file1` da 404**: el fichero de Drive `1gT30p99...` ("GLOBAL-CP26") no existe o no es accesible.
 - [ ] **Migrar 5 nodos Code a `$input`**: `Code in JavaScript`, `2`, `3`, `6` y `7` usan la global legacy `items`. Funciona en 2.33.4, pero hay que hacerlo antes de cualquier salto a n8n 3.x.
 - [ ] **Quitar la service_role key de Supabase hardcodeada** en el header `apikey` del nodo `HTTP Request` de `Polarier Auto App`. Salta RLS.
+
+## Limpieza y reglas de documentos (plan del 2026-10-12)
+
+Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integral` ni los borradores `My workflow 2/3/4` y `My Sub-Workflow 1`.
+
+**Fase 1 — Reglas escritas**
+- [x] Nota [[Generacion-Documentos]] + puntero en CLAUDE.md + incoherencias del vault corregidas.
+
+**Fase 2 — Limpieza de n8n** (en borrador; publicar solo tras probar)
+- [ ] Correo: apuntar la app al workflow «Emails» del self-hosted (`TIwrYY0MIntv5GLj`) en `.env` y en los Build Args de Easypanel; prueba de punta a punta; dar por obsoleto el de cloud.
+- [ ] Quitar la service_role key hardcodeada del nodo `HTTP Request` y pasarla a una credencial.
+- [ ] Corregir los `numberToDelete` que desbordan INT32.
+- [ ] `Search files and folders` + `Delete a file` (rama ZIP): acotar la búsqueda a la carpeta «Modelo 1» y al nombre exacto, para que no borre otros `GLOBAL*` del Drive.
+- [ ] Migrar los 5 nodos Code con `items` legacy a `$input`.
+- [ ] Prompt de Wisin: quitar el «solo enero y febrero» fijo; que consulte qué periodos hay.
+
+**Fase 3 — Global → Supabase**
+- [ ] Script en el pythonrunner que normaliza la hoja `<COD>CP<año>` actualizada al formato de `global_ai` (mismo `row_uid`), y upsert desde n8n con credencial al final de cada Modelo 1 (rama PDF y rama ZIP). Registrar la pasada en `global_import_runs`.
+- [ ] Recargar `global_ai` completa una vez con el GLOBAL actual del VPS.
+
+**Fase 4 — TABLA CA con agente**
+- [ ] Regla `CD` en `Switch3` → extraer las hojas del CD → agente que decide los 28 indicadores (con celda de origen) usando `global_ai` → validación → escritor genérico (pythonrunner + openpyxl) → xlsx en el chat.
+- [ ] Año según el fichero en GLOBAL, TABLA CA y nodos (quitar `CP26`/`2025` fijos).
+- [ ] **Bloqueado:** falta `TABLA CA 2026.xlsx`; Leo la subirá a `/data/Polarier/Leslie/CD/` cuando se la den.
 
 ## Ideas / futuro
 

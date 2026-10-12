@@ -10,7 +10,11 @@ Beyond the chat, the app has an **audit module** (control de almacén hotelero) 
 
 ## Project context & history — READ THE VAULT FIRST
 
-`/vault` is an Obsidian vault (versioned in git) that is the **source of truth for project state, decisions, and history**. Before non-trivial work, read `vault/Inicio.md` (index + current state), then the relevant note. Key notes: `Modulo-Auditoria.md`, `Routine-Informe-Mensual.md`, `Supabase.md`, `Decisiones.md`, `Pendientes.md`. Keep the vault updated when something important changes.
+`/vault` is an Obsidian vault (versioned in git) that is the **source of truth for project state, decisions, and history**. Before non-trivial work, read `vault/Inicio.md` (index + current state), then the relevant note. Key notes: `Generacion-Documentos.md` (rules for every generated document: which uploaded file name triggers what, master files and where they live, polo codes, formats, year), `Modulo-Auditoria.md`, `Routine-Informe-Mensual.md`, `Supabase.md`, `Decisiones.md`, `Pendientes.md`. Keep the vault updated when something important changes.
+
+## Document generation (n8n + VPS)
+
+Read `vault/Generacion-Documentos.md` before touching any n8n branch, VPS script or app code that reads or writes documents. In short: in the chat, the **uploaded file name is the contract** (`Switch3` in n8n "Polarier Auto App" routes by substring, first match: `MU` → `CP` → `Integral` → zip → `Informe` → agent). Masters live on the VPS at `/data/Polarier/` (local copies under `C:\Trabajo\N8N\Polarier` may be stale). Python runs only through the internal pythonrunner (`POST http://polarierauto_pythonrunner:8000/run`) — the n8n container has no Python. Excel output must be real `.xlsx` (force `googleFileConversion` on Drive downloads). Polo codes differ per legacy system — use the table in that note.
 
 ## Commands
 
