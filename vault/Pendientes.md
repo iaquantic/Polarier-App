@@ -118,9 +118,11 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 - [x] **Migración `010_sync_global_ai.sql`** escrita: tabla `global_ai_catalogo` (136 códigos sembrados desde `global_ai`, porque la jerarquía no se deduce de la sangría) y función `sync_global_ai(payload)`, que reemplaza las hojas en una transacción y aborta si una hoja llega con menos de 20 filas. Solo `service_role`. **Validada en una transacción revertida:** reinyectando las 2.313 filas actuales, ningún `row_uid` perdido y ninguna fila cambiada.
 - [x] **Ejecución en seco en el VPS:** 3.436 filas, con real de enero a agosto en LH, CA y HOL, enero a julio en VAR y CCZ, y en CC enero a junio + agosto. Enero a marzo coinciden al céntimo con lo cargado el 30-ago en VAR, LH y CCZ.
 - [ ] **Hueco de datos: Cayo Coco no tiene julio de 2026 en el GLOBAL.** No se ha subido el `CCCP202607`.
-- [ ] **Aplicar la migración 010** (pendiente del OK de Leo).
-- [ ] **Primera carga completa** (reemplaza las 2.313 filas actuales por las ~3.436 del GLOBAL del VPS; pendiente del OK).
-- [ ] **Publicar el borrador `fd8ebf76`** de «Polarier Auto App» (pendiente del OK):
+- [ ] **Ventas a 0 con costes cargados.** En el propio GLOBAL, Holguín tiene la venta de Lavandería **en blanco** en abril, junio y agosto, y Cayo Cruz tiene «Ventas Totales» a 0 en marzo y de mayo a julio, mientras los gastos de esos meses sí están. O no hubo ventas, o esos PDF no traían la línea de ventas y `Modelo1.py` no la escribió. Revisar contra los PDF originales. No es un fallo de la sincronización: el Excel dice eso.
+- [x] **Migración 010 aplicada** (2026-10-12, registrada como `sync_global_ai`).
+- [x] **Primera carga completa** (2026-10-12): 2.313 filas → **3.436**, de 2026-01 a 2026-08. Aparecieron dos códigos que no estaban en la carga original, **90 «Materiales de Animación»** y **91 «Consumo e Insumo de Medicamentos»**. Se añadieron a mano a `global_ai_catalogo` bajo *Gastos indirectos › Materias Primas y Materiales* (misma sangría que 86–89) y se repitió la carga: ningún código sin catálogo y ninguna fila sin grupo.
+- [ ] **Borrar `global_ai_respaldo_20261012`** (copia de `global_ai` antes de la carga, con RLS) cuando se dé la carga por buena.
+- [x] **Publicado `fd8ebf76`** de «Polarier Auto App» (2026-10-12). Prueba en producción: Varadero, julio → 8.750.471,33 CUP, y la comparativa de mayo entre los seis polos coincide con `global_ai`. Incluye:
   - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
   - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
