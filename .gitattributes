@@ -1,0 +1,2 @@
+# Scripts del VPS: siempre LF, para que su SHA-256 coincida con la copia del servidor.
+vps/** text eol=lf
