@@ -113,10 +113,16 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 - [ ] El webhook de correo no tiene autenticación: cualquiera que conozca la URL puede mandar correos con adjunto desde la cuenta de Quantic. Pasa igual en el de cloud. Un secreto en `VITE_*` no sirve (acaba en el bundle); la vía buena sería que la app llame a una Edge Function que firme la petición.
 - [ ] «Emails» no está en la carpeta Polarier de n8n (está en la raíz del proyecto).
 
-**Fase 3 — Global → Supabase**
-- [ ] **Los meses vacíos no pueden quedar como 0.** La carga del 30-ago guardó abril, mayo y junio a `real = 0` (y marzo de Holguín con 63.036 CUP, que parece parcial), así que a Wisin le parece que «no hubo ventas» cuando en realidad no hay datos. Un mes sin datos en el GLOBAL debe quedar en `null` o no insertarse.
-- [ ] Script en el pythonrunner que normaliza la hoja `<COD>CP<año>` actualizada al formato de `global_ai` (mismo `row_uid`), y upsert desde n8n con credencial al final de cada Modelo 1 (rama PDF y rama ZIP). Registrar la pasada en `global_import_runs`.
-- [ ] Recargar `global_ai` completa una vez con el GLOBAL actual del VPS.
+**Fase 3 — Global → Supabase** (rama `n8n/fase3-sync-global-ai`)
+- [x] **Script `vps/Polarier/Leslie/sync_global_ai.py`** (versionado en el repo y subido al VPS, SHA-256 `cb7abd3d…` comprobado). Evalúa las fórmulas del GLOBAL, que `Modelo1.py` deja sin valor cacheado al guardar con openpyxl. Un mes cuenta como cargado solo si «Ventas Totales» (código 1) tiene plan o real: así los meses futuros de la plantilla no entran como ceros. Dentro de un mes cargado, la semántica es la de Excel (un SUM sobre celdas vacías da 0), igual que el importador original. Solo lee: imprime JSON.
+- [x] **Migración `010_sync_global_ai.sql`** escrita: tabla `global_ai_catalogo` (136 códigos sembrados desde `global_ai`, porque la jerarquía no se deduce de la sangría) y función `sync_global_ai(payload)`, que reemplaza las hojas en una transacción y aborta si una hoja llega con menos de 20 filas. Solo `service_role`. **Validada en una transacción revertida:** reinyectando las 2.313 filas actuales, ningún `row_uid` perdido y ninguna fila cambiada.
+- [x] **Ejecución en seco en el VPS:** 3.436 filas, con real de enero a agosto en LH, CA y HOL, enero a julio en VAR y CCZ, y en CC enero a junio + agosto. Enero a marzo coinciden al céntimo con lo cargado el 30-ago en VAR, LH y CCZ.
+- [ ] **Hueco de datos: Cayo Coco no tiene julio de 2026 en el GLOBAL.** No se ha subido el `CCCP202607`.
+- [ ] **Aplicar la migración 010** (pendiente del OK de Leo).
+- [ ] **Primera carga completa** (reemplaza las 2.313 filas actuales por las ~3.436 del GLOBAL del VPS; pendiente del OK).
+- [ ] **Publicar el borrador `fd8ebf76`** de «Polarier Auto App» (pendiente del OK):
+  - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
+  - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
 **Fase 4 — TABLA CA con agente**
 - [ ] Regla `CD` en `Switch3` → extraer las hojas del CD → agente que decide los 28 indicadores (con celda de origen) usando `global_ai` → validación → escritor genérico (pythonrunner + openpyxl) → xlsx en el chat.
