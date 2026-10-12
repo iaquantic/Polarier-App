@@ -54,7 +54,7 @@ Ver [[Routine-Informe-Mensual]] para el diseño completo y el prompt.
 - [x] Edge Function `disparar-informe-mensual` escrita.
 
 - [x] **Migración `009_borradores_no_son_desviacion.sql` aplicada** (2026-10-06, registrada como `borradores_no_son_desviacion`). Añade el valor `borrador` a `audit_mes_dias.clasificacion`: un parte sin cerrar ya no se cuenta como caída de producción, igual que en el dashboard. Escrita sobre la versión de la vista que dejó la 007, no sobre la 006. Verificado después de aplicar: las 25 columnas siguen ahí y las 7 filas conservan `dotacion_hotel`, así que el join de la 007 no se perdió; los 2 partes en borrador del 5-oct pasan a `borrador` y los días a cero siguen en `sin_datos` (la precedencia sin_datos > borrador > umbrales funciona).
-- [ ] **Sincronizar el prompt de la routine con la 009** (por API, como las veces anteriores): la lista de valores de `clasificacion` ya está actualizada en [[Routine-Informe-Mensual]], pero el prompt que vive en la routine de la nube todavía no incluye `borrador`. Si se aplica la migración sin tocar el prompt, la IA verá una etiqueta que no sabe interpretar.
+- [x] **Prompt de la routine sincronizado con la 009** (2026-10-06, pegado a mano en el campo *Instructions*). Ya conoce el valor `borrador` y separa explícitamente los días desviados de los partes sin cerrar, para no contar dos veces la misma jornada. El texto vigente está en [[Routine-Informe-Mensual]].
 
 **Para poner en marcha (pasos manuales, en este orden):**
 
@@ -80,7 +80,7 @@ Ver [[Routine-Informe-Mensual]] para el diseño completo y el prompt.
 ## n8n — rama Carla y enrutado de polos (2026-10-05)
 
 - [~] **Rama Carla: DESCARTADA por decision de Leo (2026-10-05).** Se queda rota en produccion, de forma consciente. El diagnostico completo y lo que haria falta para retomarla estan en [[Integracion-n8n]]. Falla en silencio: quien suba un fichero con `MU` recibe el mensaje de `error3` y no se procesa nada.
-- [ ] **Publicar el borrador `53dec2de-7a48-4c13-8bed-db505eeccd86`**, que corrige solo `Switch4`/`Switch5`. Diff reverificado el 2026-10-06: las unicas diferencias frente a produccion (`e2fa038a-20c8-46d8-a65f-d470a834c029`) son cuatro valores de comparacion; mismos 142 nodos, mismas conexiones y `Execute Command` identico. Ojo: el cambio de `Switch4` si tiene efecto real (rama Leslie, operativa), pero el de `Switch5` es inerte hasta que se arregle la rama Carla. Prueba antes de publicar: subir un `HACP...` y un `CCCP...` y comprobar que llegan a `Delete rows or columns from sheet3` y `sheet5`, las dos salidas que nunca se habian ejecutado.
+- [x] **Borrador `53dec2de-7a48-4c13-8bed-db505eeccd86` publicado**: comprobado el 2026-10-12, es la versión activa (`versionId = activeVersionId`). No consta que se hiciera la prueba con un `HACP…` y un `CCCP…`; hacerla en cuanto se suban ficheros reales. Texto original: **Publicar el borrador**, que corrige solo `Switch4`/`Switch5`. Diff reverificado el 2026-10-06: las unicas diferencias frente a produccion (`e2fa038a-20c8-46d8-a65f-d470a834c029`) son cuatro valores de comparacion; mismos 142 nodos, mismas conexiones y `Execute Command` identico. Ojo: el cambio de `Switch4` si tiene efecto real (rama Leslie, operativa), pero el de `Switch5` es inerte hasta que se arregle la rama Carla. Prueba antes de publicar: subir un `HACP...` y un `CCCP...` y comprobar que llegan a `Delete rows or columns from sheet3` y `sheet5`, las dos salidas que nunca se habian ejecutado.
 - [x] **`Switch4` y `Switch5` corregidos como borrador** (2026-10-05, borrador `f15de71c-8dfa-4705-8fbb-82618bb85f22`, sin publicar). Estaban en modo primera-coincidencia con `contains 'C'`, lo que descartaba en silencio los datos de Habana y metia los de Cayo Coco en la hoja de Cayo Cruz. Ver [[Integracion-n8n]].
 - [ ] **Revisar con el mismo criterio los demas switch** (`Switch`, `Switch1`, `Switch3`, `Switch6`): que ningun valor de regla sea subcadena de otro, dado que operan en primera-coincidencia.
 - [ ] **`Switch6` le falta la regla de Holguin** (5 salidas en vez de 6); hoy Holguin va por `If4` → `Edit Fields5`. Decidir si se unifica con `Switch1`.
@@ -88,6 +88,40 @@ Ver [[Routine-Informe-Mensual]] para el diseño completo y el prompt.
 - [ ] **`Update file1` da 404**: el fichero de Drive `1gT30p99...` ("GLOBAL-CP26") no existe o no es accesible.
 - [ ] **Migrar 5 nodos Code a `$input`**: `Code in JavaScript`, `2`, `3`, `6` y `7` usan la global legacy `items`. Funciona en 2.33.4, pero hay que hacerlo antes de cualquier salto a n8n 3.x.
 - [ ] **Quitar la service_role key de Supabase hardcodeada** en el header `apikey` del nodo `HTTP Request` de `Polarier Auto App`. Salta RLS.
+
+## Limpieza y reglas de documentos (plan del 2026-10-12)
+
+Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integral` ni los borradores `My workflow 2/3/4` y `My Sub-Workflow 1`.
+
+**Fase 1 — Reglas escritas**
+- [x] Nota [[Generacion-Documentos]] + puntero en CLAUDE.md + incoherencias del vault corregidas.
+
+**Fase 2 — Limpieza de n8n** (`c60c4bce-0aaa-4bfb-bf58-4f8d7a763c63` **publicada** el 2026-10-12 con el OK de Leo; antes, `53dec2de`)
+- [x] `HTTP Request` y `HTTP Request8` descargan de Storage con la credencial `supabaseApi` «Polarier» (`a0l4Y70xe5eaZYNH`, comprobado con una sonda que es service_role). Se quita la service_role key que iba escrita a mano en el header `apikey`. Descarga comprobada con otra sonda: el PDF baja completo.
+- [x] `Search files and folders` (rama ZIP) ya solo busca `GLOBALCP-26` dentro de la carpeta «Modelo 1» (`1QRhYDffKNfDikZZdspFZf1YTDIzFXTME`). Antes buscaba `GLOBAL` en **todo** el Drive y `Delete a file` borraba todo lo que encontrara.
+- [x] `Code in JavaScript2` y `7`: `items[0]` → `$input.first()`. **No eran 5 nodos sino 3:** en `Code in JavaScript` y `6` la palabra `items` solo salía en un comentario. `Code in JavaScript3` se deja con `items` porque está en la rama `Integral`, que no se toca.
+- [x] Wisin: sin meses fijos; el periodo es AAAA-MM con el año que diga el usuario o, si no lo dice, el actual (`$now`). Probado con el chat de prueba `prueba-claude-2026-10-12`: Varadero, marzo de 2026 → 5.971.811,58 CUP, igual que en `global_ai`.
+- [x] ~~`numberToDelete` fuera de INT32~~: **ya estaba corregido** en producción (los 12 nodos usan `9999`).
+- [x] **Publicado** `c60c4bce` (2026-10-12). Prueba de humo contra la URL de producción: HTTP 200 y respuesta del agente.
+- [x] **Benjamin también tenía fijo «Actualmente el Global tiene datos de enero y febrero 2026»** y contestaba «no disponible» **sin consultar a Wisin**. Corregido y **publicado** como `c840d9a2` (2026-10-12). Prueba en producción (Cayo Coco, febrero de 2026 → 9.582.183 CUP) coincide con `global_ai`.
+- [ ] **Bucket `documents` público.** Todo lo que se sube al chat se puede descargar sin sesión si se conoce la ruta; las políticas de `storage.objects` ya limitan la lectura a la carpeta de cada usuario, pero el flag `public` las salta. La app solo usa URLs firmadas, así que cerrarlo no la rompe; n8n tampoco, una vez publicado el borrador. Hacerlo **después** de publicar.
+- [ ] **Rotar la service_role key**: estuvo en claro en el JSON del workflow y sigue en el historial de versiones. Al rotarla hay que actualizar la credencial «Polarier» de n8n.
+- [x] **Credencial «Gmail Quantic» (`7kBjPaDgbooOLT3C`) reconectada** por Leo (2026-10-12), después de que la ejecución 429 fallara. Envío de prueba a `leodev0211@gmail.com` desde producción: OK.
+- [x] **«Emails» respondía 200 aunque fallara el envío.** **Publicado** (2026-10-12, versión `0eaa41b2`): si falla Gmail, `Send a message1` sale por error y el nodo `Responder error` devuelve **502** con `{ok:false,error}`; se probó primero con 502, pero **el proxy de Easypanel sustituye los 502 por su página HTML «Service is not reachable»**, así que se dejó en **500**. Comprobado contra producción: `HTTP 500 {"ok":false,"error":"Invalid email address (item 0)"}`. El mismo cambio añade **`replyTo = body.remitente`**. Probados los dos caminos: destinatario inválido → `Responder error`; envío real → `SENT`. 
+- [x] Correo migrado al self-hosted en el lado app: `.env` local y `DEPLOY.md` apuntan a `polarierauto-n8n…/webhook(-test)/19a7f802-…` (mismo path que en cloud).
+- [ ] **En Easypanel:** cambiar los Build Args `VITE_N8N_EMAIL_WEBHOOK_URL` y `_TEST` al host `polarierauto-n8n.1tn4v0.easypanel.host` y pulsar **Deploy**. Hasta entonces, la app desplegada sigue enviando por n8n cloud.
+- [ ] El webhook de correo no tiene autenticación: cualquiera que conozca la URL puede mandar correos con adjunto desde la cuenta de Quantic. Pasa igual en el de cloud. Un secreto en `VITE_*` no sirve (acaba en el bundle); la vía buena sería que la app llame a una Edge Function que firme la petición.
+- [ ] «Emails» no está en la carpeta Polarier de n8n (está en la raíz del proyecto).
+
+**Fase 3 — Global → Supabase**
+- [ ] **Los meses vacíos no pueden quedar como 0.** La carga del 30-ago guardó abril, mayo y junio a `real = 0` (y marzo de Holguín con 63.036 CUP, que parece parcial), así que a Wisin le parece que «no hubo ventas» cuando en realidad no hay datos. Un mes sin datos en el GLOBAL debe quedar en `null` o no insertarse.
+- [ ] Script en el pythonrunner que normaliza la hoja `<COD>CP<año>` actualizada al formato de `global_ai` (mismo `row_uid`), y upsert desde n8n con credencial al final de cada Modelo 1 (rama PDF y rama ZIP). Registrar la pasada en `global_import_runs`.
+- [ ] Recargar `global_ai` completa una vez con el GLOBAL actual del VPS.
+
+**Fase 4 — TABLA CA con agente**
+- [ ] Regla `CD` en `Switch3` → extraer las hojas del CD → agente que decide los 28 indicadores (con celda de origen) usando `global_ai` → validación → escritor genérico (pythonrunner + openpyxl) → xlsx en el chat.
+- [ ] Año según el fichero en GLOBAL, TABLA CA y nodos (quitar `CP26`/`2025` fijos).
+- [ ] **Bloqueado:** falta `TABLA CA 2026.xlsx`; Leo la subirá a `/data/Polarier/Leslie/CD/` cuando se la den.
 
 ## Ideas / futuro
 

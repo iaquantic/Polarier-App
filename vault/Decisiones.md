@@ -4,6 +4,15 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-12 — Reglas de generación de documentos y limpieza
+
+- **Contexto:** las reglas de qué fichero genera qué documento solo existían dentro de los nodos de n8n y de los scripts del VPS. Cada sistema heredado usa su propio código de polo y el año va fijo en varios sitios. Se escribieron en [[Generacion-Documentos]].
+- **TABLA CA con un agente de n8n**, no con `rellenar_ca.py`. El script buscaba etiquetas con desplazamientos fijos y se rompía con cualquier cambio de formato (además, apuntaba a las hojas `*CP2025` mientras leía `GLOBAL-CP26`). Leo eligió que el agente decida todos los valores. Como salvaguarda, cada valor va con su celda de origen y un nodo valida las sumas antes de escribir. Maestro en el VPS y respuesta en el chat.
+- **`global_ai` se sincroniza al final de cada Modelo 1.** Se cargó una sola vez (30-ago, enero–junio) y Wisin respondía con datos viejos.
+- **El año sale del fichero.** Nada de `CP26`/`2025` fijos.
+- **Correo por el n8n self-hosted** («Emails»), para tener una sola instancia.
+- **Se dejan como están:** la rama Carla (decisión del 2026-10-05), la rama `Integral` (funciona pero no se usa) y los borradores `My workflow 2/3/4` y `My Sub-Workflow 1`.
+
 ## 2026-09-23 — El administrador ve los partes de todo su hotel
 
 - **Contexto:** la RLS del módulo era estrictamente personal (`user_id = auth.uid()`).

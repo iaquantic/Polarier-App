@@ -69,7 +69,7 @@ Envío del informe de auditoría por correo con el PDF adjunto. **Instancia dist
 
 **Remitente:** técnicamente el correo lo despacha la cuenta Gmail de n8n (Alejandro) — Supabase Auth **no** da acceso SMTP del usuario, así que no se puede enviar "desde" su dirección (fallaría SPF/DKIM/DMARC). Para acercarlo: `senderName` = **nombre del usuario logueado** (`remitente_nombre`) y `replyTo` = **su email** (`remitente`). Así se ve a su nombre y las respuestas le llegan. Enviar realmente desde la cuenta del usuario exigiría OAuth `gmail.send` por usuario (módulo aparte, no hecho). Ver [[Pendientes]].
 
-Pendiente: **activar** el workflow (toggle *Active*) para prod; en test hay que ponerlo a *Listen for test event*. Ver [[Pendientes]].
+> **2026-10-12 — migrado al self-hosted** (`.env` y `DEPLOY.md` actualizados; falta el Deploy de Easypanel con los Build Args nuevos). «Emails» lleva ahora `replyTo = body.remitente` y, si falla Gmail, responde **500** con `{ok:false,error}` (no 502: Easypanel tapa los 502 con su página HTML). Lo que sigue es el texto original de la decisión: Existe un workflow equivalente, **«Emails»** (`TIwrYY0MIntv5GLj`, activo), en `polarierauto-n8n`. Decisión: el correo pasa a ese, y el de cloud queda obsoleto en cuanto se pruebe. A fecha de hoy la app sigue apuntando a cloud y «Emails» no tiene ninguna ejecución. Ver [[Generacion-Documentos]] (D9) y [[Pendientes]].
 
 ## MCP de n8n
 
