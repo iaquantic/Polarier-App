@@ -64,10 +64,11 @@ supabase functions deploy disparar-informe-mensual
 | Bucket | Uso | Notas |
 |--------|-----|-------|
 | `avatars` | Fotos de perfil | público, máx 2MB |
-| `documents` | Archivos de chat | **privado** (URLs firmadas), máx 50MB, sin restricción de MIME |
+| `documents` | Archivos de chat | **privado** (URLs firmadas), máx 50MB, sin restricción de MIME. **Ojo:** hasta el 2026-10-12 estaba en realidad **público** en Supabase, aunque aquí ponía privado. Se cerró ese día (ver [[Pendientes]]). El límite de 50MB solo lo aplica la app (`storage.ts`): el bucket no tiene `file_size_limit` |
 | `informes-mensuales` | PDF del informe mensual | **privado**, ruta `{hotel_id}/{anio}-{mes}.pdf`. Creado en la migración 005; todavía sin usar (`pdf_url` va a `null`) |
 
-- Los archivos privados se sirven con `createSignedUrl`.
+- Los archivos privados se sirven con `createSignedUrl`. n8n los descarga con la credencial `supabaseApi` «Polarier» (service_role).
+- Las políticas de `storage.objects` limitan la lectura y escritura de `documents` a la carpeta `<user_id>/` de cada usuario. Con el bucket público, esas políticas no protegían nada: cualquiera con la ruta descargaba el fichero.
 - El límite de subida es **50MB** (subido desde 20MB para soportar ZIP/RAR). Ver [[Decisiones]].
 
 ## Borrado de datos (importante)
