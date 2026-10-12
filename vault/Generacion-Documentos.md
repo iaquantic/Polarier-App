@@ -200,4 +200,4 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 
 - **Dónde:** `EnviarCorreoModal` → `src/services/informeCorreo.ts` → webhook n8n.
 - **Remitente:** cuenta fija, con `senderName` = usuario y `replyTo` = su email. No se puede enviar «desde» el usuario (ver [[Decisiones]]).
-- **Decisión (2026-10-12):** el correo pasa al workflow **«Emails»** del n8n self-hosted (`TIwrYY0MIntv5GLj`) y se deja de usar el de n8n cloud (`automate-cuba24`, `Komb1YycRFKXTvkX`). A fecha de hoy la app **todavía** apunta al de cloud, y «Emails» no tiene ni una ejecución, así que hay que probarlo de punta a punta antes de cambiar.
+- **Decisión (2026-10-12):** el correo pasa al workflow **«Emails»** del n8n self-hosted (`TIwrYY0MIntv5GLj`) y se deja de usar el de n8n cloud (`automate-cuba24`, `Komb1YycRFKXTvkX`). Probado de punta a punta el 2026-10-12. `.env` y `DEPLOY.md` ya apuntan al self-hosted; **falta el Deploy de Easypanel** con los Build Args nuevos. «Emails» devuelve `{ok:true,id}` o, si falla Gmail, **HTTP 500** con `{ok:false,error}`. **No usar 502:** el proxy de Easypanel lo sustituye por su página HTML.
