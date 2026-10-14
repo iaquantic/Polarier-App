@@ -126,7 +126,7 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
   - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
-**Fase 4 — TABLA CA con agente** (en producción; versión activa de «Polarier Auto App»: `a4b17be8`, 2026-10-14)
+**Fase 4 — TABLA CA con agente** (en producción; versión activa de «Polarier Auto App»: `a5d9424d`, 2026-10-14)
 - [x] Regla en `Switch3` → `Agente TABLA CA` (Claude Sonnet 5.5) con herramientas sobre `Leslie/CD/agente_ca.py` → respuesta JSON con el resumen y la tabla. Diseño y mapa en [[Generacion-Documentos]] (D2).
 - [x] App: una respuesta JSON con `archivo` (base64) se pinta como texto + tarjeta de descarga (PR #11).
 - [x] **Mapa rehecho con datos reales** (2026-10-14): seis CA de abril de 2025 (`C:\Users\Leo\Desktop\CA`) y TABLA CA 2026. Ficheros `<POLO>CA<AAAAMM>` (antes se esperaba `CD`). Las cifras económicas salen de las filas del GLOBAL que enlaza la tabla, hay químicos por producto, transporte con el criterio de cada polo y avisos deterministas. Validado con `validar_mapeo.py` (151/168 y 219/246; los químicos, 100 %).
@@ -150,6 +150,11 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 - [x] **GLOBAL de años cerrados** (PR #14). En esa prueba no encontró `GLOBAL-CP25.xlsx`.
   - Ahora `agente_ca.py` lo busca como `agente_modelo1.py`: `Leslie/`, después `Leslie/Leslie Global <año>/` y `/data/Polarier/Leslie Global <año>/`, y por último la copia antigua de `CD/`.
   - En el VPS (ejecución 487, SHA-256 `32f3a186…`), el VAB de Cayo Coco de abril de 2025 sale 12.882.523,02, igual que en la tabla.
+- [x] **El mensaje del chat solo lleva los avisos** (versión `a5d9424d`, petición de Leo). Va el título «TABLA CA <año> · <polo> · <mes>» y debajo una línea por aviso, o «Sin avisos.». Ya no lista lo escrito ni lo que quedó sin cambios (se ve en el Excel), ni las filas con fórmula. Prompt en `n8n/agente-tabla-ca/prompt-sistema.txt`.
+- [x] **Coste medido:** unos 0,075 $ por CA. La ejecución 486 hizo 2 llamadas al modelo: 25,8k tokens de entrada y 2,3k de salida en Sonnet 5.5, a 2 $ y 10 $ por millón. Un CA que obligue a revisar varias hojas puede llegar a 15–20 céntimos: con 6 polos, menos de 1 $ al mes. Haiku 5.5 costaría unas 20 veces menos, pero detecta peor incoherencias como la del agua, así que se mantiene Sonnet.
+- [x] **Tabla destino** (confirmado por Leo): en producción solo llegarán CA de 2026, que van a TABLA CA 2026, bloque «AÑO ACTUAL», hoja del polo y columna del mes. Es lo que ya hace el agente, que elige la tabla por el año del nombre del fichero. Los CA de 2025 de prueba escribieron en la TABLA CA 2025, una copia antigua que queda en el servidor.
+- [x] **TABLA CA 2025 restaurada** (ejecución 491, flujo temporal archivado) desde `respaldos/TABLA CA 2025 20261014-180952.xlsx`, tomado justo antes de la prueba 486. Comprobado: abril de Cayo Coco vuelve a CDT 74,21 y CDO 81,4, con los 6 químicos vacíos. La versión que dejó la prueba está guardada como `CD/TABLA CA 2025 antes-de-restaurar 20261014.xlsx`; se puede borrar.
+- Ojo: n8n **no puede escribir en `CD/respaldos/`** (EACCES; la carpeta la crea el pythonrunner). Un flujo de n8n solo puede leer de ahí; cualquier copia que haga n8n va a `CD/`.
 - [ ] Prueba con un CA de 2026 cuya columna esté vacía en la tabla (escritura real de un mes nuevo) y con el de Holguín (46 MB). La segunda subida de Leo del 2026-10-14 no llegó a n8n.
 - [ ] Decidir si el agente rellena también **PLAN TURISTAS DÍAS** y **PRODUCTIVIDAD**, que en el bloque del año son celdas de valor. Hoy no se tocan: el plan del CA no coincide con el de la tabla en Cayo Cruz y La Habana, y la productividad de la tabla no sale de ningún dato del CA que se haya podido identificar.
 - [ ] Retirar `Leslie/CD/rellenar_ca.py` del VPS.

@@ -238,7 +238,8 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
     - el estado de la tabla, con las fórmulas, los meses previos y los químicos.
   - **El escritor** nunca pisa fórmulas, solo acepta las 28 claves y los productos que tienen fila, y guarda una copia en `CD/respaldos/` (las 15 últimas). Las celdas que ya tienen ese valor no se reescriben y salen en `sin_cambios`: re-subir un CA ya cargado no guarda ni respalda nada.
   - **Prompt del agente:** `n8n/agente-tabla-ca/prompt-sistema.txt`. **Operaciones:** `n8n/agente-tabla-ca/operaciones-mapa-ca.json`.
-  - **Respuesta:** JSON `{respuesta, archivo}`. La app pinta el resumen con la tabla debajo.
+  - **Respuesta:** JSON `{respuesta, archivo}`. La app pinta el texto con la tabla debajo. El texto lleva **solo los avisos**: el título «TABLA CA <año> · <polo> · <mes>» y una línea por aviso, o «Sin avisos.». Lo escrito se ve en el Excel (decisión de Leo, 2026-10-14).
+  - **Tabla destino:** la del año del CA, bloque «AÑO ACTUAL». En producción solo llegan CA de 2026, que van a TABLA CA 2026.
   - **Guardar con openpyxl** conserva los vínculos externos al GLOBAL, los 181 gráficos y los comentarios. Pierde la cadena de cálculo (Excel la rehace al abrir) y la configuración de impresora.
 
 ### D3 — COMU \<MES\> GENERAL.xlsx (Carla)
