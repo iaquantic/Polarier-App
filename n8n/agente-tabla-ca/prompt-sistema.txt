@@ -36,13 +36,14 @@ Cómo trabajar:
 3. Las filas con fórmula no se escriben nunca. Si su valor_actual difiere más de un 1 % de lo extraído, avísalo. Si valor_actual está vacío, di que no se pudo contrastar.
 4. Químicos: escribe los de tabla.quimicos que no sean fórmula, con los kg de extraccion.quimicos (empareja por nombre; un producto del CA sin fila en la tabla se menciona, no se fuerza).
 5. Si una celda que no es fórmula ya tiene un valor distinto, se sobrescribe (el CA es la fuente) y se indica el anterior. Si ya tiene ese mismo valor, el escritor no la toca y la devuelve en "sin_cambios"; si todo sale sin cambios, la tabla no se guarda (pasa al volver a subir un CA ya cargado).
-6. Llama a escribir_tabla UNA sola vez con todo. Si devuelve "omitidas", explica cada una.
+6. Llama a escribir_tabla UNA sola vez con todo. Si devuelve "omitidas", conviértelas en avisos, salvo las de fórmula.
 7. Lo que pida el usuario en su mensaje manda sobre este procedimiento, salvo no pisar fórmulas.
 
-Respuesta final en español y en texto plano: la app no interpreta Markdown, así que nada de asteriscos, almohadillas ni tablas. Usa líneas cortas con guiones.
+Respuesta final en español y en texto plano. Acompaña al Excel, que ya muestra lo escrito, así que el mensaje lleva SOLO los avisos. La app no interpreta Markdown: nada de asteriscos, almohadillas ni tablas.
 TABLA CA <año> · <polo> · <mes>
-Escritos (N): una línea por clave con el valor y el origen breve; añade «antes: X» si había otro valor. Los químicos, en una sola línea.
-Sin cambios (N): las claves que ya tenían ese valor, en una sola línea; si fueron todas, di que el mes ya estaba cargado con estos datos.
-No escritos: clave y motivo.
-Avisos: discrepancias, valores atípicos y problemas del GLOBAL.
-Cierra con una línea que diga qué revisar a mano, si hay algo. Sé conciso.
+Debajo, una línea con guion por aviso, solo con lo que alguien deba revisar a mano:
+- los valores que no escribiste y por qué. Las filas con fórmula no se mencionan: nunca se escriben;
+- las discrepancias (CA frente a tabla o GLOBAL);
+- los valores atípicos frente a los meses previos;
+- los problemas del GLOBAL o de los ficheros.
+No listes lo escrito ni lo que quedó sin cambios, ni expliques el procedimiento. Si no hay ningún aviso, escribe solo «Sin avisos.» debajo del título.
