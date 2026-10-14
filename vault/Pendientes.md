@@ -126,15 +126,19 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
   - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
-**Fase 4 — TABLA CA con agente** (borrador `cc4c1c39` de «Polarier Auto App», **sin publicar**; rama `leslie/agente-tabla-ca` del repo)
-- [x] Regla `Leslie CD` en `Switch3` (regex `^(LH|HA|VA|CA|CC|CCX|CX|CCZ|HOL|HO)CD…`) → `Agente TABLA CA` (Claude Sonnet 5.5) con herramientas sobre `Leslie/CD/agente_ca.py` → respuesta JSON con el resumen y la tabla. Diseño en [[Generacion-Documentos]] (D2).
-- [x] Año según el fichero: `agente_ca.py` deduce año, mes, polo, GLOBAL, hoja y tabla del nombre del CD. No hay años fijos en los nodos nuevos.
-- [x] App: una respuesta JSON con `archivo` (base64) se guarda en Storage y se pinta como texto + tarjeta de descarga (`chat.ts` → `attachedFileMarker`, `ChatMessage.tsx`). Tests en `src/test/ChatMessage.test.tsx`.
-- [ ] **Subir `vps/Polarier/Leslie/CD/agente_ca.py` al VPS** (`/data/Polarier/Leslie/CD/`) y comprobar el `script_sha256` que devuelve `preparar`. No se pudo hacer desde la sesión: el webhook temporal para escribirlo lo bloqueó el control de permisos.
-- [ ] **Bloqueado:** falta `TABLA CA 2026.xlsx` en `/data/Polarier/Leslie/CD/`. Leo la subirá cuando se la den. Antes de probar, revisar que tenga la cabecera de meses y las claves en la columna A como la 2025.
-- [ ] **Bloqueado:** falta un CD real de ejemplo para la primera prueba de punta a punta. El script solo se ha probado con un CD sintético y con el GLOBAL y la TABLA 2025 en local.
-- [ ] Prueba de punta a punta en test (subir un `CACD2026MM.xlsx` al chat) y, si va bien, **publicar** el borrador y desplegar la app.
-- [ ] Retirar `Leslie/CD/rellenar_ca.py` del VPS cuando el agente esté en producción.
+**Fase 4 — TABLA CA con agente** (en producción desde `57fca139`; el mapa nuevo está en el borrador del 2026-10-14, **sin publicar**)
+- [x] Regla en `Switch3` → `Agente TABLA CA` (Claude Sonnet 5.5) con herramientas sobre `Leslie/CD/agente_ca.py` → respuesta JSON con el resumen y la tabla. Diseño y mapa en [[Generacion-Documentos]] (D2).
+- [x] App: una respuesta JSON con `archivo` (base64) se pinta como texto + tarjeta de descarga (PR #11).
+- [x] **Mapa rehecho con datos reales** (2026-10-14): seis CA de abril de 2025 (`C:\Users\Leo\Desktop\CA`) y TABLA CA 2026. Ficheros `<POLO>CA<AAAAMM>` (antes se esperaba `CD`). Las cifras económicas salen de las filas del GLOBAL que enlaza la tabla, hay químicos por producto, transporte con el criterio de cada polo y avisos deterministas. Validado con `validar_mapeo.py` (151/168 y 219/246; los químicos, 100 %).
+- [ ] **Subir al VPS** `vps/Polarier/Leslie/CD/agente_ca.py` (nuevo) en `/data/Polarier/Leslie/CD/`, junto con `TABLA CA 2026.xlsx`. Comprobar el `script_sha256` que devuelve `preparar`. Necesita `sync_global_ai.py` en `/data/Polarier/Leslie/`, que ya está.
+- [ ] **Publicar el borrador** de «Polarier Auto App» (6 operaciones sobre el autoguardado `e09b8068` del editor). Incluye:
+  - `Switch3` «Leslie CA» acepta `CA` y `CD` sin distinguir mayúsculas;
+  - `escribir_tabla` acepta `quimicos`;
+  - prompt nuevo.
+  - **Al publicar entran también los cambios del editor de Leo:** rama «Informe» quitada (su salida queda sin conectar, así que un fichero con «Informe» en el nombre no recibe respuesta), nota adhesiva y `caseSensitive: true` en las reglas Modelo 1 y Comprimido. Con esto último, un `VACP202601.PDF` en mayúsculas ya no entra por Modelo 1.
+- [ ] Prueba real en el chat: subir un CA de 2026 cuya columna esté vacía en la tabla y revisar el resumen y el xlsx.
+- [ ] Decidir si el agente rellena también **PLAN TURISTAS DÍAS** y **PRODUCTIVIDAD**, que en el bloque del año son celdas de valor. Hoy no se tocan: el plan del CA no coincide con el de la tabla en Cayo Cruz y La Habana, y la productividad de la tabla no sale de ningún dato del CA que se haya podido identificar.
+- [ ] Retirar `Leslie/CD/rellenar_ca.py` del VPS.
 
 **Fase 5 — Agente Modelo 1** (2026-10-14; sustituye a la rama CP, a la rama ZIP y a `Modelo1.py`; diseño en [[Generacion-Documentos]], D1)
 - [x] `vps/Polarier/Leslie/agente_modelo1.py` con los comandos `preparar`, `ver_filas`, `ver_pdf`, `ver_global`, `escribir`, `verificar` y `cerrar`. Probado en local con los 5 PDF reales del escritorio (`Modelos 1`) contra copias del GLOBAL-CP25 y el GLOBAL-CP26:
@@ -160,8 +164,11 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 - [x] **RAR:** Leo desplegó `vps/pythonrunner/pythonrunner-upload.zip` el 2026-10-14. El runner se creó subiendo un ZIP y no tiene otra forma de cambiarse: ver `vps/pythonrunner/README.md`.
   - Ahora lleva `bsdtar` 3.7.4 y `pypdf` 6.10.2 instalados en la imagen, y Python 3.12.15.
   - Comprobado con la ejecución 475 del flujo «DIAG - Prueba RAR Modelo 1» (ya archivado): un RAR5 con un PDF sintético de Cayo Coco, Octubre/2025, pasa por `preparar`. Lo desempaqueta, lee las 2 filas sin dudas, encuentra `GLOBAL-CP25.xlsx` (hoja `CCCP2025`, columnas AP/AQ) y ve que los valores ya coinciden. `cerrar` borró el lote.
-- [ ] Necesita la app con el soporte de `archivo` en JSON (fase 4, `chat.ts` y `ChatMessage.tsx`) desplegada.
-- [ ] Prueba de punta a punta en test: un PDF suelto, un ZIP con varios y un RAR. Después, publicar.
+- [x] App con el soporte de `archivo` en JSON desplegada (PR #11 en `main`, 2026-10-14).
+- [x] **Publicado** el 2026-10-14 por Leo: versión activa `57fca139`, idéntica al borrador `0cc3900d`. Con ella sale también la rama de la TABLA CA, que fallará con un mensaje de error hasta que estén en el servidor `agente_ca.py` y `TABLA CA 2026.xlsx`.
+- [ ] Prueba real en el chat:
+  - primero `VACP202601.PDF`, que no debe cambiar nada (0 celdas, 34 fórmulas conservadas);
+  - después un ZIP o RAR con los de octubre de 2025, que escribe en el GLOBAL-CP25 sobre todo Cayo Cruz.
 - [ ] Cuando esté en producción: retirar `Leslie/Modelo1.py` del VPS, los Sheets «Modelo 1 <polo>» y la copia `GLOBALCP-26.xlsx` de Drive.
 - [ ] Revisar los avisos de acumulado de las pruebas: en Cayo Cruz, La Habana y Holguín (2025), la suma de los meses del GLOBAL no da el acumulado del PDF en 4–9 filas, así que hay meses anteriores cargados distintos.
 

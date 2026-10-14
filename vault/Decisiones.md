@@ -23,6 +23,11 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
     - El GLOBAL se lee del xlsx del VPS evaluando las fórmulas con el `Evaluador` de `sync_global_ai.py`, en lugar de leerlo de `global_ai`.
     - Las sumas las valida el agente, y la garantía dura está en el escritor: **nunca pisa una celda con fórmula** (decisión de Leo) y solo acepta las 28 claves con valores numéricos.
   - Leo eligió además «escribe y avisa»: el agente escribe sin pedir confirmación y devuelve el resumen con la tabla.
+  - **2026-10-14, mapa con datos reales.**
+    - Leo pasó los CA reales de abril de 2025, que se llaman `<POLO>CA<AAAAMM>`, y la TABLA CA 2026. La lógica de `rellenar_ca.py` solo se usó como pista de dónde estaba cada dato.
+    - El mapa nuevo localiza cada dato por etiqueta y cabecera, y se validó contra la tabla rellenada a mano.
+    - Las seis cifras económicas salen de las filas del GLOBAL que la tabla enlaza.
+    - **Transporte: mantener la lógica de la tabla** (decisión de Leo). Cayo Coco, La Habana y Varadero cuentan todos los vehículos. Caibarién, Cayo Cruz y Holguín cuentan solo los de carga.
 - **`global_ai` se sincroniza al final de cada Modelo 1.** Se cargó una sola vez (30-ago, enero–junio) y Wisin respondía con datos viejos.
 - **El año sale del fichero.** Nada de `CP26`/`2025` fijos.
 - **Correo por el n8n self-hosted** («Emails»), para tener una sola instancia.

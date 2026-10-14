@@ -12,7 +12,7 @@ Qué documentos produce Polarier, de qué ficheros sale cada uno y qué reglas h
 flowchart LR
   subgraph Chat["Chat de la app → webhook n8n"]
     CP["PDF «xxCP…»\n(o ZIP de PDFs)"]
-    CD["«<LAV>CD<AAAAMM>.xlsx»"]
+    CD["«<POLO>CA<AAAAMM>.xlsx»"]
     MU["xlsx «<PROV>MU…»"]
     INT["xls «Integral…»"]
     INF["doc «Informe…»"]
@@ -64,14 +64,14 @@ Consecuencias que hay que respetar:
 
 Cada sistema heredado usa su propio código. **No hay un código único**: esta tabla es la referencia para traducir entre ellos.
 
-| Polo | PDF CP | Fichero MU | Hoja en GLOBAL | Fichero CD | Hoja en TABLA CA | Texto dentro del PDF (ZIP) | Sheet de staging |
+| Polo | PDF CP | Fichero MU | Hoja en GLOBAL | Fichero CA | Hoja en TABLA CA | Texto dentro del PDF (ZIP) | Sheet de staging |
 |---|---|---|---|---|---|---|---|
-| Holguín | `HOCP` | `HO` | `HOLCP<año>` | `HOLCD` | `HOLGUÍN` | `HOLGUIN` | Modelo 1 Holguin |
-| Varadero | `VACP` | `VA` | `VARCP<año>` | `VACD` | `VARADERO` | `Varadero` | Modelo 1 Varadero |
-| Caibarién | `CACP` | `CA` | `CACP<año>` | `CACD` | `CAIBARIEN` | `Centro` | Modelo 1 Caibarien |
-| La Habana | `HACP` | `HA` | `LHCP<año>` | `LHCD` | `HABANA` | `Aster` | Modelo 1 Habana |
-| Cayo Cruz | `CXCP` | `CX` | `CCZCP<año>` | `CCXCD` | `CAYOCRUZ` | `Cruz` | Modelo 1 Cayo Cruz |
-| Cayo Coco | `CCCP` | `CC` | `CCCP<año>` | `CCCD` | `CAYOCOCO␣` (con espacio final) | `Coco` | Modelo 1 Cayo Coco |
+| Holguín | `HOCP` | `HO` | `HOLCP<año>` | `HOCA` | `HOLGUÍN` | `HOLGUIN` | Modelo 1 Holguin |
+| Varadero | `VACP` | `VA` | `VARCP<año>` | `VACA` | `VARADERO` | `Varadero` | Modelo 1 Varadero |
+| Caibarién | `CACP` | `CA` | `CACP<año>` | `CACA` | `CAIBARIEN` | `Centro` | Modelo 1 Caibarien |
+| La Habana | `HACP` | `HA` | `LHCP<año>` | `HACA` | `HABANA` | `Aster` | Modelo 1 Habana |
+| Cayo Cruz | `CXCP` | `CX` | `CCZCP<año>` | `CXCA` | `CAYOCRUZ` | `Cruz` | Modelo 1 Cayo Cruz |
+| Cayo Coco | `CCCP` | `CC` | `CCCP<año>` | `CCCA` | `CAYOCOCO` (en la 2025 llevaba espacio final) | `Coco` | Modelo 1 Cayo Coco |
 
 Ojo con los que no son obvios: Habana es `HA` en los PDF pero `LH` en el GLOBAL y en CD. Cayo Cruz es `CX`, `CCZ` o `CCX` según el sistema. En los PDF de un ZIP, Caibarién aparece como «Centro» y La Habana como «Aster».
 
@@ -195,36 +195,51 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 
 ### D2 — TABLA CA \<año\>.xlsx (indicadores mensuales por lavandería)
 
-- **Se dispara (diseño 2026-10-12, sin implantar):** al subir `<LAV>CD<AAAAMM>.xlsx`, p. ej. `CACD202510.xlsx` (patrón `^[A-Za-z]+\d{4}\d{2}$`; prefijos en la tabla de polos).
+- **Se dispara:** al subir `<POLO>CA<AAAAMM>.xlsx` (p. ej. `CACA202504.xlsx` = Caibarién, abril de 2025). Prefijos reales: `CA`, `CC`, `CX`, `HA`, `HO`, `VA`. El nombre antiguo `<POLO>CD<AAAAMM>` también vale. Año y mes salen del nombre. En `Switch3` es la salida «Leslie CA», con el regex `^(LH|HA|VA|CA|CC|CCX|CX|CCZ|HOL|HO)C[AD]…` sin distinguir mayúsculas.
 - **Entradas:**
-  - El fichero CD, con las hojas **Economía, Producción, RRHH, Transporte, SSTT y Calidad** (el nombre exacto varía, se buscan de forma aproximada).
+  - El CA. Las hojas que importan (el nombre varía un poco y se buscan de forma aproximada) son **2.Economía, 3.Producción, 6.SSTT, 7.Transporte, 8.Calidad y 9.RRHH**. Las demás (Portada, Recepción, Lencería, Informática…) no se usan.
   - El **GLOBAL** del año, hoja `<COD>CP<año>`.
-  - La plantilla `TABLA CA <año>.xlsx`: cabecera de meses en la fila 5, claves en la columna A desde la fila 6, y un segundo bloque repetido para el año anterior, que **no** se toca.
-- **Sale:** la columna del mes, en la hoja del polo, con **28 indicadores**.
-  - **Del CD:** turistas días, producción kg, prendas procesadas, ingresos por alquiler de lencería, por lavado y otros, días y horas trabajadas, promedio de trabajadores, trabajadores productivos, vehículos (totales y propios), km, diésel de transporte, CDT/CDO de equipos, diésel de producción, electricidad, agua, capacidad instalada por hora y evaluación de calidad.
-  - **Del GLOBAL:** costo de lavandería, gastos totales (fijos + indirectos), utilidad en operaciones (antes de cargo fijo), utilidad neta (antes de impuestos), gasto de salario y **VAB**.
-  - **Calculados:** `REAL INGRESOS = alquiler + lavado + otros`.
-  - El VAB se calcula sobre códigos de fila (`Filas`) del GLOBAL: 30 − 69 − 77 − 93 − 129 − 112 − 115 − 121 − 136 − 176 − 177 − 178 − 180 − 182 − 198 + 144 − 113 − 114 − 116 − 117 − 123 − 181 − 195 − 200. Son **códigos de fila**, no números de fila de Excel, y coinciden con `global_ai.codigo_fila`.
-- **Antes:** `Leslie/CD/rellenar_ca.py --archivo_cd <fichero>`. Buscaba las etiquetas con desplazamientos fijos (`+2 columnas`), así que se rompía con cualquier cambio de formato.
-- **Decisión (2026-10-12):** lo hace **un agente de n8n**: lee el CD y el Global (vía `global_ai`), y decide los 28 valores, cada uno con su celda de origen. Un nodo valida las sumas, y un escritor genérico en el pythonrunner (openpyxl) escribe la columna del mes sin tocar el formato. **Maestro en el VPS** y el chat devuelve el xlsx. La **TABLA CA 2026 aún no existe**: Leo la subirá al VPS cuando se la den.
-- **Implantado (2026-10-12, borrador `cc4c1c39` sin publicar):**
-  - **Flujo:** `Switch3` salida 5 «Leslie CD» → `CD - Guardar` (escribe el CD en `/data/Polarier/Leslie/CD/`) → `CD - Preparar` → `CD - ¿Preparado?` → **`Agente TABLA CA`** → `CD - Limpiar` → `CD - Leer tabla` → `CD - Empaquetar` → `CD - Responder`. Cualquier fallo va a `CD - Error` → `CD - Responder error`. El fallback de `Switch3` pasa de la salida 5 a la 6 y sigue yendo a `If2`.
-  - **Agente:** Claude Sonnet 5.5 (credencial «Anthropic Polarier»), con pensamiento adaptativo y un máximo de 12 iteraciones.
-  - **Herramientas:** cuatro `HTTP Request Tool` contra el pythonrunner: `ver_hoja_cd`, `ver_global`, `estado_tabla` y `escribir_tabla`. El nombre del CD lo fija la expresión del nodo, no el modelo, así que el agente no puede apuntar a otro fichero.
-  - **`agente_ca.py preparar`** entrega antes de que el agente empiece:
-    - el contexto (polo, año y mes deducidos del nombre del CD);
-    - la **extracción de referencia**, que es la lógica de `rellenar_ca.py` indicador a indicador, con celda de origen o con el error;
-    - el estado de la columna del mes en la tabla, con sus fórmulas y los tres meses previos.
-  - **Qué hace el agente:**
-    - verifica en el CD lo dudoso, buscando por etiqueta y no por posición, y aplica comprobaciones de rango;
-    - **no pisa celdas con fórmula**: el escritor se niega aunque se lo pidan;
-    - sobrescribe valores fijos indicando el anterior;
-    - hace una sola escritura, con copia previa en `CD/respaldos/` (se guardan las 15 últimas).
-  - **Respuesta:** JSON `{respuesta, archivo:{nombre, mime, base64}}`. La app pinta el resumen y debajo la tarjeta de descarga de la tabla.
-  - **Diferencias con el diseño:**
-    - El GLOBAL se lee del xlsx del VPS y no de `global_ai`. `agente_ca.py` reutiliza el `Evaluador` de `sync_global_ai.py`, así que las fórmulas que `Modelo1.py` deja sin valor se evalúan igual que en la sincronización. Además no depende de que `global_ai` esté al día y da la celda exacta.
-    - La validación de sumas y rangos la hace el agente, guiado por el prompt, en lugar de un nodo aparte. La garantía dura (no pisar fórmulas, solo las 28 claves, solo valores numéricos) está en el escritor.
-  - **Fragilidad que hereda la extracción de referencia** y que el agente debe cazar: «último valor bajo KM» y «último bajo Comb» toman lo que haya al final de la columna. En un CD con otro bloque debajo, los km salen iguales al diésel.
+  - `TABLA CA <año>.xlsx` en `/data/Polarier/Leslie/CD/`. Por polo tiene el bloque del año (filas 6–60), el del año anterior (63–115, que **no** se toca) y el de **consumo de productos químicos** (182–196). La etiqueta «AÑO ACTUAL (2025)» de la TABLA CA 2026 está sin actualizar; no se usa.
+- **Sale:** la columna del mes, en la hoja del polo: los **28 indicadores** más los **kg por producto químico**. Las filas con fórmula (en 2026: real producción, real ingresos y las seis económicas, enlazadas al GLOBAL) no se escriben nunca.
+- **Dónde está cada dato** (mapa del 2026-10-14). Las celdas cambian de un CA a otro, pero las hojas y las etiquetas no, así que todo se localiza por etiqueta y por la cabecera «Real» de su bloque:
+
+| Indicador | Origen |
+|---|---|
+| Turistas días · Producción kg | Producción: «Turistas Días (pax)» / «Producción (Kg)», Real |
+| Prendas procesadas | Producción: fila TOTAL de la tabla diaria (la que tiene «Día»), columna «Procesado». En Holguín hay otro «PROCESADO» por hotel que no es este |
+| Capacidad instalada | Producción: cap. túnel × uds. túnel + cap. lavadora × uds. lavadora |
+| Químicos por producto | Producción, tabla «Producto»: la columna que suma «Productos Químicos (Kg)» Real (±2 %). En los CA de 2025 su cabecera dice «Teórico»; la de al lado es el mes anterior |
+| Alquiler · Lavado · Real ingresos | Economía, desagregación de ingresos: «Arrendamiento», «Lavado», «Total», Real |
+| Otros ingresos | Total − alquiler − lavado |
+| Días · horas · trabajadores · productivos | RRHH: «Días trabajados», «Horas Promedio Trabajadas», «Promedio/Total Trabajadores», «Trabajadores Productivos», REAL |
+| Consumos diésel/electricidad/agua | SSTT: fila «CONSUMOS» |
+| CDO · CDT | SSTT, bloque «CDT Equipos Polarier»: primer valor bajo «PROMEDIO» y el de «CDT», en % |
+| Calidad | Calidad: «PROMEDIO TOTAL» |
+| Vehículos, km, diésel transporte | Transporte, con el criterio de cada polo (abajo) |
+| Costo, gastos totales, utilidades, salario, VAB | GLOBAL, las filas que enlaza la propia tabla: «Costos Directos», «Gastos Totales (Indirectos + Fijos)», «Utilidades antes de Cargo Fijo», «Utilidades antes de Impuestos», «Salario», «VAB». Si el mes no está en el GLOBAL, se usa el CA (Economía: «Costos», «Gastos», «Utilidades», «Utilidades» + «Gastos Fijos»), salvo el VAB |
+
+- **Transporte: se mantiene el criterio con que se rellenaba la tabla** (decisión de Leo, 2026-10-14):
+  - **«todos»** (Cayo Coco, La Habana, Varadero): km y litros de la fila TOTALES; propios = los que tienen km > 0; total = propios + alquilados.
+  - **«carga»** (Caibarién, Cayo Cruz, Holguín): solo camiones y furgonetas (HOWO, Hyundai HD, Renault Mascott…), propios y alquilados. Km y litros son la suma de esos vehículos. Quedan fuera los autos ligeros (Peugeot, Suzuki Jimny) y el ómnibus obrero.
+- **Validación:** `vps/Polarier/Leslie/CD/validar_mapeo.py` se pasó con los seis CA de abril de 2025 contra el bloque «año anterior» de TABLA CA 2026: **151/168 coinciden**. Contra TABLA CA 2025, con químicos: **219/246** y los químicos 100 %. Lo que no coincide está explicado y es de la tabla, no del mapa:
+  - **VAB:** solo está en el GLOBAL. Los códigos del CA no casan uno a uno con los del GLOBAL (en Caibarién el CA trae el código 122, «Personal Extranjero»).
+  - **Costo de La Habana:** «Costos» del CA de La Habana es el costo total (10,1 M), no el de lavandería (227 k).
+  - **SSTT de Caibarién:** el CA de abril traía los consumos de marzo. `preparar` avisa cuando los tres coinciden con el mes anterior de la tabla.
+  - **Agua de Cayo Coco:** 386 en el CA frente a 3860 en la tabla.
+  - **Capacidad de Varadero:** 905 calculada frente a 1140 en la tabla.
+  - **Horas** (Caibarién 8 frente a 10; La Habana 7,48 frente a 8) y **diésel de transporte** redondeados a mano en la tabla.
+- **Antes:** `Leslie/CD/rellenar_ca.py --archivo_cd <fichero>`, con desplazamientos fijos (`+2 columnas`). Además, tomaba el costo de la segunda fila «Lavandería» y recalculaba el VAB por códigos, en lugar de leer las filas que enlaza la tabla.
+- **Implantación** (n8n, nodos `CD - *` y `Agente TABLA CA`): `CD - Guardar` → `CD - Preparar` → `CD - ¿Preparado?` → **`Agente TABLA CA`** (Claude Sonnet 5.5, credencial «Anthropic Polarier») → `CD - Limpiar` → `CD - Leer tabla` → `CD - Empaquetar` → `CD - Responder`. Los fallos van a `CD - Error`.
+  - **Herramientas** contra `Leslie/CD/agente_ca.py`: `ver_hoja_cd`, `ver_global`, `estado_tabla` y `escribir_tabla(valores, quimicos)`. El nombre del fichero lo fija la expresión del nodo, no el modelo.
+  - **`preparar`** entrega:
+    - el contexto (incluido el criterio de transporte);
+    - la extracción, con la celda de origen de cada dato, los químicos, el detalle de vehículos y el contraste económico del CA;
+    - **avisos deterministas**: SSTT copiado del mes anterior, cambio de capacidad, GLOBAL frente a CA, rangos y vehículos excluidos;
+    - el estado de la tabla, con las fórmulas, los meses previos y los químicos.
+  - **El escritor** nunca pisa fórmulas, solo acepta las 28 claves y los productos que tienen fila, y guarda una copia en `CD/respaldos/` (las 15 últimas).
+  - **Prompt del agente:** `n8n/agente-tabla-ca/prompt-sistema.txt`. **Operaciones:** `n8n/agente-tabla-ca/operaciones-mapa-ca.json`.
+  - **Respuesta:** JSON `{respuesta, archivo}`. La app pinta el resumen con la tabla debajo.
+  - **Guardar con openpyxl** conserva los vínculos externos al GLOBAL, los 181 gráficos y los comentarios. Pierde la cadena de cálculo (Excel la rehace al abrir) y la configuración de impresora.
 
 ### D3 — COMU \<MES\> GENERAL.xlsx (Carla)
 

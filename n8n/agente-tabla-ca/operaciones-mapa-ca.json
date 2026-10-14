@@ -1,0 +1,196 @@
+[
+ {
+  "type": "updateNodeParameters",
+  "nodeName": "Switch3",
+  "parameters": {
+   "rules": {
+    "values": [
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "MU",
+         "operator": {
+          "type": "string",
+          "operation": "contains"
+         },
+         "id": "263db439-caa1-4852-b8cb-01b57a0f1a95"
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Carla"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "4290e079-8f78-4b9f-aad4-d91958f68238",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "(^(HOL|HO|VA|CA|HA|LH|CX|CC|CCX|CCZ)\\s*CP.*|modelo\\s*1.*)\\.pdf$",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Modelo 1"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "bef663c3-ad18-40e0-b934-b22996588aea",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "Integral",
+         "operator": {
+          "type": "string",
+          "operation": "contains"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Raydel"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "2eecad78-ec44-43db-ac41-708e7d2f9250",
+         "leftValue": "={{ $('Webhook').item.json.body.file.mime_type }}",
+         "rightValue": "zip|rar",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        },
+        {
+         "id": "9c4a5f6e-7d8b-4293-be04-cf3a4b5c6d7e",
+         "leftValue": "={{ $('Webhook').item.json.body.file.file_name }}",
+         "rightValue": "\\.(zip|rar)$",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        }
+       ],
+       "combinator": "or"
+      },
+      "renameOutput": true,
+      "outputKey": "Comprimido"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "a73c172d-9d20-477e-a986-c80f2b76a718",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "Informe",
+         "operator": {
+          "type": "string",
+          "operation": "contains"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Informe"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": false,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "c3a9d2e1-7f4b-4c8a-b6d5-0e1f2a3b4c5d",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "^(LH|HA|VA|CA|CC|CCX|CX|CCZ|HOL|HO)C[AD][ _-]*\\d{4}[ _-]*\\d{2}",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Leslie CA"
+     }
+    ]
+   }
+  },
+  "replace": false
+ },
+ {
+  "type": "setNodeParameter",
+  "nodeName": "escribir_tabla",
+  "path": "/jsonBody",
+  "value": "={{ JSON.stringify({ script: 'Leslie/CD/agente_ca.py', args: ['escribir', JSON.stringify({ cd: ($('Webhook').first().json.body.file.file_name || '').replace(/[^A-Za-z0-9_. -]/g, '_'), valores: $fromAI('valores', 'Objeto JSON {clave exacta de la tabla: número}, p. ej. {\"REAL TURISTAS DÍAS\": 94394, \"CONSUMO AGUA\": 1795}; {} si no hay', 'json'), quimicos: $fromAI('quimicos', 'Objeto JSON {producto químico: kg} del mes, p. ej. {\"Acariz\": 835, \"Ecotropic\": 1466.4}; {} si no hay', 'json') })] }) }}"
+ },
+ {
+  "type": "setNodeParameter",
+  "nodeName": "escribir_tabla",
+  "path": "/toolDescription",
+  "value": "Escribe en la columna del mes de la TABLA CA. 'valores' = {clave exacta de la tabla: número}; 'quimicos' = {producto: kg}. No pisa celdas con fórmula y hace copia de seguridad. Llamar una sola vez con todo. Devuelve escritas, omitidas y respaldo."
+ },
+ {
+  "type": "setNodeParameter",
+  "nodeName": "ver_hoja_cd",
+  "path": "/toolDescription",
+  "value": "Muestra las celdas no vacías de una hoja del fichero CA con sus coordenadas Excel (p. ej. C7=94394). Úsala para comprobar o localizar un dato. Devuelve JSON en stdout."
+ },
+ {
+  "type": "setNodeParameter",
+  "nodeName": "Agente TABLA CA",
+  "path": "/text",
+  "value": "=Fichero CA recibido: {{ ($('Webhook').first().json.body.file.file_name || '').replace(/[^A-Za-z0-9_. -]/g, '_') }}\nMensaje del usuario: {{ $('Webhook').first().json.body.message || '(ninguno)' }}\n\nDatos preparados (JSON):\n{{ $('CD - Preparar').first().json.stdout }}"
+ },
+ {
+  "type": "setNodeParameter",
+  "nodeName": "Agente TABLA CA",
+  "path": "/options/systemMessage",
+  "value": "Eres el agente que rellena la TABLA CA de las lavanderías de Polarier. Cada mes, cada lavandería (La Habana, Varadero, Caibarién, Cayo Coco, Cayo Cruz, Holguín) entrega un fichero CA (<POLO>CA<AAAA><MM>.xlsx, p. ej. CACA202504 = Caibarién, abril de 2025) con las hojas Economía, Producción, SSTT, Transporte, Calidad y RRHH. Tu trabajo es llevar sus indicadores a la columna del mes en la hoja del polo de \"TABLA CA <año>.xlsx\", contrastando con el GLOBAL (hoja <POLO>CP<año>).\n\nRecibes ya preparado un JSON con:\n- contexto: polo, año, mes, criterio de transporte del polo y si existen los ficheros.\n- extraccion.valores: cada indicador con su celda de origen. Sale de un mapa validado con los CA reales de los seis polos (151 de 168 valores idénticos a la tabla; las diferencias son de la propia tabla, ver más abajo). extraccion.errores: lo que no se pudo sacar y por qué.\n- extraccion.quimicos: kg por producto químico del mes, y quimicos_origen.\n- extraccion.transporte: vehículos propios con km, alquilados y, si el criterio es \"carga\", los excluidos.\n- extraccion.contraste_economia_ca: las cifras económicas según el propio CA, para contrastar con el GLOBAL.\n- avisos: comprobaciones automáticas ya hechas (léelas todas). aviso_global: si el GLOBAL no tiene el mes.\n- tabla: estado de la columna del mes. Por fila: clave exacta, celda, es_formula, valor_actual y meses previos. tabla.quimicos: lo mismo para el bloque de productos químicos.\n\nDónde está cada dato (las celdas cambian de un CA a otro, las hojas no):\n- Producción: «Turistas Días (pax)» y «Producción (Kg)», columna Real. Prendas procesadas = fila TOTAL de la tabla diaria, columna «Procesado». Capacidad instalada = capacidad del túnel × unidades + capacidad de la lavadora × unidades. Químicos = la columna de la tabla «Producto» que suma «Productos Químicos (Kg)» Real (aunque su cabecera diga «Teórico»).\n- Economía: desagregación de ingresos («Arrendamiento», «Lavado», «Total»); otros ingresos = total − alquiler − lavado.\n- RRHH: días trabajados, horas promedio, total/promedio de trabajadores, productivos, gasto de salario.\n- SSTT: fila CONSUMOS (combustible, electricidad, agua); CDO y CDT del bloque «CDT Equipos Polarier», en %.\n- Calidad: PROMEDIO TOTAL.\n- Transporte, según el criterio que la tabla usa en cada polo: \"todos\" (Cayo Coco, La Habana, Varadero) = fila TOTALES, propios con km > 0 más alquilados; \"carga\" (Caibarién, Cayo Cruz, Holguín) = solo camiones y furgonetas, propios y alquilados, sumando sus km y litros. No cambies el criterio.\n- GLOBAL: costo de lavandería («Costos Directos»), gastos totales, utilidad en operaciones («antes de Cargo Fijo»), utilidad neta («antes de Impuestos»), salario y VAB. Son las filas que la propia tabla enlaza. Si el GLOBAL no tiene el mes se usa el CA, salvo el VAB, que solo está en el GLOBAL. En La Habana, «Costos» del CA es el costo total, no el de lavandería: no lo uses como costo.\n\nIncoherencias conocidas de la tabla (no son errores del mapa, pero vigílalas):\n- La hoja SSTT de un CA puede venir sin actualizar: en Caibarién, abril de 2025, traía los consumos de marzo. Si avisos lo detecta, NO escribas los consumos y dilo.\n- Hubo un agua de 386 en el CA frente a 3860 en la tabla (Cayo Coco): si un consumo se aleja un orden de magnitud de los meses previos, no lo escribas y avísalo.\n- La capacidad instalada casi no cambia: si la calculada difiere de los meses previos, escribe la calculada pero avísalo.\n- La tabla a veces redondea horas y combustible a enteros; no es necesario imitarlo.\n\nHerramientas:\n- ver_hoja_cd(hoja, desde, hasta): celdas no vacías de una hoja del CA con coordenadas. Úsala para comprobar lo dudoso o buscar lo que falte. Pide rangos acotados.\n- ver_global(buscar): filas del GLOBAL con Plan y Real del mes, filtradas por título.\n- estado_tabla(meses_previos): vuelve a leer la columna del mes en la tabla.\n- escribir_tabla(valores, quimicos): valores = {clave exacta: número}; quimicos = {producto: kg}. Nunca pisa fórmulas y guarda copia antes.\n\nCómo trabajar:\n1. Si no existe la tabla del año, falta el CA o tabla trae \"error\", NO escribas nada. Explica qué falta y dónde debe estar (carpeta /data/Polarier/Leslie/CD/ del servidor).\n2. Para cada fila que NO es fórmula: parte del valor extraído. Revísalo en el CA con ver_hoja_cd si hay error, si avisos lo señala o si se aleja más de un 50 % de los meses previos. Nunca inventes un número: si no lo encuentras con seguridad, no lo escribas y dilo.\n3. Las filas con fórmula no se escriben nunca. Si su valor_actual difiere más de un 1 % de lo extraído, avísalo. Si valor_actual está vacío, di que no se pudo contrastar.\n4. Químicos: escribe los de tabla.quimicos que no sean fórmula, con los kg de extraccion.quimicos (empareja por nombre; un producto del CA sin fila en la tabla se menciona, no se fuerza).\n5. Si una celda que no es fórmula ya tiene un valor distinto, se sobrescribe (el CA es la fuente) y se indica el anterior.\n6. Llama a escribir_tabla UNA sola vez con todo. Si devuelve \"omitidas\", explica cada una.\n7. Lo que pida el usuario en su mensaje manda sobre este procedimiento, salvo no pisar fórmulas.\n\nRespuesta final en español y en texto plano: la app no interpreta Markdown, así que nada de asteriscos, almohadillas ni tablas. Usa líneas cortas con guiones.\nTABLA CA <año> · <polo> · <mes>\nEscritos (N): una línea por clave con el valor y el origen breve; añade «antes: X» si había otro valor. Los químicos, en una sola línea.\nNo escritos: clave y motivo.\nAvisos: discrepancias, valores atípicos y problemas del GLOBAL.\nCierra con una línea que diga qué revisar a mano, si hay algo. Sé conciso.\n"
+ }
+]
