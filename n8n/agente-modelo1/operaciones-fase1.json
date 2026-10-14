@@ -1,0 +1,847 @@
+[
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Guardar",
+   "type": "n8n-nodes-base.readWriteFile",
+   "typeVersion": 1.1,
+   "position": [
+    -4800,
+    5440
+   ],
+   "parameters": {
+    "operation": "write",
+    "fileName": "=/data/Polarier/Leslie/m1_{{ $execution.id }}__{{ ($('Webhook').first().json.body.file.file_name || 'subido').replace(/[^A-Za-z0-9_. -]/g, '_') }}",
+    "options": {}
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Preparar",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.4,
+   "position": [
+    -4560,
+    5440
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['preparar', JSON.stringify({ lote: $execution.id, subido: 'm1_' + $execution.id + '__' + ($('Webhook').first().json.body.file.file_name || 'subido').replace(/[^A-Za-z0-9_. -]/g, '_') })] }) }}",
+    "options": {
+     "timeout": 180000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - ¿Preparado?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -4320,
+    5440
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "id": "6f1d2c3b-4a5e-4f60-8b71-9c0d1e2f3a4b",
+       "leftValue": "={{ (() => { try { return JSON.parse($json.stdout).ok === true } catch (e) { return false } })() }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "Agente Modelo 1",
+   "type": "@n8n/n8n-nodes-langchain.agent",
+   "typeVersion": 3.1,
+   "position": [
+    -4032,
+    5440
+   ],
+   "parameters": {
+    "promptType": "define",
+    "text": "=Fichero subido: {{ $('Webhook').first().json.body.file.file_name }}\nMensaje del usuario: {{ $('Webhook').first().json.body.message || '(ninguno)' }}\n\nDatos preparados (JSON):\n{{ $('M1 - Preparar').first().json.stdout }}",
+    "options": {
+     "systemMessage": "Eres el Agente Modelo 1 de Polarier. Cada mes, cada lavandería emite su Modelo 1 («Ingresos y Gastos») en PDF: La Habana (en el PDF aparece como «Aster»), Varadero, Caibarién (aparece como «Centro»), Cayo Coco, Cayo Cruz y Holguín. Tu trabajo es llevar sus valores al GLOBAL (GLOBAL-CP<aa>.xlsx, hoja <COD>CP<AAAA>, columnas PLAN y REAL del mes) y dejarlo revisado. El usuario puede subir un PDF suelto o un ZIP/RAR con varios.\n\nRecibes ya preparado un JSON. Por cada PDF trae:\n- polo, mes y año leídos del CONTENIDO del PDF (cabecera «Unidad: …» y «<Mes>/<AAAA>»);\n- global, hoja y columnas de destino;\n- dudosas: filas cuya lectura no cuadra con las propias cuentas del PDF (TOTAL = MLC + MN, % = Real / Plan);\n- cambios.sobrescribe: celdas que ya tenían otro valor (antes → pdf);\n- avisos y bloqueos.\nFuera de los ficheros, «avisos» trae lo que afecta al lote (PDF repetidos, ficheros ignorados).\n\nHerramientas:\n- ver_filas_m1(archivo, buscar, desde, hasta): lo leído de un PDF, fila a fila.\n- ver_pdf_m1(archivo, codigo, pagina): texto en bruto con coordenadas, para comprobar una fila a mano.\n- ver_global_m1(archivo, buscar): las filas del GLOBAL de ese polo y mes, con valores y fórmulas.\n- escribir_global(archivos): escribe. archivos = [{\"archivo\": \"...\", \"correcciones\": {\"043\": {\"plan\": 1.0, \"real\": 2.0}}, \"excluir\": [47]}]. Las filas que no son dudosas se escriben tal como se leyeron: no las repitas en correcciones.\n- verificar_global(): revisión final independiente.\n\nReglas:\n1. El polo y el mes salen SIEMPRE del contenido del PDF, nunca del nombre del fichero. Si el nombre dice otra cosa, avísalo, pero escribe donde dice el contenido. No se puede escribir un PDF en otro polo ni en otro mes: la herramienta lo rechaza.\n2. Un PDF con bloqueos no se escribe. Explica qué falta (por ejemplo, que no existe el GLOBAL de ese año en el servidor).\n3. Filas dudosas: compruébalas con ver_pdf_m1. Lo que va al GLOBAL es el TOTAL Plan y el TOTAL Real de la línea del mes (M o MES), nunca el acumulado (A o ACU) ni la columna Real del año anterior. Si encuentras el valor con seguridad, pásalo en correcciones. Si no, inclúyelo en excluir y dilo. Una dudosa que no corrijas ni excluyas no se escribe. Nunca inventes un número.\n4. Si hay dos PDF del mismo polo y mes, escribe solo uno: el que no tenga dudas o, si los dos están limpios, el de fecha de emisión más reciente (ver_pdf_m1 con codigo 0 y pagina 1). Si no puedes decidir, no escribas ninguno de los dos y pregúntalo.\n5. Si el PDF trae texto oculto con otras fechas o fue reescrito después de emitirse, se procesa con el mes visible, pero ese aviso va el primero en tu respuesta.\n6. Llama a escribir_global UNA vez con todos los PDF aceptados. Después llama SIEMPRE a verificar_global. Si da errores, corrige solo los PDF afectados con otra llamada a escribir_global y vuelve a verificar. Máximo dos rondas. Si siguen los errores, dilo claramente al principio de la respuesta.\n7. Lo que pida el usuario en su mensaje manda (por ejemplo, «solo Varadero» → los demás PDF no se escriben), salvo las reglas 1 y 2.\n8. Si el mes ya tenía datos, se sobrescriben con los del PDF. La herramienta devuelve los valores anteriores: inclúyelos en la respuesta.\n\nRespuesta final para el usuario, en español y en texto plano. La app no interpreta Markdown: nada de asteriscos, almohadillas ni tablas. Usa líneas cortas con guiones. Estructura:\nGLOBAL actualizado · N PDF\n- Una línea por PDF: polo · Mes/AAAA · hoja (columnas PLAN/REAL) · celdas cambiadas · revisión correcta o con errores.\nValores que ya había y se cambiaron: código, plan/real, antes → ahora (como mucho 10; si hay más, di cuántos).\nFórmulas sustituidas por el valor del PDF porque no cuadraban: código y lo que calculaba la fórmula frente al PDF.\nNo escritos: PDF o filas, con el motivo.\nAvisos: nombre del fichero que no coincide con el contenido, PDF editado, acumulado del PDF que no cuadra con la suma de los meses del GLOBAL (resúmelo: polo, cuántas filas y que conviene revisar los meses anteriores).\nCierra con una línea que diga qué revisar a mano, si hay algo. Sé conciso: no expliques el procedimiento.\n",
+     "maxIterations": 15,
+     "enableStreaming": false
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "Claude Sonnet (Modelo 1)",
+   "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+   "typeVersion": 1.5,
+   "position": [
+    -4192,
+    5700
+   ],
+   "credentials": {
+    "anthropicApi": {
+     "id": "1yI7j23e7h4SspH3",
+     "name": "Anthropic Polarier"
+    }
+   },
+   "parameters": {
+    "model": {
+     "__rl": true,
+     "mode": "list",
+     "value": "claude-sonnet-5-5",
+     "cachedResultName": "Claude Sonnet 5.5"
+    },
+    "options": {
+     "maxTokensToSample": 8000,
+     "thinkingMode": "adaptive",
+     "effort": "medium"
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "ver_filas_m1",
+   "type": "n8n-nodes-base.httpRequestTool",
+   "typeVersion": 4.4,
+   "position": [
+    -4032,
+    5700
+   ],
+   "parameters": {
+    "toolDescription": "Filas leídas de un PDF del lote: código, indicador, Plan y Real del mes (bloque TOTAL), acumulados, estado (ok/dudosa) y motivos. Filtra por texto o por rango de códigos. Devuelve JSON en stdout.",
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['ver_filas', JSON.stringify({ lote: $execution.id, archivo: $fromAI('archivo', 'Nombre del PDF tal como aparece en los datos preparados', 'string'), buscar: $fromAI('buscar', 'Texto del indicador o código de 3 dígitos; vacío para todas', 'string'), desde: $fromAI('desde', 'Primer código a mostrar (0 = desde el principio)', 'number'), hasta: $fromAI('hasta', 'Último código a mostrar (999 = hasta el final)', 'number') })] }) }}",
+    "options": {
+     "timeout": 60000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "ver_pdf_m1",
+   "type": "n8n-nodes-base.httpRequestTool",
+   "typeVersion": 4.4,
+   "position": [
+    -3904,
+    5700
+   ],
+   "parameters": {
+    "toolDescription": "Texto en bruto del PDF alrededor de un código, con coordenadas x/y de cada trozo. Úsala para comprobar a mano una fila dudosa. La línea del mes es la de y mayor; debajo va el acumulado. Devuelve JSON en stdout.",
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['ver_pdf', JSON.stringify({ lote: $execution.id, archivo: $fromAI('archivo', 'Nombre del PDF tal como aparece en los datos preparados', 'string'), codigo: $fromAI('codigo', 'Código de 3 dígitos de la fila (0 = toda la página)', 'number'), pagina: $fromAI('pagina', 'Página del PDF (0 = todas)', 'number') })] }) }}",
+    "options": {
+     "timeout": 60000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "ver_global_m1",
+   "type": "n8n-nodes-base.httpRequestTool",
+   "typeVersion": 4.4,
+   "position": [
+    -3776,
+    5700
+   ],
+   "parameters": {
+    "toolDescription": "Filas del GLOBAL para el polo y el mes de un PDF: valor o fórmula (con su resultado) de PLAN y REAL, y el valor del PDF al lado. Filtra por texto del título o código. Devuelve JSON en stdout.",
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['ver_global', JSON.stringify({ lote: $execution.id, archivo: $fromAI('archivo', 'Nombre del PDF tal como aparece en los datos preparados', 'string'), buscar: $fromAI('buscar', 'Texto del título de la fila o código; vacío para todas', 'string') })] }) }}",
+    "options": {
+     "timeout": 60000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "escribir_global",
+   "type": "n8n-nodes-base.httpRequestTool",
+   "typeVersion": 4.4,
+   "position": [
+    -3648,
+    5700
+   ],
+   "parameters": {
+    "toolDescription": "Escribe en el GLOBAL los PDF aceptados. Recibe una lista [{archivo, correcciones?, excluir?}]. Las filas no dudosas se escriben tal como se leyeron. Hace copia de seguridad antes. Llamar una sola vez con todos los PDF (y otra solo si verificar_global da errores). Devuelve escritos, rechazados y cambios.",
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['escribir', JSON.stringify({ lote: $execution.id, archivos: $fromAI('archivos', 'Lista JSON, p. ej. [{\"archivo\": \"VACP202601.PDF\"}, {\"archivo\": \"CCCP202510.PDF\", \"correcciones\": {\"043\": {\"real\": 634684.44}}, \"excluir\": [47]}]', 'json') })] }) }}",
+    "options": {
+     "timeout": 180000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "verificar_global",
+   "type": "n8n-nodes-base.httpRequestTool",
+   "typeVersion": 4.4,
+   "position": [
+    -3520,
+    5700
+   ],
+   "parameters": {
+    "toolDescription": "Revisión final independiente: vuelve a leer los PDF desde cero y el GLOBAL desde disco, comprueba cada celda escrita, que no cambió nada más del libro y el acumulado del PDF frente a la suma de los meses. Llamar siempre después de escribir_global. Devuelve JSON en stdout.",
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['verificar', JSON.stringify({ lote: $execution.id })] }) }}",
+    "options": {
+     "timeout": 180000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Cerrar",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.4,
+   "position": [
+    -3696,
+    5424
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "http://polarierauto_pythonrunner:8000/run",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['cerrar', JSON.stringify({ lote: $execution.id })] }) }}",
+    "options": {
+     "timeout": 60000
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - ¿Hay GLOBAL?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.3,
+   "position": [
+    -3456,
+    5424
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 3
+     },
+     "conditions": [
+      {
+       "id": "7a2e3d4c-5b6f-4071-9c82-ad1e2f3a4b5c",
+       "leftValue": "={{ (() => { try { return !!JSON.parse($json.stdout).entregar } catch (e) { return false } })() }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Leer GLOBAL",
+   "type": "n8n-nodes-base.readWriteFile",
+   "typeVersion": 1.1,
+   "position": [
+    -3216,
+    5344
+   ],
+   "parameters": {
+    "fileSelector": "=/data/Polarier/{{ JSON.parse($json.stdout).entregar.relativa }}",
+    "options": {
+     "dataPropertyName": "data"
+    }
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Empaquetar",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -2976,
+    5424
+   ],
+   "parameters": {
+    "jsCode": "// Respuesta para la app: resumen del agente + el GLOBAL actualizado en base64.\n// La app muestra `respuesta` como texto y, si viene `archivo`, lo guarda en Storage\n// y añade la tarjeta de descarga debajo del texto.\nlet resumen = $('Agente Modelo 1').first().json.output;\nif (Array.isArray(resumen)) {\n  resumen = resumen.map((b) => (typeof b === 'string' ? b : b.text || '')).join('');\n}\nresumen = String(resumen || '').trim() || 'El agente terminó sin devolver resumen.';\n\nlet entregar = null;\ntry {\n  entregar = JSON.parse($('M1 - Cerrar').first().json.stdout).entregar;\n} catch (e) {}\n\nconst item = $input.first();\nlet archivo = null;\nif (entregar && item.binary && item.binary.data) {\n  const buf = await this.helpers.getBinaryDataBuffer(0, 'data');\n  archivo = { nombre: entregar.nombre, mime: entregar.mime, base64: buf.toString('base64') };\n} else if (entregar) {\n  resumen += '\\n\\n(No se pudo adjuntar el GLOBAL: no se encontró el fichero en el servidor.)';\n}\nreturn [{ json: { respuesta: resumen, archivo } }];\n"
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Responder",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -2736,
+    5424
+   ],
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify($json) }}",
+    "options": {}
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Globales a sincronizar",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -2496,
+    5424
+   ],
+   "parameters": {
+    "jsCode": "// Un item por GLOBAL escrito: Normalizar GLOBAL lo lee y Cargar en global_ai lo sube.\n// Sin GLOBAL escrito no sale ningún item y no se sincroniza nada.\nlet cierre = {};\ntry {\n  cierre = JSON.parse($('M1 - Cerrar').first().json.stdout);\n} catch (e) {}\nreturn (cierre.globales || []).map((g) => ({ json: { ruta: g.ruta, nombre: g.nombre } }));\n"
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Error",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    -4032,
+    5960
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "8b3f4e5d-6c7a-4182-ad93-be2f3a4b5c6d",
+       "name": "Error",
+       "type": "string",
+       "value": "={{ 'No se pudo procesar el Modelo 1. Detalle: ' + ((() => { try { return JSON.parse($json.stdout).error } catch (e) { return null } })() || $json.error?.message || $json.error?.description || $json.stderr || JSON.stringify($json.error || $json)) }}"
+      }
+     ]
+    },
+    "options": {}
+   }
+  }
+ },
+ {
+  "type": "addNode",
+  "node": {
+   "name": "M1 - Responder error",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.5,
+   "position": [
+    -3792,
+    5960
+   ],
+   "parameters": {
+    "respondWith": "text",
+    "responseBody": "={{ $json.Error }}",
+    "options": {}
+   }
+  }
+ },
+ {
+  "type": "setNodeSettings",
+  "nodeName": "M1 - Guardar",
+  "settings": {
+   "onError": "continueErrorOutput"
+  }
+ },
+ {
+  "type": "setNodeSettings",
+  "nodeName": "M1 - Preparar",
+  "settings": {
+   "onError": "continueErrorOutput"
+  }
+ },
+ {
+  "type": "setNodeSettings",
+  "nodeName": "Agente Modelo 1",
+  "settings": {
+   "onError": "continueErrorOutput"
+  }
+ },
+ {
+  "type": "setNodeSettings",
+  "nodeName": "M1 - Cerrar",
+  "settings": {
+   "onError": "continueRegularOutput"
+  }
+ },
+ {
+  "type": "setNodeSettings",
+  "nodeName": "M1 - Leer GLOBAL",
+  "settings": {
+   "onError": "continueRegularOutput"
+  }
+ },
+ {
+  "type": "updateNodeParameters",
+  "nodeName": "Switch3",
+  "parameters": {
+   "rules": {
+    "values": [
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "MU",
+         "operator": {
+          "type": "string",
+          "operation": "contains"
+         },
+         "id": "263db439-caa1-4852-b8cb-01b57a0f1a95"
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Carla"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": false,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "4290e079-8f78-4b9f-aad4-d91958f68238",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "(^(HOL|HO|VA|CA|HA|LH|CX|CC|CCX|CCZ)\\s*CP.*|modelo\\s*1.*)\\.pdf$",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Modelo 1"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "bef663c3-ad18-40e0-b934-b22996588aea",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "Integral",
+         "operator": {
+          "type": "string",
+          "operation": "contains"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Raydel"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": false,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "2eecad78-ec44-43db-ac41-708e7d2f9250",
+         "leftValue": "={{ $('Webhook').item.json.body.file.mime_type }}",
+         "rightValue": "zip|rar",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        },
+        {
+         "id": "9c4a5f6e-7d8b-4293-be04-cf3a4b5c6d7e",
+         "leftValue": "={{ $('Webhook').item.json.body.file.file_name }}",
+         "rightValue": "\\.(zip|rar)$",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        }
+       ],
+       "combinator": "or"
+      },
+      "renameOutput": true,
+      "outputKey": "Comprimido"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": true,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "a73c172d-9d20-477e-a986-c80f2b76a718",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "Informe",
+         "operator": {
+          "type": "string",
+          "operation": "contains"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Informe"
+     },
+     {
+      "conditions": {
+       "options": {
+        "caseSensitive": false,
+        "leftValue": "",
+        "typeValidation": "strict",
+        "version": 2
+       },
+       "conditions": [
+        {
+         "id": "c3a9d2e1-7f4b-4c8a-b6d5-0e1f2a3b4c5d",
+         "leftValue": "={{ $json.body.file.file_name }}",
+         "rightValue": "^(LH|HA|VA|CA|CC|CCX|CX|CCZ|HOL|HO)CD[ _-]*\\d{4}[ _-]*\\d{2}",
+         "operator": {
+          "type": "string",
+          "operation": "regex"
+         }
+        }
+       ],
+       "combinator": "and"
+      },
+      "renameOutput": true,
+      "outputKey": "Leslie CD"
+     }
+    ]
+   },
+   "options": {
+    "fallbackOutput": "extra"
+   }
+  },
+  "replace": true
+ },
+ {
+  "type": "removeConnection",
+  "source": "Switch3",
+  "target": "Extract from File",
+  "sourceIndex": 1
+ },
+ {
+  "type": "removeConnection",
+  "source": "Switch3",
+  "target": "Compression",
+  "sourceIndex": 3
+ },
+ {
+  "type": "removeConnection",
+  "source": "Respond to Webhook6",
+  "target": "Normalizar GLOBAL"
+ },
+ {
+  "type": "removeConnection",
+  "source": "Respond to Webhook7",
+  "target": "Normalizar GLOBAL"
+ },
+ {
+  "type": "addConnection",
+  "source": "Switch3",
+  "target": "M1 - Guardar",
+  "sourceIndex": 1,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "Switch3",
+  "target": "M1 - Guardar",
+  "sourceIndex": 3,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Guardar",
+  "target": "M1 - Preparar",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Guardar",
+  "target": "M1 - Error",
+  "sourceIndex": 1,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Preparar",
+  "target": "M1 - ¿Preparado?",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Preparar",
+  "target": "M1 - Error",
+  "sourceIndex": 1,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - ¿Preparado?",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - ¿Preparado?",
+  "target": "M1 - Error",
+  "sourceIndex": 1,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "Agente Modelo 1",
+  "target": "M1 - Cerrar",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "Agente Modelo 1",
+  "target": "M1 - Error",
+  "sourceIndex": 1,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "Claude Sonnet (Modelo 1)",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "ai_languageModel"
+ },
+ {
+  "type": "addConnection",
+  "source": "ver_filas_m1",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "ai_tool"
+ },
+ {
+  "type": "addConnection",
+  "source": "ver_pdf_m1",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "ai_tool"
+ },
+ {
+  "type": "addConnection",
+  "source": "ver_global_m1",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "ai_tool"
+ },
+ {
+  "type": "addConnection",
+  "source": "escribir_global",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "ai_tool"
+ },
+ {
+  "type": "addConnection",
+  "source": "verificar_global",
+  "target": "Agente Modelo 1",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "ai_tool"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Cerrar",
+  "target": "M1 - ¿Hay GLOBAL?",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - ¿Hay GLOBAL?",
+  "target": "M1 - Leer GLOBAL",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - ¿Hay GLOBAL?",
+  "target": "M1 - Empaquetar",
+  "sourceIndex": 1,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Leer GLOBAL",
+  "target": "M1 - Empaquetar",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Empaquetar",
+  "target": "M1 - Responder",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Responder",
+  "target": "M1 - Globales a sincronizar",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Globales a sincronizar",
+  "target": "Normalizar GLOBAL",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "addConnection",
+  "source": "M1 - Error",
+  "target": "M1 - Responder error",
+  "sourceIndex": 0,
+  "targetIndex": 0,
+  "connectionType": "main"
+ },
+ {
+  "type": "setNodeParameter",
+  "nodeName": "Normalizar GLOBAL",
+  "path": "/jsonBody",
+  "value": "={{ JSON.stringify({ script: 'Leslie/sync_global_ai.py', args: [$json.ruta] }) }}"
+ },
+ {
+  "type": "setNodePosition",
+  "nodeName": "Normalizar GLOBAL",
+  "position": [
+   -2256,
+   5424
+  ]
+ },
+ {
+  "type": "setNodePosition",
+  "nodeName": "Cargar en global_ai",
+  "position": [
+   -2016,
+   5424
+  ]
+ }
+]

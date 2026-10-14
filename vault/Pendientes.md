@@ -126,10 +126,44 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
   - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
-**Fase 4 — TABLA CA con agente**
-- [ ] Regla `CD` en `Switch3` → extraer las hojas del CD → agente que decide los 28 indicadores (con celda de origen) usando `global_ai` → validación → escritor genérico (pythonrunner + openpyxl) → xlsx en el chat.
-- [ ] Año según el fichero en GLOBAL, TABLA CA y nodos (quitar `CP26`/`2025` fijos).
-- [ ] **Bloqueado:** falta `TABLA CA 2026.xlsx`; Leo la subirá a `/data/Polarier/Leslie/CD/` cuando se la den.
+**Fase 4 — TABLA CA con agente** (borrador `cc4c1c39` de «Polarier Auto App», **sin publicar**; rama `leslie/agente-tabla-ca` del repo)
+- [x] Regla `Leslie CD` en `Switch3` (regex `^(LH|HA|VA|CA|CC|CCX|CX|CCZ|HOL|HO)CD…`) → `Agente TABLA CA` (Claude Sonnet 5.5) con herramientas sobre `Leslie/CD/agente_ca.py` → respuesta JSON con el resumen y la tabla. Diseño en [[Generacion-Documentos]] (D2).
+- [x] Año según el fichero: `agente_ca.py` deduce año, mes, polo, GLOBAL, hoja y tabla del nombre del CD. No hay años fijos en los nodos nuevos.
+- [x] App: una respuesta JSON con `archivo` (base64) se guarda en Storage y se pinta como texto + tarjeta de descarga (`chat.ts` → `attachedFileMarker`, `ChatMessage.tsx`). Tests en `src/test/ChatMessage.test.tsx`.
+- [ ] **Subir `vps/Polarier/Leslie/CD/agente_ca.py` al VPS** (`/data/Polarier/Leslie/CD/`) y comprobar el `script_sha256` que devuelve `preparar`. No se pudo hacer desde la sesión: el webhook temporal para escribirlo lo bloqueó el control de permisos.
+- [ ] **Bloqueado:** falta `TABLA CA 2026.xlsx` en `/data/Polarier/Leslie/CD/`. Leo la subirá cuando se la den. Antes de probar, revisar que tenga la cabecera de meses y las claves en la columna A como la 2025.
+- [ ] **Bloqueado:** falta un CD real de ejemplo para la primera prueba de punta a punta. El script solo se ha probado con un CD sintético y con el GLOBAL y la TABLA 2025 en local.
+- [ ] Prueba de punta a punta en test (subir un `CACD2026MM.xlsx` al chat) y, si va bien, **publicar** el borrador y desplegar la app.
+- [ ] Retirar `Leslie/CD/rellenar_ca.py` del VPS cuando el agente esté en producción.
+
+**Fase 5 — Agente Modelo 1** (2026-10-14; sustituye a la rama CP, a la rama ZIP y a `Modelo1.py`; diseño en [[Generacion-Documentos]], D1)
+- [x] `vps/Polarier/Leslie/agente_modelo1.py` con los comandos `preparar`, `ver_filas`, `ver_pdf`, `ver_global`, `escribir`, `verificar` y `cerrar`. Probado en local con los 5 PDF reales del escritorio (`Modelos 1`) contra copias del GLOBAL-CP25 y el GLOBAL-CP26:
+  - lee los tres maquetados sin ninguna fila dudosa y coincide al céntimo con lo ya cargado;
+  - detecta el texto oculto y el nombre de fichero engañoso;
+  - rechaza otro polo y los duplicados;
+  - la verificación detecta descuadres en cascada.
+- [x] Prompt y operaciones de n8n en `n8n/agente-modelo1/`:
+  - `operaciones-fase1.json` (55 operaciones) añade la rama `M1 - *` y el agente, cambia `Switch3` (salidas «Modelo 1» y «Comprimido») y hace que `Normalizar GLOBAL` reciba la ruta del GLOBAL escrito;
+  - `operaciones-fase2.json` borra los 87 nodos de las ramas CP y ZIP viejas.
+- [x] **Operaciones aplicadas** el 2026-10-14 con el OK de Leo: borradores `2bb641b9` (fase 1) y `0cc3900d` (fase 2). «Polarier Auto App» pasa de 160 a 91 nodos. **Sin publicar**: producción sigue en `10f491eb`. El borrador también lleva la rama CD de la fase 4, así que **publicar una cosa publica la otra**.
+- [x] **Sonda del pythonrunner** (ejecución 473, después archivada): Python 3.12.13 y solo `openpyxl` 3.1.5.
+  - **No hay `pypdf`** ni otra librería de PDF.
+  - **No hay nada que abra RAR**: ni `rarfile`, ni `unrar`, `unar`, `bsdtar` o `7z`.
+  - En `/data/Polarier/Leslie/` hay `GLOBAL-CP26.xlsx`, `Modelo1.py`, `sync_global_ai.py` y `CD/`.
+- [x] **Script y `pypdf` en el servidor** (2026-10-14, ejecución 474 del flujo temporal «DIAG - Despliegue Agente Modelo 1», ya archivado):
+  - `/data/Polarier/Leslie/agente_modelo1.py`, SHA-256 `5dd0eadf…997b`, igual que el del repo;
+  - `/data/Polarier/Leslie/pypdf-6.10.2-py3-none-any.whl`, el wheel oficial de PyPI, con SHA-256 `aa53be98…24aa` comprobado contra el que publica PyPI. Python lo importa sin descomprimir.
+  - Para comprobar una subida: `agente_modelo1.py version`.
+  - La copia del servidor se subió con finales de línea CRLF (`5dd0eadf…`). En el repo el script va en LF, como todo `vps/` (`729a2bc7…`). El contenido es el mismo. La próxima subida debe hacerse desde el repo para que las dos huellas coincidan.
+  - El runner ve la carpeta en `/data/Polarier/Leslie`, la misma ruta que n8n.
+  - Si algún día se instala `pypdf` en la imagen del runner, se usará ese y el wheel sobra.
+- [x] **RAR:** Leo desplegó `vps/pythonrunner/pythonrunner-upload.zip` el 2026-10-14. El runner se creó subiendo un ZIP y no tiene otra forma de cambiarse: ver `vps/pythonrunner/README.md`.
+  - Ahora lleva `bsdtar` 3.7.4 y `pypdf` 6.10.2 instalados en la imagen, y Python 3.12.15.
+  - Comprobado con la ejecución 475 del flujo «DIAG - Prueba RAR Modelo 1» (ya archivado): un RAR5 con un PDF sintético de Cayo Coco, Octubre/2025, pasa por `preparar`. Lo desempaqueta, lee las 2 filas sin dudas, encuentra `GLOBAL-CP25.xlsx` (hoja `CCCP2025`, columnas AP/AQ) y ve que los valores ya coinciden. `cerrar` borró el lote.
+- [ ] Necesita la app con el soporte de `archivo` en JSON (fase 4, `chat.ts` y `ChatMessage.tsx`) desplegada.
+- [ ] Prueba de punta a punta en test: un PDF suelto, un ZIP con varios y un RAR. Después, publicar.
+- [ ] Cuando esté en producción: retirar `Leslie/Modelo1.py` del VPS, los Sheets «Modelo 1 <polo>» y la copia `GLOBALCP-26.xlsx` de Drive.
+- [ ] Revisar los avisos de acumulado de las pruebas: en Cayo Cruz, La Habana y Holguín (2025), la suma de los meses del GLOBAL no da el acumulado del PDF en 4–9 filas, así que hay meses anteriores cargados distintos.
 
 ## Ideas / futuro
 

@@ -48,6 +48,12 @@ Se controla con la variable **`VITE_N8N_MODE`** (`prod` | `test`), decidida en *
 
 > **Robustez:** si el webhook responde `200` con cuerpo vacío o JSON inválido, la app ya NO revienta en silencio (se leía `res.json()` sin comprobar body). Corregido. Ver [[Decisiones]].
 
+### Respuesta con texto y fichero a la vez (2026-10-12)
+
+Si el JSON trae además `archivo: { nombre, mime, base64 }`, la app guarda el fichero en Storage, igual que una respuesta binaria. Después devuelve `texto + "
+
+" + [nombre](url){.file-download|ext}`. `ChatMessage` pinta el texto y, debajo, la tarjeta de descarga, siempre que el marcador vaya en su propia línea al final del mensaje. Lo usa el agente de la TABLA CA (ver [[Generacion-Documentos]], D2).
+
 ## Nodo "Respond to Webhook" en n8n
 
 Para que la app reciba la respuesta, el **nodo Webhook de entrada** debe tener `Respond = "Using Respond to Webhook node"`. Si está en "Immediately", n8n responde vacío y la app no muestra nada.

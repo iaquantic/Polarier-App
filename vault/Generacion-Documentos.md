@@ -17,10 +17,8 @@ flowchart LR
     INT["xls «Integral…»"]
     INF["doc «Informe…»"]
   end
-  CP --> SH["Google Sheet\n«Modelo 1 <polo>»\n(staging)"]
-  SH --> M1["Modelo 1 <polo>.xlsx\n(VPS, temporal)"]
-  M1 -->|Modelo1.py| G["GLOBAL-CP<aa>.xlsx\n(VPS, maestro)"]
-  G -.->|pendiente: sync| GA[("global_ai\nSupabase")]
+  CP -->|"Agente Modelo 1\n(agente_modelo1.py)"| G["GLOBAL-CP<aa>.xlsx\n(VPS, maestro)"]
+  G -->|sync_global_ai.py| GA[("global_ai\nSupabase")]
   GA --> W["Agente Wisin"]
   CD --> CA["TABLA CA <año>.xlsx\n(VPS, maestro)"]
   G --> CA
@@ -49,9 +47,9 @@ En el chat, **el nombre del fichero subido decide qué documento se genera**. `S
 | Orden | Si el nombre contiene… | Rama | Estado |
 |---|---|---|---|
 | 0 | `MU` | Carla → COMU GENERAL | **Rota a propósito** (decisión 2026-10-05) |
-| 1 | `CP` | Leslie → GLOBAL-CP | Operativa |
+| 1 | `CP` (rediseño: regex `<polo>CP….pdf` o `modelo 1….pdf`, salida «Modelo 1») | Leslie → GLOBAL-CP. Rediseño: **Agente Modelo 1** (ver D1) | Operativa la vieja; el rediseño está sin aplicar |
 | 2 | `Integral` | Ocupación | Funciona, **no se usa** |
-| 3 | *(mime zip)* | Lote de PDFs CP → GLOBAL-CP | Operativa |
+| 3 | *(mime zip)* (rediseño: mime `zip`/`rar` o nombre `.zip`/`.rar`, salida «Comprimido») | Lote de PDFs CP → GLOBAL-CP. Rediseño: la misma rama que la salida 1 | Operativa la vieja; el rediseño está sin aplicar |
 | 4 | `Informe` | Base de conocimiento | Operativa |
 | — | nada de lo anterior / audio | Agente Benjamin (texto, imagen o audio) | Operativa |
 
@@ -81,10 +79,10 @@ Ojo con los que no son obvios: Habana es `HA` en los PDF pero `LH` en el GLOBAL 
 
 | Maestro | Dónde vive (fuente de verdad) | Quién lo escribe | Copias |
 |---|---|---|---|
-| `GLOBAL-CP<aa>.xlsx` | VPS `/data/Polarier/Leslie/` | `Modelo1.py` (lo sobrescribe en cada pasada) | Drive, carpeta «Modelo 1», como `GLOBALCP-26.xlsx`: **solo** se refresca por la rama ZIP |
+| `GLOBAL-CP<aa>.xlsx` | VPS `/data/Polarier/Leslie/` (el de 2025, en `Leslie Global 2025/`) | `Modelo1.py` (lo sobrescribe en cada pasada). Con el rediseño, `agente_modelo1.py`, que guarda copia previa en `Leslie/respaldos_global/` (las 20 últimas) | Drive, carpeta «Modelo 1», como `GLOBALCP-26.xlsx`: **solo** se refresca por la rama ZIP. Con el rediseño **deja de actualizarse** (decisión 2026-10-14) |
 | `TABLA CA <año>.xlsx` | VPS `/data/Polarier/Leslie/CD/` | Rama CD (en rediseño) | — |
 | `COMU <MES> GENERAL.xlsx` | VPS `/data/Polarier/Carla/` | `actualizar_general.py` | — |
-| Sheets «Modelo 1 <polo>» | Google Drive | Rama CP (appendOrUpdate) | Son **staging**: se vacían al terminar |
+| Sheets «Modelo 1 <polo>» | Google Drive | Rama CP (appendOrUpdate) | Son **staging**: se vacían al terminar. **Desaparecen con el rediseño** |
 | `global_ai` | Supabase | Hoy: carga única del 2026-08-30 | Ver documento D6 |
 | `document_chunks` | Supabase | Rama `Informe` | — |
 
@@ -128,6 +126,58 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 
 ### D1 — GLOBAL-CP\<aa\>.xlsx (cuenta de resultados por polo)
 
+**Rediseño (2026-10-14): «Agente Modelo 1».** Sustituye a la rama CP, a la rama ZIP, a los Sheets de staging, a la copia del GLOBAL en Drive y a `Modelo1.py`.
+- Código: `vps/Polarier/Leslie/agente_modelo1.py`.
+- Prompt y operaciones de n8n: `n8n/agente-modelo1/`.
+- **Estado:** probado en local con 5 PDF reales. Todavía **sin aplicar en n8n ni subir al VPS** (ver [[Pendientes]]).
+
+**El PDF real** (5 muestras de oct-2025 y ene-2026):
+- Es el informe «Ingresos y Gastos», de 7 páginas. Cabecera: `Unidad: 081 - Lavanderia AT Cayo Coco` y el mes `Octubre/2025`.
+- Cada fila lleva el código de 3 dígitos, el indicador y dos líneas: **M/MES** (el mes) y **A/ACU** (el acumulado).
+- **Al GLOBAL va el bloque TOTAL → Plan y Real de la línea M.** Comprobado contra el GLOBAL-CP25 y el GLOBAL-CP26: coincide al céntimo en las 136–146 celdas de cada polo.
+- La columna `Filas` del GLOBAL **es** el código del PDF. Los códigos 215+ (índices, consumos, VAB) no tienen fila en el GLOBAL y se ignoran.
+- Hay **tres maquetados**:
+  - **L12** (Cayo Coco, Varadero): MLC / Moneda Nacional / TOTAL × (Real 2024, Plan, Real, %).
+  - **L9** (Cayo Cruz, La Habana): lo mismo sin «Real 2024». En los PDF de «Microsoft Print to PDF» la fila llega en un solo trozo de texto y algunos números se parten en dos (`132,665,142.1` + `7`).
+  - **L3** (Holguín y las últimas páginas de todos): solo TOTAL (Plan, Real, %).
+- Los acumulados grandes salen tapados con asteriscos (`**,***,***.**`).
+- **El nombre del fichero no es fiable.** `HOCP202611.pdf` y `CXCP202610.pdf` son de Octubre/2025. Además, `HOCP202611.pdf` fue reescrito con PyPDF2 y lleva «Enero/2026» y «Noviembre/2026» como **texto oculto fuera de la página**: un lector ingenuo habría cogido el mes equivocado.
+
+**Cómo funciona:**
+1. `Switch3` manda a la rama `M1 - *` los PDF `<polo>CP….pdf` o `Modelo 1 ….pdf` y cualquier ZIP o RAR.
+2. `M1 - Guardar` deja el fichero en `Leslie/m1_<ejecución>__<nombre>`, porque el nodo de escritura de n8n no crea carpetas.
+3. `agente_modelo1.py preparar` hace todo lo determinista:
+   - mueve el fichero a `modelo1_lotes/<ejecución>/` y lo desempaqueta: ZIP con `zipfile`; RAR con `rarfile`, `bsdtar`, `unar`, `7z` o `unrar`, lo que haya en el runner;
+   - lee cada PDF por coordenadas con `pypdf`;
+   - saca el polo y el mes **del contenido**, ignorando el texto fuera de la página;
+   - **valida cada fila con las cuentas del propio PDF**: TOTAL = MLC + MN y % = Real / Plan;
+   - cruza con el GLOBAL del año (`GLOBAL-CP<aa>`, hoja `<COD>CP<AAAA>`) y anota qué celdas se sobrescriben.
+4. El **Agente Modelo 1** (Claude Sonnet 5.5, máximo 15 iteraciones):
+   - revisa los avisos y las filas dudosas con `ver_pdf_m1` y `ver_global_m1`;
+   - escribe una sola vez con `escribir_global`, pasando solo correcciones y exclusiones (no reescribe cientos de números);
+   - llama siempre a `verificar_global` y, si hay errores, hace como mucho otra ronda de corrección.
+5. `verificar` es una **segunda lectura independiente**:
+   - relee los PDF desde cero y el GLOBAL desde disco, y comprueba cada celda escrita;
+   - comprueba que **ninguna otra celda del libro** cambió respecto a la copia previa;
+   - avisa si la suma de enero al mes en el GLOBAL no da el acumulado del PDF, porque eso delata meses anteriores mal cargados.
+6. `cerrar` devuelve el GLOBAL (o un ZIP, si el lote tocó dos años) y borra el lote.
+   - La app recibe `{respuesta, archivo}`, como con la TABLA CA.
+   - Después, `Normalizar GLOBAL` → `Cargar en global_ai` sincroniza cada GLOBAL escrito.
+
+**Reglas de escritura:**
+- El cruce es **solo por código**, nunca por nombre: «Lavandería» es el 23, el 33 y el 72.
+- Un mes ya cargado se **sobrescribe**, y la respuesta da el valor anterior (decisión de Leo).
+- **Fórmulas** (totales y subtotales):
+  - se conservan si ya dan el valor del PDF con ±1 CUP de margen, porque al sumar decenas de partidas se van unos céntimos;
+  - si no cuadran, se escribe el valor del PDF y se avisa;
+  - se repite hasta que no cambie nada, porque sustituir Ventas Totales puede descuadrar Ventas Netas.
+  - `Modelo1.py` las machacaba siempre: en FEB y MAR de 2026 solo quedan 6 de las 40 fórmulas de ENE.
+- La herramienta **rechaza** escribir un PDF en otro polo, con el mes ambiguo, o dos PDF del mismo polo y mes.
+- Una fila dudosa que el agente no corrige ni excluye no se escribe.
+- Cerrojo (`flock`) para que dos subidas a la vez no se pisen, y guardado atómico (`.tmp` + `os.replace`).
+
+**Versión vieja** (sigue en producción hasta aplicar el rediseño):
+
 - **Se dispara:** al subir un PDF cuyo nombre contiene `CP` y el código del polo (`HOCP`, `VACP`, `CACP`, `HACP`, `CXCP`, `CCCP`), o un **ZIP** con varios de esos PDF.
 - **Entrada:** PDF del modelo CP. Del texto se extraen la lavandería (`Lavanderia <NOMBRE>`), el mes (`<Mes>/<AAAA>`) y las filas `ccc Indicador PM RM PA RA %M %A`, con el código de 3 dígitos. Lo hace `Code in JavaScript1`.
 - **Proceso:**
@@ -157,6 +207,24 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
   - El VAB se calcula sobre códigos de fila (`Filas`) del GLOBAL: 30 − 69 − 77 − 93 − 129 − 112 − 115 − 121 − 136 − 176 − 177 − 178 − 180 − 182 − 198 + 144 − 113 − 114 − 116 − 117 − 123 − 181 − 195 − 200. Son **códigos de fila**, no números de fila de Excel, y coinciden con `global_ai.codigo_fila`.
 - **Antes:** `Leslie/CD/rellenar_ca.py --archivo_cd <fichero>`. Buscaba las etiquetas con desplazamientos fijos (`+2 columnas`), así que se rompía con cualquier cambio de formato.
 - **Decisión (2026-10-12):** lo hace **un agente de n8n**: lee el CD y el Global (vía `global_ai`), y decide los 28 valores, cada uno con su celda de origen. Un nodo valida las sumas, y un escritor genérico en el pythonrunner (openpyxl) escribe la columna del mes sin tocar el formato. **Maestro en el VPS** y el chat devuelve el xlsx. La **TABLA CA 2026 aún no existe**: Leo la subirá al VPS cuando se la den.
+- **Implantado (2026-10-12, borrador `cc4c1c39` sin publicar):**
+  - **Flujo:** `Switch3` salida 5 «Leslie CD» → `CD - Guardar` (escribe el CD en `/data/Polarier/Leslie/CD/`) → `CD - Preparar` → `CD - ¿Preparado?` → **`Agente TABLA CA`** → `CD - Limpiar` → `CD - Leer tabla` → `CD - Empaquetar` → `CD - Responder`. Cualquier fallo va a `CD - Error` → `CD - Responder error`. El fallback de `Switch3` pasa de la salida 5 a la 6 y sigue yendo a `If2`.
+  - **Agente:** Claude Sonnet 5.5 (credencial «Anthropic Polarier»), con pensamiento adaptativo y un máximo de 12 iteraciones.
+  - **Herramientas:** cuatro `HTTP Request Tool` contra el pythonrunner: `ver_hoja_cd`, `ver_global`, `estado_tabla` y `escribir_tabla`. El nombre del CD lo fija la expresión del nodo, no el modelo, así que el agente no puede apuntar a otro fichero.
+  - **`agente_ca.py preparar`** entrega antes de que el agente empiece:
+    - el contexto (polo, año y mes deducidos del nombre del CD);
+    - la **extracción de referencia**, que es la lógica de `rellenar_ca.py` indicador a indicador, con celda de origen o con el error;
+    - el estado de la columna del mes en la tabla, con sus fórmulas y los tres meses previos.
+  - **Qué hace el agente:**
+    - verifica en el CD lo dudoso, buscando por etiqueta y no por posición, y aplica comprobaciones de rango;
+    - **no pisa celdas con fórmula**: el escritor se niega aunque se lo pidan;
+    - sobrescribe valores fijos indicando el anterior;
+    - hace una sola escritura, con copia previa en `CD/respaldos/` (se guardan las 15 últimas).
+  - **Respuesta:** JSON `{respuesta, archivo:{nombre, mime, base64}}`. La app pinta el resumen y debajo la tarjeta de descarga de la tabla.
+  - **Diferencias con el diseño:**
+    - El GLOBAL se lee del xlsx del VPS y no de `global_ai`. `agente_ca.py` reutiliza el `Evaluador` de `sync_global_ai.py`, así que las fórmulas que `Modelo1.py` deja sin valor se evalúan igual que en la sincronización. Además no depende de que `global_ai` esté al día y da la celda exacta.
+    - La validación de sumas y rangos la hace el agente, guiado por el prompt, en lugar de un nodo aparte. La garantía dura (no pisar fórmulas, solo las 28 claves, solo valores numéricos) está en el escritor.
+  - **Fragilidad que hereda la extracción de referencia** y que el agente debe cazar: «último valor bajo KM» y «último bajo Comb» toman lo que haya al final de la columna. En un CD con otro bloque debajo, los km salen iguales al diésel.
 
 ### D3 — COMU \<MES\> GENERAL.xlsx (Carla)
 
