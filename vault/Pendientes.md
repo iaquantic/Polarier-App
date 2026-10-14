@@ -126,13 +126,13 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
   - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
-**Fase 4 — TABLA CA con agente** (en producción desde `57fca139`; el mapa nuevo está en el borrador del 2026-10-14, **sin publicar**)
+**Fase 4 — TABLA CA con agente** (en producción; mapa nuevo publicado el 2026-10-14 en `427e5f14`)
 - [x] Regla en `Switch3` → `Agente TABLA CA` (Claude Sonnet 5.5) con herramientas sobre `Leslie/CD/agente_ca.py` → respuesta JSON con el resumen y la tabla. Diseño y mapa en [[Generacion-Documentos]] (D2).
 - [x] App: una respuesta JSON con `archivo` (base64) se pinta como texto + tarjeta de descarga (PR #11).
 - [x] **Mapa rehecho con datos reales** (2026-10-14): seis CA de abril de 2025 (`C:\Users\Leo\Desktop\CA`) y TABLA CA 2026. Ficheros `<POLO>CA<AAAAMM>` (antes se esperaba `CD`). Las cifras económicas salen de las filas del GLOBAL que enlaza la tabla, hay químicos por producto, transporte con el criterio de cada polo y avisos deterministas. Validado con `validar_mapeo.py` (151/168 y 219/246; los químicos, 100 %).
 - [x] **`agente_ca.py` subido al VPS** (2026-10-14, ejecución 476 del flujo temporal ya archivado): descargado de GitHub fijado al commit `89a708b`, SHA-256 `a8b158eb…`, igual que el del repo. El runner acepta `CACA202604` y lee del GLOBAL un VAB de abril de 2026 de Caibarién (−1.591.000,95) idéntico al de la TABLA CA 2026.
 - [x] **`TABLA CA 2026.xlsx` en el VPS** (2026-10-14, ejecución 480, flujo temporal archivado): Leo la subió al chat y se copió de Storage a `/data/Polarier/Leslie/CD/` (1.461.415 bytes, igual que el original). `estado_tabla` la lee bien: las 28 claves con fila, las fórmulas detectadas y los 15 químicos.
-- [ ] **Publicar el borrador** de «Polarier Auto App» (6 operaciones sobre el autoguardado `e09b8068` del editor). Incluye:
+- [x] **Publicado** (2026-10-14, versión activa `427e5f14`) el borrador de «Polarier Auto App» (6 operaciones sobre el autoguardado `e09b8068` del editor). Incluye:
   - `Switch3` «Leslie CA» acepta `CA` y `CD` sin distinguir mayúsculas;
   - `escribir_tabla` acepta `quimicos`;
   - prompt nuevo.
