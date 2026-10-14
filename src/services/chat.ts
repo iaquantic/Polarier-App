@@ -289,6 +289,8 @@ export const sendToN8n = async (
       try {
         const json = JSON.parse(trimmed);
         const extracted = extractTextContent(json);
+        const adjunto = await attachedFileMarker(json, chatId);
+        if (adjunto) return [extracted, adjunto].filter(Boolean).join('\n\n');
         return resolveUrlResponse(extracted, chatId);
       } catch {
         // content-type dice json pero el cuerpo no lo es: tratarlo como texto
@@ -300,6 +302,31 @@ export const sendToN8n = async (
     return null;
   }
 };
+
+// Respuesta JSON con texto y fichero a la vez (p. ej. el agente de la TABLA CA:
+// `{ respuesta, archivo: { nombre, mime, base64 } }`). Guarda el fichero como los
+// binarios y devuelve su marcador, que ChatMessage pinta debajo del texto.
+async function attachedFileMarker(json: unknown, chatId: string): Promise<string | null> {
+  const archivo = (json as { archivo?: { nombre?: string; mime?: string; base64?: string } } | null)?.archivo;
+  if (!archivo?.base64) return null;
+  try {
+    const bin = atob(archivo.base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const mime = archivo.mime || 'application/octet-stream';
+    const fileName = archivo.nombre || 'archivo';
+    const blob = new Blob([bytes], { type: mime });
+    const ext = fileName.includes('.') ? fileName.split('.').pop()! : 'file';
+    try {
+      const { signedUrl } = await uploadAssistantBlob(blob, chatId, mime, fileName);
+      return `[${fileName}](${signedUrl}){.file-download|${ext}}`;
+    } catch {
+      return `[${fileName}](${URL.createObjectURL(blob)}){.file-download|${ext}}`;
+    }
+  } catch {
+    return null;
+  }
+}
 
 async function resolveUrlResponse(text: string | null, chatId: string): Promise<string | null> {
   if (!text || !/^https?:\/\/\S+$/.test(text.trim())) return text;

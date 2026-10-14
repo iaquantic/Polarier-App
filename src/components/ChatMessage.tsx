@@ -26,7 +26,9 @@ type Parsed =
   | { kind: "text"; text: string }
   | { kind: "audio"; url: string; mime: string }
   | { kind: "image"; url: string; mime: string }
-  | { kind: "file"; url: string; ext: string; label: string };
+  | { kind: "file"; url: string; ext: string; label: string; text?: string };
+
+const FILE_MARKER = /\[([^\]\n]+)\]\(([^)\s]+)\)\{\.file-download\|([^}\n]+)\}$/;
 
 const parseMessage = (raw: string): Parsed => {
   const audioMatch = raw.match(/^\[([^\]]+)\]\(([^)]+)\)\{\.audio-player\|([^}]+)\}$/);
@@ -37,9 +39,12 @@ const parseMessage = (raw: string): Parsed => {
   if (imageMatch) {
     return { kind: "image", url: imageMatch[2], mime: imageMatch[3] };
   }
-  const fileMatch = raw.match(/^\[([^\]]+)\]\(([^)]+)\)\{\.file-download\|([^}]+)\}$/);
-  if (fileMatch) {
-    return { kind: "file", label: fileMatch[1], url: fileMatch[2], ext: fileMatch[3] };
+  // Fichero, solo o al final de un texto (p. ej. el resumen del agente de la
+  // TABLA CA seguido de la tabla actualizada): el marcador va en su propia línea.
+  const fileMatch = raw.match(FILE_MARKER);
+  if (fileMatch && (fileMatch.index === 0 || raw[fileMatch.index - 1] === "\n")) {
+    const text = raw.slice(0, fileMatch.index).trim();
+    return { kind: "file", label: fileMatch[1], url: fileMatch[2], ext: fileMatch[3], ...(text && { text }) };
   }
   return { kind: "text", text: raw };
 };
@@ -80,6 +85,46 @@ const ImageThumb = ({ url }: { url: string }) => {
   );
 };
 
+const FileCard = ({ url, ext: rawExt, label }: { url: string; ext: string; label: string }) => {
+  const ext = rawExt.toLowerCase();
+  const FileIcon =
+    ext === "pdf" ? FileText :
+    ext === "xlsx" || ext === "xls" ? FileSpreadsheet :
+    ext === "docx" || ext === "doc" ? FileText :
+    ext === "zip" || ext === "rar" ? FileArchive :
+    File;
+  const iconColor =
+    ext === "pdf" ? "text-red-400" :
+    ext === "xlsx" || ext === "xls" ? "text-green-400" :
+    ext === "docx" || ext === "doc" ? "text-blue-400" :
+    "text-muted-foreground";
+  const handleDownload = useCallback(() => {
+    const downloadUrl = withDownloadParam(url, label);
+    window.open(downloadUrl, "_system");
+  }, [url, label]);
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      className="flex items-center gap-3 min-w-[220px] max-w-[280px] group text-left"
+    >
+      {/* Icono del tipo de archivo */}
+      <div className="w-12 h-12 rounded-xl bg-background/40 border border-border/60 flex items-center justify-center shrink-0">
+        <FileIcon size={26} className={iconColor} />
+      </div>
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate leading-tight">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 uppercase">{rawExt}</p>
+      </div>
+      {/* Botón descarga */}
+      <div className="w-8 h-8 rounded-full bg-secondary/60 group-hover:bg-secondary flex items-center justify-center shrink-0 transition-colors">
+        <Download size={15} className="text-secondary-foreground" />
+      </div>
+    </button>
+  );
+};
+
 const ChatMessage = ({ sender, text, time, initial = "U", avatarUrl }: ChatMessageProps) => {
   const parsed = parseMessage(text);
 
@@ -109,52 +154,23 @@ const ChatMessage = ({ sender, text, time, initial = "U", avatarUrl }: ChatMessa
 
   let body: JSX.Element;
   if (parsed.kind === "file") {
-    const ext = parsed.ext.toLowerCase();
-    const FileIcon =
-      ext === "pdf" ? FileText :
-      ext === "xlsx" || ext === "xls" ? FileSpreadsheet :
-      ext === "docx" || ext === "doc" ? FileText :
-      ext === "zip" || ext === "rar" ? FileArchive :
-      File;
-    const iconColor =
-      ext === "pdf" ? "text-red-400" :
-      ext === "xlsx" || ext === "xls" ? "text-green-400" :
-      ext === "docx" || ext === "doc" ? "text-blue-400" :
-      "text-muted-foreground";
-    const fileName = parsed.label;
-    const fileUrl = parsed.url;
-    const handleDownload = useCallback(() => {
-      const downloadUrl = withDownloadParam(fileUrl, fileName);
-      window.open(downloadUrl, "_system");
-    }, [fileUrl, fileName]);
-    body = (
-      <button
-        type="button"
-        onClick={handleDownload}
-        className="flex items-center gap-3 min-w-[220px] max-w-[280px] group text-left"
-      >
-        {/* Icono del tipo de archivo */}
-        <div className="w-12 h-12 rounded-xl bg-background/40 border border-border/60 flex items-center justify-center shrink-0">
-          <FileIcon size={26} className={iconColor} />
-        </div>
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate leading-tight">{parsed.label}</p>
-          <p className="text-xs text-muted-foreground mt-0.5 uppercase">{parsed.ext}</p>
-        </div>
-        {/* Botón descarga */}
-        <div className="w-8 h-8 rounded-full bg-secondary/60 group-hover:bg-secondary flex items-center justify-center shrink-0 transition-colors">
-          <Download size={15} className="text-secondary-foreground" />
-        </div>
-      </button>
-    );
+    const card = <FileCard url={parsed.url} ext={parsed.ext} label={parsed.label} />;
+    body = parsed.text ? (
+      <div className="space-y-3">
+        <span className="whitespace-pre-wrap block">{parsed.text}</span>
+        {card}
+      </div>
+    ) : card;
   } else if (parsed.kind === "image") {
     body = <ImageThumb url={parsed.url} />;
   } else {
     body = <span className="whitespace-pre-wrap">{parsed.text}</span>;
   }
 
-  const bubblePadding = parsed.kind === "image" ? "p-1.5" : parsed.kind === "file" ? "p-3" : "px-4 py-3";
+  const bubblePadding =
+    parsed.kind === "image" ? "p-1.5" :
+    parsed.kind === "file" && !parsed.text ? "p-3" :
+    "px-4 py-3";
 
   if (sender === "bot") {
     return (
