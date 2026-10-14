@@ -17,8 +17,9 @@ Comandos (todos reciben un JSON con al menos {"cd": "<nombre del fichero CA>"}):
     ver_global      Filas de la hoja del polo en el GLOBAL (Plan/Real del mes).
     estado_tabla    Valores y fórmulas de la columna del mes en la TABLA CA.
     escribir        Escribe {clave: valor} (y {producto: kg} de químicos) en la
-                    columna del mes. Nunca pisa una celda con fórmula. Hace
-                    copia de seguridad antes.
+                    columna del mes. Nunca pisa una celda con fórmula y no
+                    reescribe las que ya tienen ese mismo valor (sin_cambios).
+                    Hace copia de seguridad antes, solo si algo cambia.
     limpiar         Borra el CA ya procesado.
 
 El fichero de entrada se llama <POLO>CA<AAAA><MM>.xlsx (p. ej. CACA202504.xlsx;
@@ -849,7 +850,7 @@ def escribir(ctx, valores, quimicos=None):
     wb = abrir_tabla(ctx, solo_valores=False)
     ws = hoja_tabla(wb, ctx)
     _, cols_mes, filas = mapa_tabla(ws, ctx)
-    escritas, omitidas = [], []
+    escritas, omitidas, sin_cambios = [], [], []
 
     def poner(r, c, etiqueta, valor):
         v = num(valor)
@@ -861,6 +862,12 @@ def escribir(ctx, valores, quimicos=None):
             omitidas.append({"clave": etiqueta, "motivo": f"la celda {cell.coordinate} tiene fórmula ({cell.value}); no se pisa"})
             return
         anterior = cell.value
+        # mismo valor que ya tiene la celda: no se reescribe (re-subir un CA no
+        # cuenta como cambio). Una celda vacía sí se escribe, aunque sea con 0.
+        previo = num(anterior)
+        if previo is not None and abs(previo - v) <= 1e-9 * max(1.0, abs(v)):
+            sin_cambios.append({"clave": etiqueta, "celda": cell.coordinate, "valor": limpio(v)})
+            return
         cell.value = int(v) if v.is_integer() else v
         escritas.append({"clave": etiqueta, "celda": cell.coordinate, "anterior": limpio(anterior), "nuevo": limpio(v)})
 
@@ -891,8 +898,9 @@ def escribir(ctx, valores, quimicos=None):
     if escritas:
         respaldo = respaldar(ctx)
         wb.save(ctx["ruta_tabla"])
-    return {"escritas": escritas, "omitidas": omitidas, "respaldo": respaldo,
-            "hoja": ws.title, "mes": ctx["mes"]}
+    return {"escritas": escritas, "sin_cambios": sin_cambios, "omitidas": omitidas, "respaldo": respaldo,
+            "hoja": ws.title, "mes": ctx["mes"],
+            "nota": None if escritas else "Nada que escribir: la tabla no se ha guardado ni respaldado."}
 
 
 # ---------------------------------------------------------------- avisos
