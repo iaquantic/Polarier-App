@@ -195,10 +195,10 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 
 ### D2 — TABLA CA \<año\>.xlsx (indicadores mensuales por lavandería)
 
-- **Se dispara:** al subir `<POLO>CA<AAAAMM>.xlsx` (p. ej. `CACA202504.xlsx` = Caibarién, abril de 2025). Prefijos reales: `CA`, `CC`, `CX`, `HA`, `HO`, `VA`. El nombre antiguo `<POLO>CD<AAAAMM>` también vale. Año y mes salen del nombre. En `Switch3` es la salida «Leslie CA», con el regex `^(LH|HA|VA|CA|CC|CCX|CX|CCZ|HOL|HO)C[AD]…` sin distinguir mayúsculas.
+- **Se dispara:** al subir `<POLO>CA<AAAAMM>.xlsx` (p. ej. `CACA202504.xlsx` = Caibarién, abril de 2025). Prefijos reales: `CA`, `CC`, `CX`, `HA`, `HO`, `VA`. El nombre antiguo `<POLO>CD<AAAAMM>` también vale. Año y mes salen del nombre. En `Switch3` es la salida «Leslie CA», con el regex `^(lh|ha|va|ca|cc|ccx|cx|ccz|hol|ho)c[ad]…` y `caseSensitive: false`. **El patrón tiene que ir en minúsculas**: con esa opción, n8n pasa a minúsculas el nombre del fichero pero no el patrón, y en mayúsculas no casaba nunca (2026-10-14).
 - **Entradas:**
   - El CA. Las hojas que importan (el nombre varía un poco y se buscan de forma aproximada) son **2.Economía, 3.Producción, 6.SSTT, 7.Transporte, 8.Calidad y 9.RRHH**. Las demás (Portada, Recepción, Lencería, Informática…) no se usan.
-  - El **GLOBAL** del año, hoja `<COD>CP<año>`.
+  - El **GLOBAL** del año, hoja `<COD>CP<año>`. Se busca en `Leslie/` y, para años cerrados, en `Leslie Global <año>/` (como en `agente_modelo1.py`).
   - `TABLA CA <año>.xlsx` en `/data/Polarier/Leslie/CD/`. Por polo tiene el bloque del año (filas 6–60), el del año anterior (63–115, que **no** se toca) y el de **consumo de productos químicos** (182–196). La etiqueta «AÑO ACTUAL (2025)» de la TABLA CA 2026 está sin actualizar; no se usa.
 - **Sale:** la columna del mes, en la hoja del polo: los **28 indicadores** más los **kg por producto químico**. Las filas con fórmula (en 2026: real producción, real ingresos y las seis económicas, enlazadas al GLOBAL) no se escriben nunca.
 - **Dónde está cada dato** (mapa del 2026-10-14). Las celdas cambian de un CA a otro, pero las hojas y las etiquetas no, así que todo se localiza por etiqueta y por la cabecera «Real» de su bloque:
@@ -236,7 +236,7 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
     - la extracción, con la celda de origen de cada dato, los químicos, el detalle de vehículos y el contraste económico del CA;
     - **avisos deterministas**: SSTT copiado del mes anterior, cambio de capacidad, GLOBAL frente a CA, rangos y vehículos excluidos;
     - el estado de la tabla, con las fórmulas, los meses previos y los químicos.
-  - **El escritor** nunca pisa fórmulas, solo acepta las 28 claves y los productos que tienen fila, y guarda una copia en `CD/respaldos/` (las 15 últimas).
+  - **El escritor** nunca pisa fórmulas, solo acepta las 28 claves y los productos que tienen fila, y guarda una copia en `CD/respaldos/` (las 15 últimas). Las celdas que ya tienen ese valor no se reescriben y salen en `sin_cambios`: re-subir un CA ya cargado no guarda ni respalda nada.
   - **Prompt del agente:** `n8n/agente-tabla-ca/prompt-sistema.txt`. **Operaciones:** `n8n/agente-tabla-ca/operaciones-mapa-ca.json`.
   - **Respuesta:** JSON `{respuesta, archivo}`. La app pinta el resumen con la tabla debajo.
   - **Guardar con openpyxl** conserva los vínculos externos al GLOBAL, los 181 gráficos y los comentarios. Pierde la cadena de cálculo (Excel la rehace al abrir) y la configuración de impresora.

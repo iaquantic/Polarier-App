@@ -126,7 +126,7 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - nodos `Normalizar GLOBAL` → `Cargar en global_ai` detrás de `Respond to Webhook6` y `Respond to Webhook7`, después de vaciar el Sheet;
   - herramientas de Wisin sin `anio=eq.2026`, `dato_exacto` filtrando por `partida_key`, `comparar_partida` comparando entre polos de verdad (antes filtraba por un solo polo) y `polo_periodo` con límite 200 (Varadero tiene 120 partidas en enero).
 
-**Fase 4 — TABLA CA con agente** (en producción; mapa nuevo publicado el 2026-10-14 en `427e5f14`)
+**Fase 4 — TABLA CA con agente** (en producción; versión activa de «Polarier Auto App»: `a4b17be8`, 2026-10-14)
 - [x] Regla en `Switch3` → `Agente TABLA CA` (Claude Sonnet 5.5) con herramientas sobre `Leslie/CD/agente_ca.py` → respuesta JSON con el resumen y la tabla. Diseño y mapa en [[Generacion-Documentos]] (D2).
 - [x] App: una respuesta JSON con `archivo` (base64) se pinta como texto + tarjeta de descarga (PR #11).
 - [x] **Mapa rehecho con datos reales** (2026-10-14): seis CA de abril de 2025 (`C:\Users\Leo\Desktop\CA`) y TABLA CA 2026. Ficheros `<POLO>CA<AAAAMM>` (antes se esperaba `CD`). Las cifras económicas salen de las filas del GLOBAL que enlaza la tabla, hay químicos por producto, transporte con el criterio de cada polo y avisos deterministas. Validado con `validar_mapeo.py` (151/168 y 219/246; los químicos, 100 %).
@@ -137,7 +137,20 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - `escribir_tabla` acepta `quimicos`;
   - prompt nuevo.
   - **Al publicar entran también los cambios del editor de Leo:** rama «Informe» quitada (su salida queda sin conectar, así que un fichero con «Informe» en el nombre no recibe respuesta), nota adhesiva y `caseSensitive: true` en las reglas Modelo 1 y Comprimido. Con esto último, un `VACP202601.PDF` en mayúsculas ya no entra por Modelo 1.
-- [ ] Prueba real en el chat: subir un CA de 2026 cuya columna esté vacía en la tabla y revisar el resumen y el xlsx.
+- [x] **Re-subir un CA no reescribe nada** (PR #13, versión `373eb792`). El escritor deja en `sin_cambios` las celdas que ya tienen ese valor y solo guarda (y respalda) si algo cambia. El resumen añade la línea «Sin cambios (N)». Decisión de Leo.
+- [x] **Arreglo del enrutado** (versión `a4b17be8`). Los CA caían al chat general («No puedo acceder directamente a archivos subidos»), con cualquier nombre, incluso los `CD` antiguos.
+  - Causa: con `caseSensitive: false`, n8n pasa a minúsculas el nombre del fichero pero no el patrón, y el regex estaba en mayúsculas.
+  - Arreglo: el patrón va en minúsculas, `^(lh|ha|va|ca|cc|ccx|cx|ccz|hol|ho)c[ad]…`.
+  - Probado en un flujo temporal, ya archivado: `HOCA202504`, `CACA202504`, `hoca202504` y `CACD202609` van a la salida 5; `TABLA CA 2026.xlsx`, al fallback.
+- [x] **Primera prueba real** (ejecución 486, `CCCA202504.xlsx`, Cayo Coco, abril de 2025, contra la TABLA CA 2025 del servidor). De punta a punta en 28 s.
+  - Escribió CDT y CDO (74,22 y 81,42, antes 74,21 y 81,4) y 6 químicos vacíos a 0.
+  - El resto, «sin cambios».
+  - No escribió el agua (386 en el CA frente a 3860 en la tabla) y lo avisó.
+  - No tocó ninguna fórmula y las contrastó con el CA.
+- [x] **GLOBAL de años cerrados** (PR #14). En esa prueba no encontró `GLOBAL-CP25.xlsx`.
+  - Ahora `agente_ca.py` lo busca como `agente_modelo1.py`: `Leslie/`, después `Leslie/Leslie Global <año>/` y `/data/Polarier/Leslie Global <año>/`, y por último la copia antigua de `CD/`.
+  - En el VPS (ejecución 487, SHA-256 `32f3a186…`), el VAB de Cayo Coco de abril de 2025 sale 12.882.523,02, igual que en la tabla.
+- [ ] Prueba con un CA de 2026 cuya columna esté vacía en la tabla (escritura real de un mes nuevo) y con el de Holguín (46 MB). La segunda subida de Leo del 2026-10-14 no llegó a n8n.
 - [ ] Decidir si el agente rellena también **PLAN TURISTAS DÍAS** y **PRODUCTIVIDAD**, que en el bloque del año son celdas de valor. Hoy no se tocan: el plan del CA no coincide con el de la tabla en Cayo Cruz y La Habana, y la productividad de la tabla no sale de ningún dato del CA que se haya podido identificar.
 - [ ] Retirar `Leslie/CD/rellenar_ca.py` del VPS.
 
