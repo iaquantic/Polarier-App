@@ -4,10 +4,25 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-14 — Agente Modelo 1
+
+- **Contexto:** el Modelo 1 pasaba por Google Sheets solo para que `Modelo1.py` pudiera leer un Excel. Además, el extractor de JavaScript esperaba un formato de fila (`ccc Indicador PM RM PA RA %M %A`) que no es el de los PDF actuales.
+- **Leo eligió un agente de n8n** que lee el PDF directamente, como el de la TABLA CA. Se quitan los Sheets de staging, la copia del GLOBAL en Drive y `Modelo1.py`, y se mantiene la sincronización de `global_ai`.
+- **Se aceptan PDF sueltos y ZIP o RAR** con varios.
+- **Si el mes ya tiene datos, se sobrescribe y se avisa** con el valor anterior (Leo).
+- **El polo y el mes salen del contenido, no del nombre.** Dos de las cinco muestras tenían en el nombre un mes distinto del contenido, y una llevaba fechas ocultas fuera de la página.
+- **La lectura es determinista y el agente supervisa.** Python lee por coordenadas y valida cada fila con las cuentas del PDF. El agente solo investiga lo dudoso y pasa correcciones o exclusiones. Así no copia cientos de números a mano y todo se puede auditar. Después de escribir, una verificación independiente vuelve a leerlo todo.
+- **Fórmulas del GLOBAL: se conservan si cuadran con el PDF (±1 CUP); si no, se escribe el valor del PDF.** Es la recomendación de Claude: Leo no llegó a responder la pregunta. `Modelo1.py` las machacaba siempre. Si Leo prefiere otra regla, se cambia en `cmd_escribir`.
+
 ## 2026-10-12 — Reglas de generación de documentos y limpieza
 
 - **Contexto:** las reglas de qué fichero genera qué documento solo existían dentro de los nodos de n8n y de los scripts del VPS. Cada sistema heredado usa su propio código de polo y el año va fijo en varios sitios. Se escribieron en [[Generacion-Documentos]].
 - **TABLA CA con un agente de n8n**, no con `rellenar_ca.py`. El script buscaba etiquetas con desplazamientos fijos y se rompía con cualquier cambio de formato (además, apuntaba a las hojas `*CP2025` mientras leía `GLOBAL-CP26`). Leo eligió que el agente decida todos los valores. Como salvaguarda, cada valor va con su celda de origen y un nodo valida las sumas antes de escribir. Maestro en el VPS y respuesta en el chat.
+  - **Al implantarlo (2026-10-12)** se ajustaron tres cosas:
+    - El agente parte de la extracción del script antiguo, ya portada y con celda de origen, y solo investiga lo dudoso. Así es más barato y se puede auditar.
+    - El GLOBAL se lee del xlsx del VPS evaluando las fórmulas con el `Evaluador` de `sync_global_ai.py`, en lugar de leerlo de `global_ai`.
+    - Las sumas las valida el agente, y la garantía dura está en el escritor: **nunca pisa una celda con fórmula** (decisión de Leo) y solo acepta las 28 claves con valores numéricos.
+  - Leo eligió además «escribe y avisa»: el agente escribe sin pedir confirmación y devuelve el resumen con la tabla.
 - **`global_ai` se sincroniza al final de cada Modelo 1.** Se cargó una sola vez (30-ago, enero–junio) y Wisin respondía con datos viejos.
 - **El año sale del fichero.** Nada de `CP26`/`2025` fijos.
 - **Correo por el n8n self-hosted** («Emails»), para tener una sola instancia.

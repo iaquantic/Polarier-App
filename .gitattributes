@@ -1,2 +1,6 @@
 # Scripts del VPS: siempre LF, para que su SHA-256 coincida con la copia del servidor.
 vps/** text eol=lf
+# main.py del pythonrunner tal cual está en el contenedor (CRLF), para que su SHA-256 coincida.
+vps/pythonrunner/main.py -text
+# El ZIP que se sube a Easypanel es binario: nunca convertir finales de línea.
+*.zip binary

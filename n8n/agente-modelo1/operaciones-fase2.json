@@ -1,0 +1,350 @@
+[
+ {
+  "type": "removeNode",
+  "nodeName": "Caibarien"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Caibarien1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Caibarien2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Caibarien3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Coco"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Coco1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Coco2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Coco3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Cruz"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Cruz1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Cruz2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Cayo Cruz3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript5"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript6"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript7"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Code in JavaScript8"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Compression"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete a file"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet10"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet11"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet4"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet5"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet6"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet7"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet8"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Delete rows or columns from sheet9"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Edit Fields"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Edit Fields1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Edit Fields3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Edit Fields4"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Edit Fields5"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Edit Fields6"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Extract from File"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Extract from File2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "HTTP Request1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "HTTP Request2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Habana"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Habana1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Holguin"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Holguin1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Holguin2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Holguin3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "If1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "If4"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "La Habana"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "La Habana1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Limit"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Limit2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Limit3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Loop Over Items"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Read/Write Files from Disk2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Read/Write Files from Disk3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Read/Write Files from Disk4"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Read/Write Files from Disk5"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook12"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook13"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook14"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook15"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook16"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook6"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook7"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Respond to Webhook9"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Search files and folders"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Split Out"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Split Out3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Split Out4"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Switch"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Switch1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Switch2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Switch4"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Switch6"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Upload file"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Varadero"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Varadero1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Varadero2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "Varadero3"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "error"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "error1"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "error2"
+ },
+ {
+  "type": "removeNode",
+  "nodeName": "error4"
+ }
+]
