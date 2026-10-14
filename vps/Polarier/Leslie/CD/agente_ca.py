@@ -221,7 +221,13 @@ def contexto(nombre_cd):
 
     global_cp, hoja_tabla, nombre_polo = POLOS[prefijo]
     aa = str(anio)[-2:]
-    candidatos_global = [BASE_DIR.parent / f"GLOBAL-CP{aa}.xlsx", BASE_DIR / f"GLOBAL-CP{aa}.xlsx"]
+    # Mismo orden que agente_modelo1.py: el GLOBAL vivo está en Leslie/; los de
+    # años cerrados, en «Leslie Global <año>/» (dentro de Leslie/ o al lado).
+    # La copia de CD/ va la última: es antigua.
+    candidatos_global = [BASE_DIR.parent / f"GLOBAL-CP{aa}.xlsx",
+                         BASE_DIR.parent / f"Leslie Global {anio}" / f"GLOBAL-CP{aa}.xlsx",
+                         BASE_DIR.parent.parent / f"Leslie Global {anio}" / f"GLOBAL-CP{aa}.xlsx",
+                         BASE_DIR / f"GLOBAL-CP{aa}.xlsx"]
     ruta_global = next((p for p in candidatos_global if p.exists()), candidatos_global[0])
 
     return {
@@ -624,7 +630,9 @@ def filas_global(ctx):
     """Filas de la hoja del polo en el GLOBAL con Plan y Real del mes.
     Devuelve (filas, letra de la columna Real, si las fórmulas se evaluaron)."""
     if not ctx["ruta_global"].exists():
-        raise ErrorAgente(f"No existe {ctx['ruta_global'].name} en el servidor.")
+        aa = str(ctx["anio"])[-2:]
+        raise ErrorAgente(f"No existe GLOBAL-CP{aa}.xlsx en el servidor (se busca en Leslie/ y en "
+                          f"'Leslie Global {ctx['anio']}/'). Sin él no se puede contrastar el GLOBAL ni sacar el VAB.")
     Evaluador, columnas_meses = _evaluador_global()
     wb = load_workbook(ctx["ruta_global"], data_only=Evaluador is None)
     if ctx["hoja_global"] not in wb.sheetnames:
