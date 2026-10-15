@@ -197,6 +197,17 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - **Gotchas:**
     - n8n no puede sobrescribir ficheros que creó el runner, porque son de root (`EACCES`). Para cambiar un maestro escrito por Python hay que usar el runner.
     - Un Modelo 1 de prueba **sincroniza `global_ai`**, así que restaurar el GLOBAL no basta: hay que volver a sincronizar.
+- [x] **Prueba de un PDF suelto, de un mes ya cargado** (2026-10-15, ejecución 500, con el OK de Leo para escribir en producción):
+  - `VAM-1.PDF` original (Varadero, febrero de 2025) entró por la regla nueva de `Switch3` y fue al GLOBAL-CP25 real, hoja `VARCP2025`.
+  - Los 98 valores ya coincidían y no se sobrescribió ninguno.
+  - **4 fórmulas no cuadraban** (plan de 001, 050, 196 y 207: I6, I47, I179 e I186). Se sustituyeron por el valor del PDF, que es la regla de ±1 CUP. En las cuatro sobran 27.000, el plan del 047.
+  - El agente avisó además de que el acumulado del 047 (plan) no cuadra: el GLOBAL suma 27.000 y el PDF acumula 54.000, así que falta el plan de enero.
+  - Hay copia previa en `Leslie/respaldos_global/` y se resincronizó `global_ai` de 2025. Fue igual que el ensayo local.
+- [ ] **Revisar a mano el GLOBAL-CP25 de Varadero:**
+  - el plan de enero del 047;
+  - por qué las fórmulas de I6 (`=I7+I33+SUM(I40:I45)`) y siguientes sumaban 27.000 de más, porque es probable que cuenten el 047 dos veces.
+
+  Las celdas de febrero ya llevan el valor del PDF en vez de la fórmula.
 - [x] **Enrutado ampliado** (publicado en `9d0654b9`). La regla «Modelo 1» de `Switch3` pasa a `caseSensitive: false` y a un patrón en minúsculas que acepta `<polo>CP…`, `<polo>M-1`/`M1`, `Mod 1`, `Modelo 1` y `Modelo I`. Antes ni `HA MODELO 1 ….PDF` entraba, porque la regla distinguía mayúsculas. «Comprimido» también pasa a `caseSensitive: false`. Con la publicación entraron cambios del editor de Leo:
   - la rama «Informe» hacia `Supabase Vector Store2`;
   - «Leslie CA», que el autoguardado había dejado en `caseSensitive: true`, se devolvió a `false` antes de publicar.
