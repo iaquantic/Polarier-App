@@ -215,7 +215,8 @@ def desempaquetar(lote_dir):
     for p in destino.iterdir():
         if p.suffix.lower() != ".pdf":
             p.unlink()
-    pdfs = sorted(destino.glob("*.pdf"))
+    # sin glob("*.pdf"): en Linux distingue mayúsculas y se perdía «CAMOD 1.PDF»
+    pdfs = sorted(p for p in destino.iterdir() if p.is_file() and p.suffix.lower() == ".pdf")
     return pdfs, avisos
 
 

@@ -177,7 +177,7 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - `/data/Polarier/Leslie/agente_modelo1.py`, SHA-256 `5dd0eadf…997b`, igual que el del repo;
   - `/data/Polarier/Leslie/pypdf-6.10.2-py3-none-any.whl`, el wheel oficial de PyPI, con SHA-256 `aa53be98…24aa` comprobado contra el que publica PyPI. Python lo importa sin descomprimir.
   - Para comprobar una subida: `agente_modelo1.py version`.
-  - La copia del servidor se subió con finales de línea CRLF (`5dd0eadf…`). En el repo el script va en LF, como todo `vps/` (`729a2bc7…`). El contenido es el mismo. La próxima subida debe hacerse desde el repo para que las dos huellas coincidan.
+  - La primera copia del servidor se subió con finales de línea CRLF (`5dd0eadf…`). Desde el 2026-10-15 el servidor tiene la del repo, en LF: `6fd08ba7…`, con el arreglo de `.PDF` en mayúsculas.
   - El runner ve la carpeta en `/data/Polarier/Leslie`, la misma ruta que n8n.
   - Si algún día se instala `pypdf` en la imagen del runner, se usará ese y el wheel sobra.
 - [x] **RAR:** Leo desplegó `vps/pythonrunner/pythonrunner-upload.zip` el 2026-10-14. El runner se creó subiendo un ZIP y no tiene otra forma de cambiarse: ver `vps/pythonrunner/README.md`.
@@ -185,9 +185,21 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - Comprobado con la ejecución 475 del flujo «DIAG - Prueba RAR Modelo 1» (ya archivado): un RAR5 con un PDF sintético de Cayo Coco, Octubre/2025, pasa por `preparar`. Lo desempaqueta, lee las 2 filas sin dudas, encuentra `GLOBAL-CP25.xlsx` (hoja `CCCP2025`, columnas AP/AQ) y ve que los valores ya coinciden. `cerrar` borró el lote.
 - [x] App con el soporte de `archivo` en JSON desplegada (PR #11 en `main`, 2026-10-14).
 - [x] **Publicado** el 2026-10-14 por Leo: versión activa `57fca139`, idéntica al borrador `0cc3900d`. Con ella sale también la rama de la TABLA CA, que fallará con un mensaje de error hasta que estén en el servidor `agente_ca.py` y `TABLA CA 2026.xlsx`.
-- [ ] Prueba real en el chat:
-  - primero `VACP202601.PDF`, que no debe cambiar nada (0 celdas, 34 fórmulas conservadas);
-  - después un ZIP o RAR con los de octubre de 2025, que escribe en el GLOBAL-CP25 sobre todo Cayo Cruz.
+- [x] **Prueba real en el chat** (2026-10-15, hecha por Claude con la sesión de Leo en `app.automate-polarier.tech`):
+  - **Material.** Los 6 Modelos 1 de febrero (`Escritorio/Modelos 1 Febrero`). Eran de 2025, así que se usaron copias con la fecha cambiada a 2026, el año actual. Contra el GLOBAL-CP26 de Leo con febrero borrado en las 6 hojas de polo.
+  - **Primer intento, ejecución 495: no escribió nada.** Dos fallos:
+    1. `desempaquetar` listaba con `glob("*.pdf")`, que en Linux distingue mayúsculas: del ZIP solo vio el único `.pdf` en minúsculas.
+    2. La descripción de `$fromAI` en `escribir_global` llevaba `{"real": 634684.44}}`. Ese `}}` cerraba la expresión de n8n y la herramienta fallaba siempre con «invalid syntax».
+
+    Los dos se arreglaron: script `6fd08ba7…` subido al servidor y versión `9d0654b9` publicada.
+  - **Segundo intento, ejecución 497: correcto.** 6 PDF, cada uno en su polo y en febrero de 2026. 612 celdas (102/102/102/108/98/100), 34 fórmulas conservadas por hoja, «revisión correcta» en las seis. Además avisó de que los nombres de La Habana y Holguín dicen 2025 y el contenido 2026. Tardó 31 s. El GLOBAL devuelto es **idéntico celda a celda** al que da el mismo script en local, y no cambia nada fuera de febrero (columnas I y J). Copia en `Escritorio/Modelos 1 Febrero/GLOBAL-CP26 devuelto por el agente (prueba).xlsx`.
+  - **Restaurado después:** `GLOBAL-CP26.xlsx` original (`08e97809…`) y `global_ai` resincronizado (3.436 filas de 2026, igual que antes). Queda la copia `Leslie/GLOBAL-CP26 antes-prueba-m1 20261015.xlsx`, que se puede borrar. En `Leslie/respaldos_global/` quedan los respaldos que hizo el agente durante la prueba.
+  - **Gotchas:**
+    - n8n no puede sobrescribir ficheros que creó el runner, porque son de root (`EACCES`). Para cambiar un maestro escrito por Python hay que usar el runner.
+    - Un Modelo 1 de prueba **sincroniza `global_ai`**, así que restaurar el GLOBAL no basta: hay que volver a sincronizar.
+- [x] **Enrutado ampliado** (publicado en `9d0654b9`). La regla «Modelo 1» de `Switch3` pasa a `caseSensitive: false` y a un patrón en minúsculas que acepta `<polo>CP…`, `<polo>M-1`/`M1`, `Mod 1`, `Modelo 1` y `Modelo I`. Antes ni `HA MODELO 1 ….PDF` entraba, porque la regla distinguía mayúsculas. «Comprimido» también pasa a `caseSensitive: false`. Con la publicación entraron cambios del editor de Leo:
+  - la rama «Informe» hacia `Supabase Vector Store2`;
+  - «Leslie CA», que el autoguardado había dejado en `caseSensitive: true`, se devolvió a `false` antes de publicar.
 - [ ] Cuando esté en producción: retirar `Leslie/Modelo1.py` del VPS, los Sheets «Modelo 1 <polo>» y la copia `GLOBALCP-26.xlsx` de Drive.
 - [ ] Revisar los avisos de acumulado de las pruebas: en Cayo Cruz, La Habana y Holguín (2025), la suma de los meses del GLOBAL no da el acumulado del PDF en 4–9 filas, así que hay meses anteriores cargados distintos.
 

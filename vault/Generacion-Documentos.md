@@ -47,9 +47,9 @@ En el chat, **el nombre del fichero subido decide qué documento se genera**. `S
 | Orden | Si el nombre contiene… | Rama | Estado |
 |---|---|---|---|
 | 0 | `MU` | Carla → COMU GENERAL | **Rota a propósito** (decisión 2026-10-05) |
-| 1 | `CP` (rediseño: regex `<polo>CP….pdf` o `modelo 1….pdf`, salida «Modelo 1») | Leslie → GLOBAL-CP. Rediseño: **Agente Modelo 1** (ver D1) | Operativa la vieja; el rediseño está sin aplicar |
+| 1 | regex sin distinguir mayúsculas: `<polo>CP….pdf`, `<polo>M-1….pdf`, `Mod 1…`, `Modelo 1…` o `Modelo I….pdf` (salida «Modelo 1») | **Agente Modelo 1** (ver D1) | Operativa (versión `9d0654b9`, 2026-10-15) |
 | 2 | `Integral` | Ocupación | Funciona, **no se usa** |
-| 3 | *(mime zip)* (rediseño: mime `zip`/`rar` o nombre `.zip`/`.rar`, salida «Comprimido») | Lote de PDFs CP → GLOBAL-CP. Rediseño: la misma rama que la salida 1 | Operativa la vieja; el rediseño está sin aplicar |
+| 3 | mime `zip`/`rar` o nombre `.zip`/`.rar`, sin distinguir mayúsculas (salida «Comprimido») | La misma rama que la salida 1. Dentro del comprimido el nombre no importa: el polo y el mes salen del contenido | Operativa |
 | 4 | `Informe` | Base de conocimiento | Operativa |
 | — | nada de lo anterior / audio | Agente Benjamin (texto, imagen o audio) | Operativa |
 
@@ -57,7 +57,8 @@ Consecuencias que hay que respetar:
 
 - Un fichero que contenga **dos** marcadores va a la **primera** rama. Un `CP` cuyo nombre lleve `MU` acaba en la rama Carla.
 - **Ningún valor de regla puede ser subcadena de otro** en un mismo switch. Esto ya provocó pérdida silenciosa de datos (ver [[Integracion-n8n]], `Switch4`/`Switch5`).
-- Las comparaciones distinguen mayúsculas.
+- Las reglas por subcadena (`MU`, `Integral`, `Informe`) distinguen mayúsculas.
+- Las reglas por regex («Modelo 1», «Comprimido» y «Leslie CA») no las distinguen (`caseSensitive: false`), y por eso **su patrón tiene que ir en minúsculas**: n8n pasa a minúsculas el nombre del fichero, pero no el patrón.
 - Una rama nueva (p. ej. `CD`) necesita una marca que no aparezca en los nombres de las demás ramas.
 
 ### 2. Códigos de polo
@@ -144,7 +145,7 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 - **El nombre del fichero no es fiable.** `HOCP202611.pdf` y `CXCP202610.pdf` son de Octubre/2025. Además, `HOCP202611.pdf` fue reescrito con PyPDF2 y lleva «Enero/2026» y «Noviembre/2026» como **texto oculto fuera de la página**: un lector ingenuo habría cogido el mes equivocado.
 
 **Cómo funciona:**
-1. `Switch3` manda a la rama `M1 - *` los PDF `<polo>CP….pdf` o `Modelo 1 ….pdf` y cualquier ZIP o RAR.
+1. `Switch3` manda a la rama `M1 - *` los PDF con nombre de Modelo 1 (`<polo>CP…`, `VAM-1`, `CAMOD 1`, `HOMODELO1…`, `CX Modelo I…`; el patrón exacto está en la tabla de `Switch3`) y cualquier ZIP o RAR.
 2. `M1 - Guardar` deja el fichero en `Leslie/m1_<ejecución>__<nombre>`, porque el nodo de escritura de n8n no crea carpetas.
 3. `agente_modelo1.py preparar` hace todo lo determinista:
    - mueve el fichero a `modelo1_lotes/<ejecución>/` y lo desempaqueta: ZIP con `zipfile`; RAR con `rarfile`, `bsdtar`, `unar`, `7z` o `unrar`, lo que haya en el runner;

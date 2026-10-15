@@ -211,7 +211,7 @@
     "url": "http://polarierauto_pythonrunner:8000/run",
     "sendBody": true,
     "specifyBody": "json",
-    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['escribir', JSON.stringify({ lote: $execution.id, archivos: $fromAI('archivos', 'Lista JSON, p. ej. [{\"archivo\": \"VACP202601.PDF\"}, {\"archivo\": \"CCCP202510.PDF\", \"correcciones\": {\"043\": {\"real\": 634684.44}}, \"excluir\": [47]}]', 'json') })] }) }}",
+    "jsonBody": "={{ JSON.stringify({ script: 'Leslie/agente_modelo1.py', args: ['escribir', JSON.stringify({ lote: $execution.id, archivos: $fromAI('archivos', 'Lista JSON, p. ej. [{\"archivo\": \"VACP202601.PDF\"}, {\"archivo\": \"CCCP202510.PDF\", \"correcciones\": {\"043\": {\"real\": 634684.44} }, \"excluir\": [47]}]', 'json') })] }) }}",
     "options": {
      "timeout": 180000
     }
