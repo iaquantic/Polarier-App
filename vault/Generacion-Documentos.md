@@ -80,7 +80,7 @@ Ojo con los que no son obvios: Habana es `HA` en los PDF pero `LH` en el GLOBAL 
 
 | Maestro | Dónde vive (fuente de verdad) | Quién lo escribe | Copias |
 |---|---|---|---|
-| `GLOBAL-CP<aa>.xlsx` | VPS `/data/Polarier/Leslie/` (el de 2025, en `Leslie Global 2025/`) | `Modelo1.py` (lo sobrescribe en cada pasada). Con el rediseño, `agente_modelo1.py`, que guarda copia previa en `Leslie/respaldos_global/` (las 20 últimas) | Drive, carpeta «Modelo 1», como `GLOBALCP-26.xlsx`: **solo** se refresca por la rama ZIP. Con el rediseño **deja de actualizarse** (decisión 2026-10-14) |
+| `GLOBAL-CP<aa>.xlsx` | VPS `/data/Polarier/Leslie/` (el de 2025, en `Leslie Global 2025/`) | `agente_modelo1.py` (antes `Modelo1.py`, retirado el 2026-10-15 a `Leslie/_retirados/`), que guarda copia previa en `Leslie/respaldos_global/` (las 20 últimas) | Ya no hay copia en Drive. La de la carpeta «Modelo 1» (`GLOBAL-CP26.xlsx`) dejó de actualizarse con el rediseño y está pendiente de mandar a la papelera, junto con la carpeta |
 | `TABLA CA <año>.xlsx` | VPS `/data/Polarier/Leslie/CD/` | Rama CD (en rediseño) | — |
 | `COMU <MES> GENERAL.xlsx` | VPS `/data/Polarier/Carla/` | `actualizar_general.py` | — |
 | Sheets «Modelo 1 <polo>» | Google Drive | Rama CP (appendOrUpdate) | Son **staging**: se vacían al terminar. **Desaparecen con el rediseño** |
