@@ -203,14 +203,27 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - **4 fórmulas no cuadraban** (plan de 001, 050, 196 y 207: I6, I47, I179 e I186). Se sustituyeron por el valor del PDF, que es la regla de ±1 CUP. En las cuatro sobran 27.000, el plan del 047.
   - El agente avisó además de que el acumulado del 047 (plan) no cuadra: el GLOBAL suma 27.000 y el PDF acumula 54.000, así que falta el plan de enero.
   - Hay copia previa en `Leslie/respaldos_global/` y se resincronizó `global_ai` de 2025. Fue igual que el ensayo local.
-- [x] **GLOBAL-CP25 corregido: 045 y 047** (2026-10-15, ejecución 502, con el OK de Leo).
+- [x] **GLOBAL-CP25: 045 y 047.** Se corrigió el 2026-10-15 en la ejecución 502 y **se deshizo el mismo día** (ver la entrada «GLOBAL-CP25 devuelto a su estado de antes de la prueba»). El análisis sigue siendo válido.
   - **Las fórmulas estaban bien.** El fallo era de datos: en el primer trimestre de 2025 el **plan del 047** («Ventas por Servicios a Trabajador») estaba en la fila del **045** («Ingreso por sobrante de bienes»), y desde abril ya está en su fila. Así lo confirman los PDF de febrero de los seis polos: no traen el 045, salvo el real de Caibarién, y el acumulado del 047 es el doble del mes.
   - **Qué se cambió.** En La Habana (26.000), Varadero (27.000), Cayo Cruz (15.000), Holguín (19.600) y Caibarién (41.900,83 y 48.347,11), el plan de enero a marzo pasó de la fila 43 a la 44. El real del 045 de Caibarién se queda, porque el PDF lo trae. Cayo Coco estaba bien. En febrero de Varadero se volvieron a poner las fórmulas de I6, I47, I179 e I186, que ahora dan lo que dice el PDF.
   - **Cómo se hizo.** Con un script del runner, que antes de escribir comprobaba el valor esperado de cada una de las 33 celdas. Copia previa en `Leslie/respaldos_global/GLOBAL-CP25_20261015_171218_antes-045-047.xlsx`. `global_ai` de 2025 se resincronizó y tiene 12 filas menos, una por polo y mes en los que el 045 se ha quedado vacío.
   - **Comprobación.** Antes de aplicarlo, en una réplica local, los 6 PDF de febrero pasaron por el agente: ya no hay avisos de acumulado del 045 ni del 047, ni sustituciones de fórmulas en Varadero.
-  - **Quedan otros descuadres que no se tocaron:**
-    - Cayo Cruz, febrero, plan de 110 y 111: el GLOBAL tiene 34.141 y 95.594,80, y el PDF 24.141 y 67.594,80.
-    - Holguín, plan: 5 fórmulas desfasadas en 416,66.
+  - **Otros dos descuadres que se analizaron y no se tocaron:**
+    - **Holguín:** el plan del **186** «Cancelación de Pérdidas y Faltantes» (416,66 al mes) está en la fila del **195** «Otros» de enero a junio. El PDF de febrero trae el 186 y no el 195; su acumulado da 416,66 también en enero. El 175 suma las dos filas, así que hoy cuadra, pero al pasar el PDF los 416,66 quedan dos veces.
+    - **Cayo Cruz:** el plan de **110** (impuesto sobre nómina) y **111** (seguridad social) del primer trimestre supera al PDF en 10.000 y 28.000. Es el 5 % y el 14 % de 200.000, así que parece calculado sobre 200.000 más de salario. Enero y febrero los confirma el PDF; marzo sigue el mismo patrón.
+- [x] **GLOBAL-CP25 devuelto a su estado de antes de la prueba** (2026-10-15, ejecución 505). Leo lo pidió así: la prueba era solo para comprobar que el agente funcionaba.
+  - Se restauró la copia que hizo el agente antes del `VAM-1.PDF`, `respaldos_global/GLOBAL-CP25_20261015_165023_099205.xlsx` (SHA-256 `0c4be9eb…`). Así se deshacen la prueba (4 fórmulas y 4 celdas de febrero de Varadero) y la corrección del 045/047.
+  - Antes de restaurar se comprobaron las 33 celdas distintas, todas esperadas. El estado intermedio quedó en `GLOBAL-CP25_20261015_184942_antes-de-restaurar.xlsx`.
+  - `global_ai` de 2025 se resincronizó y tiene 5.421 filas, igual que antes.
+- [x] **Restos de las pruebas borrados** (2026-10-15, a petición de Leo):
+  - de Storage (`documents`), los 6 ficheros: los 4 subidos al chat y los 2 GLOBAL que devolvió el agente; ejecución 506;
+  - sus 6 filas de `documents`;
+  - las 3 conversaciones de prueba con sus mensajes;
+  - los 2 mensajes del GLOBAL sin febrero que cayeron en la conversación de la TABLA CA, que conserva sus otros 12;
+  - las entradas de esas conversaciones en `n8n_chat_histories`;
+  - la copia del GLOBAL devuelto que se dejó en el escritorio de Leo.
+
+  En el VPS siguen las copias de `Leslie/respaldos_global/`, que el agente rota solo.- [ ] **Decidir con quien carga el GLOBAL-CP25** si se corrigen el 045/047, el 186/195 de Holguín y el 110/111 de Cayo Cruz. El análisis está arriba.
 - [x] **Fallo del agente encontrado en esa comprobación** (arreglado el 2026-10-15, script `3cb30b9a…` en el VPS, ejecución 503; PR #18).
   - **Qué pasa:** `escribir` vuelve a escribir las celdas que ya eran «iguales» dentro de la tolerancia, con el valor redondeado del PDF. Por ejemplo, 41.900,826… pasa a 41.900,83.
   - **Consecuencia:** `verificar` lo da como «celda no prevista cambiada» y `todo_correcto` sale `false`. Pasará en cualquier GLOBAL con valores sin redondear, como Caibarién o Cayo Coco en 2025.
