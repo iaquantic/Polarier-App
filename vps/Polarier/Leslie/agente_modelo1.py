@@ -968,10 +968,13 @@ def cmd_escribir(args):
                         if es_formula(actual):
                             pendientes_formula.append((cod, campo, r, c, nuevo, actual))
                             continue
+                        # Si ya coincide (±TOL) no se toca: reescribirla con el valor redondeado
+                        # del PDF cambiaba 41900.826… por 41900.83 y verificar lo daba como
+                        # celda no prevista.
                         if not iguales(actual, nuevo):
                             cambios.append({"codigo": cod, "campo": campo, "celda": coord(r, c),
                                             "antes": limpio(actual), "ahora": limpio(nuevo)})
-                        ws.cell(r, c).value = nuevo
+                            ws.cell(r, c).value = nuevo
                 # 2) fórmulas: se quedan si ya dan el valor del PDF (con los detalles nuevos).
                 #    Sustituir una puede descuadrar otra que dependa de ella (Ventas Netas
                 #    usa Ventas Totales), así que se repite hasta que no cambie nada.
