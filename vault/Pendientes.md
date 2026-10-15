@@ -203,11 +203,18 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - **4 fórmulas no cuadraban** (plan de 001, 050, 196 y 207: I6, I47, I179 e I186). Se sustituyeron por el valor del PDF, que es la regla de ±1 CUP. En las cuatro sobran 27.000, el plan del 047.
   - El agente avisó además de que el acumulado del 047 (plan) no cuadra: el GLOBAL suma 27.000 y el PDF acumula 54.000, así que falta el plan de enero.
   - Hay copia previa en `Leslie/respaldos_global/` y se resincronizó `global_ai` de 2025. Fue igual que el ensayo local.
-- [ ] **Revisar a mano el GLOBAL-CP25 de Varadero:**
-  - el plan de enero del 047;
-  - por qué las fórmulas de I6 (`=I7+I33+SUM(I40:I45)`) y siguientes sumaban 27.000 de más, porque es probable que cuenten el 047 dos veces.
-
-  Las celdas de febrero ya llevan el valor del PDF en vez de la fórmula.
+- [x] **GLOBAL-CP25 corregido: 045 y 047** (2026-10-15, ejecución 502, con el OK de Leo).
+  - **Las fórmulas estaban bien.** El fallo era de datos: en el primer trimestre de 2025 el **plan del 047** («Ventas por Servicios a Trabajador») estaba en la fila del **045** («Ingreso por sobrante de bienes»), y desde abril ya está en su fila. Así lo confirman los PDF de febrero de los seis polos: no traen el 045, salvo el real de Caibarién, y el acumulado del 047 es el doble del mes.
+  - **Qué se cambió.** En La Habana (26.000), Varadero (27.000), Cayo Cruz (15.000), Holguín (19.600) y Caibarién (41.900,83 y 48.347,11), el plan de enero a marzo pasó de la fila 43 a la 44. El real del 045 de Caibarién se queda, porque el PDF lo trae. Cayo Coco estaba bien. En febrero de Varadero se volvieron a poner las fórmulas de I6, I47, I179 e I186, que ahora dan lo que dice el PDF.
+  - **Cómo se hizo.** Con un script del runner, que antes de escribir comprobaba el valor esperado de cada una de las 33 celdas. Copia previa en `Leslie/respaldos_global/GLOBAL-CP25_20261015_171218_antes-045-047.xlsx`. `global_ai` de 2025 se resincronizó y tiene 12 filas menos, una por polo y mes en los que el 045 se ha quedado vacío.
+  - **Comprobación.** Antes de aplicarlo, en una réplica local, los 6 PDF de febrero pasaron por el agente: ya no hay avisos de acumulado del 045 ni del 047, ni sustituciones de fórmulas en Varadero.
+  - **Quedan otros descuadres que no se tocaron:**
+    - Cayo Cruz, febrero, plan de 110 y 111: el GLOBAL tiene 34.141 y 95.594,80, y el PDF 24.141 y 67.594,80.
+    - Holguín, plan: 5 fórmulas desfasadas en 416,66.
+- [ ] **Fallo del agente encontrado en esa comprobación.**
+  - **Qué pasa:** `escribir` vuelve a escribir las celdas que ya eran «iguales» dentro de la tolerancia, con el valor redondeado del PDF. Por ejemplo, 41.900,826… pasa a 41.900,83.
+  - **Consecuencia:** `verificar` lo da como «celda no prevista cambiada» y `todo_correcto` sale `false`. Pasará en cualquier GLOBAL con valores sin redondear, como Caibarién o Cayo Coco en 2025.
+  - **Arreglo:** no escribir las celdas que ya son iguales.
 - [x] **Enrutado ampliado** (publicado en `9d0654b9`). La regla «Modelo 1» de `Switch3` pasa a `caseSensitive: false` y a un patrón en minúsculas que acepta `<polo>CP…`, `<polo>M-1`/`M1`, `Mod 1`, `Modelo 1` y `Modelo I`. Antes ni `HA MODELO 1 ….PDF` entraba, porque la regla distinguía mayúsculas. «Comprimido» también pasa a `caseSensitive: false`. Con la publicación entraron cambios del editor de Leo:
   - la rama «Informe» hacia `Supabase Vector Store2`;
   - «Leslie CA», que el autoguardado había dejado en `caseSensitive: true`, se devolvió a `false` antes de publicar.
