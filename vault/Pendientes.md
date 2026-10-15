@@ -193,7 +193,7 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 
     Los dos se arreglaron: script `6fd08ba7…` subido al servidor y versión `9d0654b9` publicada.
   - **Segundo intento, ejecución 497: correcto.** 6 PDF, cada uno en su polo y en febrero de 2026. 612 celdas (102/102/102/108/98/100), 34 fórmulas conservadas por hoja, «revisión correcta» en las seis. Además avisó de que los nombres de La Habana y Holguín dicen 2025 y el contenido 2026. Tardó 31 s. El GLOBAL devuelto es **idéntico celda a celda** al que da el mismo script en local, y no cambia nada fuera de febrero (columnas I y J). Copia en `Escritorio/Modelos 1 Febrero/GLOBAL-CP26 devuelto por el agente (prueba).xlsx`.
-  - **Restaurado después:** `GLOBAL-CP26.xlsx` original (`08e97809…`) y `global_ai` resincronizado (3.436 filas de 2026, igual que antes). Queda la copia `Leslie/GLOBAL-CP26 antes-prueba-m1 20261015.xlsx`, que se puede borrar. En `Leslie/respaldos_global/` quedan los respaldos que hizo el agente durante la prueba.
+  - **Restaurado después:** `GLOBAL-CP26.xlsx` original (`08e97809…`) y `global_ai` resincronizado (3.436 filas de 2026, igual que antes). La copia `Leslie/GLOBAL-CP26 antes-prueba-m1 20261015.xlsx` se borró el mismo día (ejecución 499, tras comprobar que era idéntica al GLOBAL restaurado). En `Leslie/respaldos_global/` quedan los respaldos que hizo el agente durante la prueba.
   - **Gotchas:**
     - n8n no puede sobrescribir ficheros que creó el runner, porque son de root (`EACCES`). Para cambiar un maestro escrito por Python hay que usar el runner.
     - Un Modelo 1 de prueba **sincroniza `global_ai`**, así que restaurar el GLOBAL no basta: hay que volver a sincronizar.
