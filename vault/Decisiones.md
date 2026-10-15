@@ -12,7 +12,7 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 - **Si el mes ya tiene datos, se sobrescribe y se avisa** con el valor anterior (Leo).
 - **El polo y el mes salen del contenido, no del nombre.** Dos de las cinco muestras tenían en el nombre un mes distinto del contenido, y una llevaba fechas ocultas fuera de la página.
 - **La lectura es determinista y el agente supervisa.** Python lee por coordenadas y valida cada fila con las cuentas del PDF. El agente solo investiga lo dudoso y pasa correcciones o exclusiones. Así no copia cientos de números a mano y todo se puede auditar. Después de escribir, una verificación independiente vuelve a leerlo todo.
-- **Fórmulas del GLOBAL: se conservan si cuadran con el PDF (±1 CUP); si no, se escribe el valor del PDF.** Es la recomendación de Claude: Leo no llegó a responder la pregunta. `Modelo1.py` las machacaba siempre. Si Leo prefiere otra regla, se cambia en `cmd_escribir`.
+- **Fórmulas del GLOBAL: se conservan si cuadran con el PDF (±1 CUP); si no, se escribe el valor del PDF y se avisa.** `Modelo1.py` las machacaba siempre. Al principio fue una recomendación de Claude sin respuesta de Leo. **Leo la confirmó el 2026-10-15**, después de verla en producción con `VAM-1.PDF`: se sustituyeron 4 fórmulas de Varadero y el aviso permitió encontrar el plan del 047 puesto en la fila del 045.
 
 ## 2026-10-12 — Reglas de generación de documentos y limpieza
 
