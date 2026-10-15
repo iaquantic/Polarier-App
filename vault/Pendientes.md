@@ -218,7 +218,8 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 - [x] **Enrutado ampliado** (publicado en `9d0654b9`). La regla «Modelo 1» de `Switch3` pasa a `caseSensitive: false` y a un patrón en minúsculas que acepta `<polo>CP…`, `<polo>M-1`/`M1`, `Mod 1`, `Modelo 1` y `Modelo I`. Antes ni `HA MODELO 1 ….PDF` entraba, porque la regla distinguía mayúsculas. «Comprimido» también pasa a `caseSensitive: false`. Con la publicación entraron cambios del editor de Leo:
   - la rama «Informe» hacia `Supabase Vector Store2`;
   - «Leslie CA», que el autoguardado había dejado en `caseSensitive: true`, se devolvió a `false` antes de publicar.
-- [ ] Cuando esté en producción: retirar `Leslie/Modelo1.py` del VPS, los Sheets «Modelo 1 <polo>» y la copia `GLOBALCP-26.xlsx` de Drive.
+- [x] **`Leslie/Modelo1.py` retirado del VPS** (2026-10-15, ejecución 504). No se borró: está en `Leslie/_retirados/Modelo1.py` (19.285 bytes, SHA-256 `df3ddd28…`). En `Leslie/` no quedaba ningún «Modelo 1 *.xlsx» de staging. Lo que sigue ahí es el wheel `pypdf-6.10.2-py3-none-any.whl`, que ya no hace falta porque `pypdf` está en la imagen del runner. No estorba.
+- [ ] **Drive: mandar a la papelera la carpeta «Modelo 1»** (`1QRhYDffKNfDikZZdspFZf1YTDIzFXTME`, cuenta leodev0211). Tiene las 6 hojas «Modelo 1 <polo>» y la copia `GLOBAL-CP26.xlsx` (julio de 2026), y ya nada de n8n la usa. El permiso automático de la sesión bloqueó la papelera de Drive, así que lo hace Leo a mano.
 - [ ] Revisar los avisos de acumulado de las pruebas: en Cayo Cruz, La Habana y Holguín (2025), la suma de los meses del GLOBAL no da el acumulado del PDF en 4–9 filas, así que hay meses anteriores cargados distintos.
 
 ## Ideas / futuro
