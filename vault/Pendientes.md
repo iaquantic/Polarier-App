@@ -211,10 +211,10 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - **Quedan otros descuadres que no se tocaron:**
     - Cayo Cruz, febrero, plan de 110 y 111: el GLOBAL tiene 34.141 y 95.594,80, y el PDF 24.141 y 67.594,80.
     - Holguín, plan: 5 fórmulas desfasadas en 416,66.
-- [ ] **Fallo del agente encontrado en esa comprobación.**
+- [x] **Fallo del agente encontrado en esa comprobación** (arreglado el 2026-10-15, script `3cb30b9a…` en el VPS, ejecución 503; PR #18).
   - **Qué pasa:** `escribir` vuelve a escribir las celdas que ya eran «iguales» dentro de la tolerancia, con el valor redondeado del PDF. Por ejemplo, 41.900,826… pasa a 41.900,83.
   - **Consecuencia:** `verificar` lo da como «celda no prevista cambiada» y `todo_correcto` sale `false`. Pasará en cualquier GLOBAL con valores sin redondear, como Caibarién o Cayo Coco en 2025.
-  - **Arreglo:** no escribir las celdas que ya son iguales.
+  - **Arreglo:** ya no se escriben las celdas que son iguales. Con los 6 PDF de febrero de 2025, `todo_correcto` pasa de `false` a `true`, y la prueba de febrero de 2026 sigue dando las 612 celdas, idénticas.
 - [x] **Enrutado ampliado** (publicado en `9d0654b9`). La regla «Modelo 1» de `Switch3` pasa a `caseSensitive: false` y a un patrón en minúsculas que acepta `<polo>CP…`, `<polo>M-1`/`M1`, `Mod 1`, `Modelo 1` y `Modelo I`. Antes ni `HA MODELO 1 ….PDF` entraba, porque la regla distinguía mayúsculas. «Comprimido» también pasa a `caseSensitive: false`. Con la publicación entraron cambios del editor de Leo:
   - la rama «Informe» hacia `Supabase Vector Store2`;
   - «Leslie CA», que el autoguardado había dejado en `caseSensitive: true`, se devolvió a `false` antes de publicar.
