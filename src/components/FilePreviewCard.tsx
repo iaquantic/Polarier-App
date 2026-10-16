@@ -21,7 +21,7 @@ const getFileIcon = (name: string) => {
   if (ext === "pdf") return <FileText size={20} className="text-red-500" />;
   if (ext === "xlsx" || ext === "xls") return <FileSpreadsheet size={20} className="text-green-600" />;
   if (ext === "doc" || ext === "docx") return <FileText size={20} className="text-blue-500" />;
-  return <File size={20} className="text-muted-foreground" />;
+  return <File size={20} className="neo-text-2" />;
 };
 
 const statusLabel: Record<FileUploadStatus, string> = {
@@ -41,21 +41,21 @@ const FilePreviewCard = ({ pendingFile, onRemove, onRetry }: Props) => {
   const { file, status, progress, error } = pendingFile;
 
   return (
-    <div className="flex items-center gap-3 bg-muted/60 border border-border rounded-lg px-3 py-2.5 max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
+    <div className="neo-raised-sm flex items-center gap-3 rounded-2xl px-3.5 py-2.5 max-w-sm animate-in fade-in slide-in-from-bottom-2 duration-200">
       <div className="flex-shrink-0">{getFileIcon(file.name)}</div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+        <p className="neo-text text-sm font-bold truncate">{file.name}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-muted-foreground">{formatSize(file.size)}</span>
-          <span className="text-xs text-muted-foreground">·</span>
+          <span className="text-xs neo-text-2">{formatSize(file.size)}</span>
+          <span className="text-xs neo-text-2">·</span>
           <span
             className={`text-xs font-medium ${
               status === "error"
                 ? "text-destructive"
                 : status === "uploaded"
                 ? "text-green-600"
-                : "text-muted-foreground"
+                : "neo-text-2"
             }`}
           >
             {statusLabel[status]}
@@ -70,8 +70,8 @@ const FilePreviewCard = ({ pendingFile, onRemove, onRetry }: Props) => {
       <div className="flex-shrink-0 flex items-center gap-1">
         {status === "uploading" && (
           <>
-            <Loader2 size={16} className="text-muted-foreground animate-spin" />
-            <button onClick={onRemove} title="Cancelar" className="text-muted-foreground hover:text-foreground transition-colors ml-1">
+            <Loader2 size={16} className="neo-text-2 animate-spin" />
+            <button onClick={onRemove} title="Cancelar" className="neo-text-2 hover:text-foreground transition-colors ml-1">
               <X size={16} />
             </button>
           </>
@@ -79,16 +79,16 @@ const FilePreviewCard = ({ pendingFile, onRemove, onRetry }: Props) => {
         {status === "uploaded" && <Check size={16} className="text-green-600" />}
         {status === "error" && (
           <>
-            <button onClick={onRetry} className="text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={onRetry} className="neo-text-2 hover:text-foreground transition-colors">
               <RotateCcw size={16} />
             </button>
-            <button onClick={onRemove} className="text-muted-foreground hover:text-foreground transition-colors ml-1">
+            <button onClick={onRemove} className="neo-text-2 hover:text-foreground transition-colors ml-1">
               <X size={16} />
             </button>
           </>
         )}
         {status === "pending" && (
-          <button onClick={onRemove} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={onRemove} className="neo-text-2 hover:text-foreground transition-colors">
             <X size={16} />
           </button>
         )}

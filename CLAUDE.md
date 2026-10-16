@@ -71,6 +71,7 @@ The project is wrapped with Capacitor to produce a native Android app from the w
 ## Key Conventions
 
 - Path alias: `@/` maps to `src/`
+- Lobby, chat and login use the neo design layer in `src/index.css` (`.neo-ground` / `.neo-chat` scopes + `.neo-*` classes, background `.polarier-pattern`); read `vault/Diseno-Neoformista.md` before restyling them. Use `PolarierLogo` instead of the raw logo PNG (the yellow logo is invisible on the light background).
 - UI components live in `src/components/ui/` (shadcn/ui, do not edit manually)
 - Custom components in `src/components/`
 - All user-facing text is in Spanish
