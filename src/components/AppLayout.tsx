@@ -13,24 +13,25 @@ const AppLayout = () => {
   const isChat = location.pathname.startsWith("/chat");
 
   return (
-    // En el chat, el mosaico Polarier hace de fondo de toda la pantalla y la barra
-    // lateral flota sobre él; el resto de páginas conservan su fondo.
-    <div className={`flex h-screen-dvh w-full overflow-hidden ${isChat ? "polarier-pattern" : "bg-background"}`}>
+    // El mosaico Polarier es el fondo de todas las pestañas del menú y la barra lateral
+    // flota sobre él. Fuera del chat, el contenido va en el ámbito .neo-ground, que
+    // ajusta los tokens de shadcn para que esas páginas se lean sobre el mosaico.
+    <div className="polarier-pattern flex h-screen-dvh w-full overflow-hidden">
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col h-screen-dvh overflow-hidden">
         {/* Mobile header — oculto en /chat porque Chat.tsx tiene su propio header con botón */}
         {!isChat && (
-          <div className="lg:hidden flex items-center px-4 py-3 border-b border-border bg-card safe-top">
+          <div className="neo-ground lg:hidden flex items-center px-4 pt-3 safe-top">
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Abrir menú"
-              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+              className="neo-raised-sm neo-press neo-accent w-11 h-11 rounded-full flex items-center justify-center"
             >
-              <Menu size={22} />
+              <Menu size={20} />
             </button>
           </div>
         )}
-        <main className="flex-1 flex flex-col overflow-y-auto">
+        <main className={`flex-1 flex flex-col overflow-y-auto ${isChat ? "" : "neo-ground"}`}>
           <Outlet context={{ openSidebar: () => setSidebarOpen(true) } satisfies LayoutContext} />
         </main>
       </div>
