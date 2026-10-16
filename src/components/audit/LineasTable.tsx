@@ -123,7 +123,7 @@ const LineasTable = ({ grupos, cabecera = [], conObservaciones, data, onChange, 
     <div className="space-y-4">
       {/* Cabecera de campos */}
       {cabecera.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 rounded-[22px] neo-raised-sm p-4">
           {cabecera.map((c) => (
             <div key={c.key}>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">{c.label}</label>
@@ -141,7 +141,7 @@ const LineasTable = ({ grupos, cabecera = [], conObservaciones, data, onChange, 
       )}
 
       {/* Tabla de líneas (tablet / escritorio) */}
-      <div className="hidden lg:block overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
+      <div className="hidden lg:block overflow-x-auto rounded-[22px] neo-raised-sm">
         <table className="w-full border-collapse text-sm">
           <thead>
             {/* Fila de grupos (2º nivel) solo si hay grupos con label */}
@@ -252,12 +252,12 @@ const LineasTable = ({ grupos, cabecera = [], conObservaciones, data, onChange, 
       {/* Vista de tarjetas (móvil): una tarjeta por prenda */}
       <div className="lg:hidden space-y-3">
         {lineas.length === 0 ? (
-          <p className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+          <p className="rounded-[22px] neo-raised-sm p-6 text-center text-sm text-muted-foreground">
             No hay prendas configuradas para este formulario.
           </p>
         ) : (
           lineas.map((l) => (
-            <div key={l.id} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <div key={l.id} className="rounded-[22px] neo-raised-sm overflow-hidden">
               <div className="bg-primary text-primary-foreground px-4 py-2.5 font-semibold text-sm">
                 {l.prenda}
               </div>

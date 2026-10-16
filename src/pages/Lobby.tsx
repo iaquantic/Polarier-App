@@ -9,9 +9,11 @@ import {
   Search,
   Moon,
   Sun,
+  ClipboardCheck,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { useRole } from "@/context/RoleContext";
 import { getLatestChat, createChat, Chat } from "@/services/chat";
 import { getDocuments } from "@/services/storage";
 import ChatInput from "@/components/ChatInput";
@@ -41,6 +43,15 @@ interface GridOption {
   action?: "upload";
   path?: string;
 }
+
+// Solo aparece a quien tiene algún rol en el módulo (admin o supervisor que además
+// usa el chat; un auditor puro nunca llega al lobby).
+const auditOption: GridOption = {
+  label: "Auditoría",
+  description: "Control de almacén del hotel",
+  icon: ClipboardCheck,
+  path: "/auditoria",
+};
 
 const gridOptions: GridOption[] = [
   {
@@ -88,6 +99,7 @@ const Lobby = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { hasAuditAccess } = useRole();
   const [query, setQuery] = useState("");
   const [sending, setSending] = useState(false);
   const [latestChat, setLatestChat] = useState<Chat | null>(null);
@@ -232,13 +244,15 @@ const Lobby = () => {
         </section>
 
         {/* ── ACCESOS ── */}
-        <section className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-5">
-          {gridOptions.map((opt) => (
+        <section className={`grid grid-cols-2 gap-3.5 sm:gap-5 ${hasAuditAccess ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+          {(hasAuditAccess ? [auditOption, ...gridOptions] : gridOptions).map((opt) => (
             <button
               key={opt.label}
               type="button"
               onClick={() => handleGridClick(opt)}
-              className="neo-raised neo-press flex items-center sm:items-start sm:flex-col gap-3 p-3.5 sm:p-5 rounded-[20px] sm:rounded-[22px] text-left"
+              className={`neo-raised neo-press flex items-center sm:items-start sm:flex-col gap-3 p-3.5 sm:p-5 rounded-[20px] sm:rounded-[22px] text-left ${
+                opt === auditOption ? "col-span-2 sm:col-span-1" : ""
+              }`}
             >
               <span className="neo-inset-sm neo-accent w-[38px] h-[38px] sm:w-11 sm:h-11 rounded-xl sm:rounded-[14px] flex items-center justify-center shrink-0">
                 <opt.icon size={19} strokeWidth={1.9} />

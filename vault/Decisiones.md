@@ -4,6 +4,13 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-16 — Auditoría con el diseño nuevo y acceso desde el lobby
+
+- **Contexto:** Leo vio que la sección de Auditoría era totalmente distinta del resto. Pidió adaptarla al diseño nuevo y poner un botón en el lobby para quien tenga acceso.
+- **Se hizo directamente, sin vistas previas.** Se aplicaron las reglas que Leo ya había aprobado para el chat: fondo amarillo/azul y superficies blancas con azul en claro y amarillo en oscuro.
+- **Se adaptaron los tokens en vez de reescribir los formularios.** Las tablas y formularios conservan su estructura. Así no se toca la lógica de los partes, que tiene reglas duplicadas con la base de datos.
+- Detalle en [[Diseno-Neoformista]].
+
 ## 2026-10-16 — Rediseño neoformista de lobby, chat y login
 
 - **Contexto:** Leo veía la app muy básica, sobre todo el lobby. Pidió un estilo neoformista con los colores de Polarier y poder mandar audio desde la barra del lobby. Primero se hicieron vistas previas y él las aprobó por secciones.

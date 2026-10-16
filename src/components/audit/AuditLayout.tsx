@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, ClipboardList, Clock, LayoutDashboard, LogOut, Sun, Moon } from "lucide-react";
-import polarierLogo from "@/assets/polarier-logo.png";
+import { Menu, ClipboardList, Clock, LayoutDashboard, LogOut, Sun, Moon, Home } from "lucide-react";
+import PolarierLogo from "@/components/PolarierLogo";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useRole } from "@/context/RoleContext";
@@ -14,7 +14,10 @@ const navItems = [
 
 /**
  * Layout dedicado al auditor: navegación reducida (formularios + histórico),
- * sin chat ni documentos. Reutiliza el sistema visual del sidebar principal.
+ * sin chat ni documentos. Mismo diseño que el chat: mosaico Polarier de fondo,
+ * barra lateral blanca en relieve y contenido en el ámbito .neo-audit
+ * (vault/Diseno-Neoformista.md). Quien no es solo auditor (un admin que entra
+ * desde el lobby) tiene además un acceso de vuelta al inicio.
  */
 const AuditLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,7 +25,7 @@ const AuditLayout = () => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { activeHotel } = useRole();
+  const { activeHotel, isAuditorOnly } = useRole();
 
   const handleNav = (path: string) => {
     navigate(path);
@@ -38,37 +41,46 @@ const AuditLayout = () => {
   const userName = profile?.full_name || userEmail.split("@")[0];
   const userInitial = userName?.charAt(0).toUpperCase() || "U";
 
+  const itemClass = (active: boolean) =>
+    `relative flex items-center gap-3 px-3.5 py-2.5 rounded-[14px] text-sm w-full text-left transition-colors ${
+      active ? "neo-inset-sm neo-accent font-extrabold" : "neo-text font-bold hover:bg-[var(--neo-well)]"
+    }`;
+
   return (
-    <div className="flex h-screen-dvh w-full bg-background overflow-hidden">
+    <div className="polarier-pattern flex h-screen-dvh w-full overflow-hidden">
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       <aside
-        className={`fixed lg:static top-0 left-0 z-50 h-screen-dvh lg:h-full w-[260px] bg-sidebar-bg flex flex-col transition-transform duration-200 safe-top safe-bottom ${
+        className={`neo-chat neo-raised fixed lg:static top-0 left-0 z-50 h-screen-dvh lg:h-auto lg:my-4 lg:ml-4 w-[272px] shrink-0 flex flex-col rounded-r-[28px] lg:rounded-[28px] transition-transform duration-200 safe-top safe-bottom ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="px-5 pt-5 pb-6 flex items-center gap-2">
-          <img src={polarierLogo} alt="Polarier" className="h-10" />
+        <div className="px-6 pt-6 pb-4 flex items-center">
+          <PolarierLogo tone="azul" className="h-[30px]" />
         </div>
 
         {activeHotel && (
-          <div className="px-4 pb-3">
+          <div className="neo-inset-sm mx-3 mb-4 rounded-2xl px-4 py-3">
             {activeHotel.polo?.nombre && (
               <>
-                <p className="text-sidebar-fg/50 text-xs uppercase">Polo turístico</p>
-                <p className="text-sidebar-fg/90 text-sm font-medium truncate mb-2">
-                  {activeHotel.polo.nombre}
-                </p>
+                <p className="neo-text-2 text-[10px] font-extrabold uppercase tracking-[0.12em]">Polo turístico</p>
+                <p className="neo-text text-[13px] font-bold truncate mb-2">{activeHotel.polo.nombre}</p>
               </>
             )}
-            <p className="text-sidebar-fg/50 text-xs uppercase">Hotel</p>
-            <p className="text-sidebar-fg text-sm font-medium truncate">{activeHotel.nombre}</p>
+            <p className="neo-text-2 text-[10px] font-extrabold uppercase tracking-[0.12em]">Hotel</p>
+            <p className="neo-accent text-[13px] font-extrabold truncate">{activeHotel.nombre}</p>
           </div>
         )}
 
-        <nav className="flex-1 flex flex-col gap-0.5 px-2 overflow-y-auto">
+        <nav className="flex-1 flex flex-col gap-1.5 px-3 overflow-y-auto min-h-0">
+          {!isAuditorOnly && (
+            <button onClick={() => handleNav("/lobby")} className={itemClass(false)}>
+              <Home size={18} className="neo-accent" />
+              <span>Volver al inicio</span>
+            </button>
+          )}
           {navItems.map((item) => {
             // "Formularios de Control" queda marcado también al rellenar un parte
             // (`/auditoria/formulario/:defId`, en singular).
@@ -82,62 +94,58 @@ const AuditLayout = () => {
               <button
                 key={item.path}
                 onClick={() => handleNav(item.path)}
-                className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors w-full text-left ${
-                  active ? "text-sidebar-fg bg-sidebar-muted" : "text-sidebar-fg/80 hover:bg-sidebar-muted/50"
-                }`}
+                aria-current={active ? "page" : undefined}
+                className={itemClass(active)}
               >
-                {active && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-sidebar-active rounded-r-full" />
-                )}
-                <item.icon size={18} />
+                <item.icon size={18} className="neo-accent" />
                 <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-sidebar-muted">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="px-4 pt-4 pb-5 flex flex-col gap-3.5">
+          <div className="flex items-center gap-3 min-w-0 px-1">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-9 h-9 rounded-full object-cover" />
+              <img src={profile.avatar_url} alt="Avatar" className="w-[38px] h-[38px] rounded-full object-cover shrink-0" />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-sidebar-active flex items-center justify-center text-sm font-semibold text-sidebar-bg">
+              <div className="neo-primary w-[38px] h-[38px] rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0" style={{ boxShadow: "none" }}>
                 {userInitial}
               </div>
             )}
             <div className="flex flex-col min-w-0">
-              <span className="text-sidebar-fg text-sm font-medium truncate">{userName}</span>
-              <span className="text-sidebar-fg/60 text-xs truncate">{userEmail}</span>
+              <span className="neo-text text-[13px] font-extrabold truncate">{userName}</span>
+              <span className="neo-text-2 text-[11px] font-medium truncate">{userEmail}</span>
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2.5">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-sidebar-fg/70 text-sm hover:text-sidebar-fg transition-colors"
+              className="neo-white-btn neo-press neo-accent flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-bold"
             >
               <LogOut size={16} />
               <span>Cerrar sesión</span>
             </button>
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg text-sidebar-fg/70 hover:text-sidebar-fg hover:bg-sidebar-muted/50 transition-colors"
+              className="neo-white-btn neo-press neo-accent w-11 h-11 rounded-full flex items-center justify-center"
               title={theme === "dark" ? "Modo claro" : "Modo oscuro"}
-              aria-label="Cambiar tema"
+              aria-label={theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
-              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           </div>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col h-screen-dvh overflow-hidden">
-        <div className="lg:hidden flex items-center px-4 py-3 border-b border-border bg-card safe-top">
+      <div className="neo-audit flex-1 flex flex-col h-screen-dvh overflow-hidden min-w-0">
+        <div className="lg:hidden flex items-center px-4 pt-3 safe-top">
           <button
             onClick={() => setSidebarOpen(true)}
             aria-label="Abrir menú"
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            className="neo-raised-sm neo-press neo-accent w-11 h-11 rounded-full flex items-center justify-center"
           >
-            <Menu size={22} />
+            <Menu size={20} />
           </button>
         </div>
         <main className="flex-1 flex flex-col overflow-y-auto">

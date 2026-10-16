@@ -228,6 +228,82 @@
     --neo-field-icon: #7A5408;
   }
 
+  /* Módulo de auditoría: mismo criterio que el chat (solo el fondo es amarillo/azul,
+     superficies blancas con azul en claro y con amarillo/ocre en oscuro). Además de
+     las --neo-*, reescribe los tokens de shadcn, porque formularios, tablas y
+     dashboard siguen usando bg-card, text-primary, border-border, etc. */
+  .neo-audit {
+    --neo-danger: #B3261E;
+    --neo-ground: #F0D274;
+    --neo-surface: #FFFFFF;
+    --neo-well: #EEF0F6;
+    --neo-sd: rgba(30, 37, 69, 0.16);
+    --neo-sl: rgba(255, 255, 255, 0.75);
+    --neo-id: rgba(30, 37, 69, 0.14);
+    --neo-il: #FFFFFF;
+    --neo-text: #0E1333;
+    --neo-text-2: #454B6B;
+    --neo-accent: #30397F;
+    --neo-primary: #30397F;
+    --neo-on-primary: #FFFFFF;
+    --neo-placeholder: #5A6080;
+    --neo-field-icon: #30397F;
+    --background: 225 33% 97%;
+    --foreground: 230 57% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 230 57% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 57% 13%;
+    --muted: 225 27% 95%;
+    --muted-foreground: 229 21% 35%;
+    --border: 225 20% 87%;
+    --input: 225 20% 87%;
+    --primary: 233 45% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 233 45% 34%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 39 76% 60%;
+    --accent-foreground: 230 57% 13%;
+    --ring: 233 45% 34%;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    color: var(--neo-text);
+  }
+  .dark .neo-audit {
+    --neo-ground: #23347C;
+    --neo-well: #FBF1CF;
+    --neo-sd: rgba(4, 8, 30, 0.5);
+    --neo-sl: rgba(120, 140, 220, 0.25);
+    --neo-id: rgba(122, 84, 8, 0.2);
+    --neo-accent: #7A5408;
+    --neo-primary: #F0D274;
+    --neo-on-primary: #0E1333;
+    --neo-field-icon: #7A5408;
+    /* Ocre para texto e iconos sobre blanco; amarillo para los botones rellenos. */
+    --primary: 40 88% 26%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 81% 70%;
+    --secondary-foreground: 230 57% 13%;
+    --muted: 45 85% 94%;
+    --ring: 40 88% 26%;
+  }
+  /* Cabecera de tablas: dorada en claro, amarilla en oscuro (ya no azul sobre blanco).
+     Con :root para ganar a las reglas :root.dark de @layer utilities. */
+  :root.dark .neo-audit .tbl-head {
+    background-color: #F0D274;
+    color: #0E1333;
+  }
+  :root.dark .neo-audit .tbl-head-sep {
+    border-color: rgba(14, 19, 51, 0.25);
+  }
+  /* Bandas de marca del dashboard: azul marino en claro, amarillo en oscuro. */
+  :root.dark .neo-audit .polarier-head {
+    background-color: #F0D274;
+    color: #0E1333;
+  }
+  :root.dark .neo-audit .polarier-head .text-accent {
+    color: #7A5408;
+  }
+
   /* Fondo de iconos de lavandería (mosaico SVG sin costuras, scripts/generar-fondos.py) */
   .polarier-pattern {
     background: var(--neo-ground, #F0D274) url('/backgrounds/fondo-claro.svg') repeat;

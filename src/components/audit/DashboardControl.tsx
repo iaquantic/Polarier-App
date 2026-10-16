@@ -81,7 +81,7 @@ const Panel = ({
   extra?: React.ReactNode;
   children: React.ReactNode;
 }) => (
-  <section className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+  <section className="rounded-[22px] neo-raised-sm overflow-hidden">
     <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 py-2.5 polarier-head">
       <div className="flex items-center gap-2">
         <Icon size={15} className="text-accent" />
@@ -108,19 +108,19 @@ const Kpi = ({
 }) => {
   const color =
     tono === "bien"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-emerald-700"
       : tono === "aviso"
-        ? "text-amber-600 dark:text-amber-400"
+        ? "text-amber-700"
         : tono === "malo"
           ? "text-destructive"
           : "text-primary";
   return (
-    <div className="relative bg-card border border-border rounded-xl p-4 pt-5 overflow-hidden shadow-sm">
+    <div className="relative neo-raised-sm rounded-[22px] p-4 pt-5 overflow-hidden">
       {/* Filete dorado superior: sello de marca de las tarjetas Polarier. */}
       <span className="absolute inset-x-0 top-0 h-1 bg-accent" />
       <div className="flex items-center gap-2 mb-1.5">
         <span className="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center shrink-0">
-          <Icon size={13} className="text-accent-foreground dark:text-accent" />
+          <Icon size={13} className="text-accent-foreground" />
         </span>
         <span className={labelCls}>{label}</span>
       </div>
@@ -156,8 +156,8 @@ const AlertaCard = ({ a, onClick }: { a: Alerta; onClick?: () => void }) => {
     a.severidad === "alta"
       ? "text-destructive"
       : a.severidad === "media"
-        ? "text-amber-600 dark:text-amber-400"
-        : "text-accent-foreground dark:text-accent";
+        ? "text-amber-700"
+        : "text-accent-foreground";
   return (
     <button
       type="button"
@@ -396,7 +396,7 @@ const DashboardControl = () => {
 
   if (!hotel) {
     return (
-      <p className="text-sm text-muted-foreground py-10">
+      <p className="neo-raised-sm rounded-[22px] p-5 text-sm text-muted-foreground">
         No hay ningún hotel asignado a tu usuario.
       </p>
     );
@@ -405,7 +405,7 @@ const DashboardControl = () => {
   return (
     <div className="space-y-5">
       {/* --- Cabecera de marca --------------------------------------------- */}
-      <div className="rounded-xl polarier-band px-5 py-4 shadow-sm border-b-4 border-accent">
+      <div className="rounded-[22px] polarier-band px-5 py-4 border-b-4 border-accent" style={{ boxShadow: "5px 5px 12px var(--neo-sd), -5px -5px 12px var(--neo-sl)" }}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             <img src={polarierLogo} alt="Polarier" className="h-9 shrink-0" />
@@ -425,7 +425,7 @@ const DashboardControl = () => {
       </div>
 
       {/* --- Filtros -------------------------------------------------------- */}
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+      <div className="flex flex-wrap items-end gap-3 rounded-[22px] neo-raised-sm p-4">
         {hotels.length > 1 && (
           <label className="flex flex-col gap-1">
             <span className={labelCls}>Hotel</span>
@@ -486,7 +486,7 @@ const DashboardControl = () => {
       </div>
 
       {!dash.hayDatos ? (
-        <div className="bg-card border border-border rounded-xl p-8 text-center shadow-sm">
+        <div className="neo-raised-sm rounded-[22px] p-8 text-center">
           <CalendarDays className="mx-auto text-accent mb-3" size={28} />
           <p className="text-sm font-medium text-foreground">
             Sin datos en {etiquetaMes(dash.anio, dash.mes)}
