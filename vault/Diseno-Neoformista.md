@@ -6,6 +6,7 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
 
 - **Fondo:** mosaico de iconos de lavandería. **Amarillo en claro, azul en oscuro**, con los colores rebajados respecto a las imágenes originales, que estaban muy vivas.
 - **Lobby y login:** las superficies son **del mismo color que el fondo** y salen en relieve (neomorfismo). El texto es oscuro.
+  - **Cambio del 2026-10-16:** en el lobby, del input para abajo las superficies son **blancas**: la barra de input, los accesos (Auditoría, Mis documentos…), «Continuar donde lo dejaste» y los documentos recientes. Esas secciones usan el ámbito `.neo-chat`, y la barra lleva `.neo-well-white`. La cabecera y el saludo siguen en el color del fondo.
 - **Chat:** el amarillo o el azul **solo en el fondo**. Las superficies (barra lateral, cabecera, burbujas, barra de input) son **blancas**. En claro juegan con **blanco y azul marino**, y en oscuro con **blanco y amarillo**. La barra lateral es blanca en los dos temas.
 - **Login:** los campos de correo y contraseña llevan **fondo blanco**. El logo va sin placa detrás.
 - **Botones uniformes:** solo hay **uno principal relleno** (Enviar, Iniciar sesión, tus burbujas): azul marino en claro y dorado/amarillo en oscuro. **Todo lo demás es secundario en relieve**, con el icono en el color de acento. Las etiquetas de tipo de fichero (PDF, XLS…) son todas iguales.

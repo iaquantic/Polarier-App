@@ -335,6 +335,10 @@
     background: var(--neo-well);
     box-shadow: inset 4px 4px 8px var(--neo-id), inset -4px -4px 8px var(--neo-il);
   }
+  /* Pozo blanco (barra de input del lobby) */
+  .neo-well-white {
+    --neo-well: #FFFFFF;
+  }
   .neo-primary {
     background: var(--neo-primary);
     color: var(--neo-on-primary);
