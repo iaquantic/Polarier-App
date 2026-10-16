@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import AuthCard from "@/components/AuthCard";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -38,66 +38,90 @@ const Login = () => {
 
   return (
     <AuthCard>
-      <p className="text-center text-sm text-muted-foreground mb-6">
-        Gestiona y procesa tus documentos con inteligencia artificial
-      </p>
+      <div className="text-center mb-6 space-y-2">
+        <h1 className="neo-text text-[22px] sm:text-[26px] font-extrabold tracking-tight">Bienvenido de nuevo</h1>
+        <p className="neo-text-2 text-sm font-medium leading-relaxed">
+          Gestiona y procesa tus documentos con inteligencia artificial
+        </p>
+      </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-medium text-foreground mb-1 block">Correo electrónico</label>
-          <input
-            type="email"
-            placeholder="tu@correo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-border rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-ring bg-card"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-foreground mb-1 block">Contraseña</label>
-          <div className="relative">
+      <form
+        className="space-y-5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <div className="space-y-2">
+          <label htmlFor="login-email" className="neo-text text-[13px] font-bold block pl-1.5">
+            Correo electrónico
+          </label>
+          <div className="neo-field flex items-center gap-2.5 rounded-[18px] pl-4 pr-2 py-1">
+            <Mail size={18} style={{ color: "var(--neo-field-icon)" }} aria-hidden="true" />
             <input
+              id="login-email"
+              type="email"
+              autoComplete="email"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 min-w-0 bg-transparent py-3 text-[15px] outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between gap-2 px-1.5">
+            <label htmlFor="login-password" className="neo-text text-[13px] font-bold">
+              Contraseña
+            </label>
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="neo-accent text-xs font-bold hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
+          <div className="neo-field flex items-center gap-2.5 rounded-[18px] pl-4 pr-1.5 py-1">
+            <Lock size={18} style={{ color: "var(--neo-field-icon)" }} aria-hidden="true" />
+            <input
+              id="login-password"
               type={showPass ? "text" : "password"}
+              autoComplete="current-password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              className="w-full border border-border rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-ring bg-card pr-10"
+              className="flex-1 min-w-0 bg-transparent py-3 text-[15px] outline-none"
             />
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
+              className="neo-white-btn neo-press w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+              style={{ color: "var(--neo-field-icon)" }}
             >
               {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
         </div>
 
-        <div className="text-right">
-          <button
-            onClick={() => navigate("/forgot-password")}
-            className="text-sm text-secondary hover:underline"
-          >
-            ¿Olvidaste tu contraseña?
-          </button>
-        </div>
-
         <button
-          onClick={handleSubmit}
+          type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-secondary text-secondary-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm disabled:opacity-50"
+          className="neo-primary neo-press w-full mt-1 flex items-center justify-center gap-2.5 py-4 rounded-[18px] text-[15px] font-extrabold"
         >
           {loading ? "Iniciando..." : "Iniciar sesión"}
+          {!loading && <ArrowRight size={18} />}
         </button>
 
-        <p className="text-center text-sm text-muted-foreground mt-4">
+        <p className="neo-text-2 text-center text-[13px] font-medium">
           ¿No tienes cuenta?{" "}
-          <button onClick={() => navigate("/register")} className="text-foreground font-medium hover:underline">
+          <button type="button" onClick={() => navigate("/register")} className="neo-accent font-extrabold hover:underline">
             Regístrate
           </button>
         </p>
-      </div>
+      </form>
     </AuthCard>
   );
 };

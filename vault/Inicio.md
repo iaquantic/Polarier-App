@@ -12,6 +12,7 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Integracion-n8n]] — Webhooks, modos prod/test, formato de respuestas.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).
 - [[Routine-Informe-Mensual]] — Informe mensual: capa de datos plana para la IA, cola y routine de Claude en la nube.
+- [[Diseno-Neoformista]] — Diseño del lobby, chat y login: fondos, colores, botones y nota de voz.
 - [[Generacion-Documentos]] — **Reglas de generación de documentos**: qué fichero dispara qué, maestros, códigos de polo, formatos, año.
 - [[Referencias-Formularios]] — Mapeo Excel original ↔ módulo de la app.
 - [[Deploy-Easypanel]] — Cómo desplegar en la VPS de Hostinger.
@@ -37,6 +38,8 @@ La aplicación está **desplegada y conectada**:
 **Pendiente inmediato:** commitear y desplegar el frontend (la RLS ya está abierta, pero el código que deja entrar al admin sigue en local), y decidir si el cron de la routine vuelve a ser diario. Ver [[Pendientes]].
 
 **Limpieza y reglas de documentos (2026-10-12):** se escribió [[Generacion-Documentos]] (catálogo completo de lo que genera el proyecto y de qué ficheros sale). Decisiones del día: la TABLA CA la generará un agente de n8n, `global_ai` se sincronizará al final de cada Modelo 1, el año sale del fichero y el correo pasa al n8n self-hosted. Plan por fases en [[Pendientes]].
+
+**Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en la rama `leslie/rediseno-neoformista`, sin desplegar. Detalle en [[Diseno-Neoformista]].
 
 ## Cómo mantener esta memoria
 

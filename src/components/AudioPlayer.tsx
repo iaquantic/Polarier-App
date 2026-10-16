@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
-import BotAvatar from "@/components/BotAvatar";
 
 interface AudioPlayerProps {
   src: string;
-  avatarUrl?: string | null;
-  initial?: string;
+  /** Burbuja del usuario (rellena con el color principal) o del asistente (superficie). */
   sender: "user" | "bot";
-  botAvatarSrc?: string;
 }
 
 const SPEEDS = [1, 1.5, 2];
@@ -19,7 +16,7 @@ const formatTime = (s: number) => {
   return `${m}:${sec}`;
 };
 
-const AudioPlayer = ({ src, avatarUrl, initial = "U", sender, botAvatarSrc }: AudioPlayerProps) => {
+const AudioPlayer = ({ src, sender }: AudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -79,36 +76,26 @@ const AudioPlayer = ({ src, avatarUrl, initial = "U", sender, botAvatarSrc }: Au
   const progress = duration > 0 ? (current / duration) * 100 : 0;
   const display = playing || current > 0 ? current : duration;
 
-  return (
-    <div className="flex items-center gap-2.5 min-w-[240px] sm:min-w-[280px] max-w-xs">
-      {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center text-xs font-bold text-secondary-foreground overflow-hidden">
-        {sender === "bot" && botAvatarSrc ? (
-          <BotAvatar className="w-6 h-6" />
-        ) : avatarUrl ? (
-          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-        ) : (
-          initial
-        )}
-      </div>
+  // Sobre la burbuja del usuario los controles usan el color "sobre principal";
+  // sobre la del asistente (blanca), el de acento, que lee bien en ambos temas.
+  const ink = sender === "user" ? "var(--neo-on-primary)" : "var(--neo-accent)";
+  const paper = sender === "user" ? "var(--neo-primary)" : "#FFFFFF";
 
-      {/* Play / Pause */}
+  return (
+    <div className="flex items-center gap-3 min-w-[220px] sm:min-w-[270px] max-w-xs">
       <button
         onClick={togglePlay}
-        className="w-9 h-9 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity"
+        className="neo-press w-9 h-9 sm:w-[38px] sm:h-[38px] rounded-full flex items-center justify-center shrink-0"
+        style={{ background: ink, color: paper }}
         aria-label={playing ? "Pausar" : "Reproducir"}
       >
-        {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="translate-x-[1px]" />}
+        {playing ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" className="translate-x-[1px]" />}
       </button>
 
-      {/* Slider + tiempo */}
       <div className="flex-1 flex flex-col justify-center min-w-0">
-        <div className="relative h-1 w-full">
-          <div className="absolute inset-0 bg-foreground/20 rounded-full" />
-          <div
-            className="absolute inset-y-0 left-0 bg-secondary rounded-full"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="relative h-1.5 w-full">
+          <div className="absolute inset-0 rounded-full opacity-25" style={{ background: ink }} />
+          <div className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${progress}%`, background: ink }} />
           <input
             type="range"
             min={0}
@@ -119,19 +106,20 @@ const AudioPlayer = ({ src, avatarUrl, initial = "U", sender, botAvatarSrc }: Au
             aria-label="Progreso"
           />
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-secondary shadow pointer-events-none transition-[left]"
-            style={{ left: `calc(${progress}% - 6px)` }}
+            className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full shadow pointer-events-none transition-[left]"
+            style={{ left: `calc(${progress}% - 6px)`, background: ink }}
           />
         </div>
-        <span className="text-[11px] text-muted-foreground mt-1 tabular-nums">
-          {formatTime(display)}
-        </span>
       </div>
 
-      {/* Velocidad */}
+      <span className="text-xs font-bold tabular-nums shrink-0" style={{ color: ink }}>
+        {formatTime(display)}
+      </span>
+
       <button
         onClick={cycleSpeed}
-        className="text-[11px] font-semibold text-secondary-foreground bg-secondary/80 hover:bg-secondary rounded-full px-2 py-0.5 shrink-0 transition-colors"
+        className="text-[11px] font-extrabold rounded-full px-2 py-0.5 shrink-0"
+        style={{ color: ink, boxShadow: `inset 0 0 0 1.5px ${ink}` }}
         aria-label="Cambiar velocidad"
       >
         {speed}×

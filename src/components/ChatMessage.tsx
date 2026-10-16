@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { Download, X, FileText, FileSpreadsheet, FileArchive, File } from "lucide-react";
+import { Download, X } from "lucide-react";
 import AudioPlayer from "@/components/AudioPlayer";
-import BotAvatar from "@/components/BotAvatar";
+import { BotBadge } from "@/components/BotAvatar";
 
 const withDownloadParam = (url: string, fileName: string) => {
   try {
@@ -18,8 +18,6 @@ interface ChatMessageProps {
   sender: "bot" | "user";
   text: string;
   time: string;
-  initial?: string;
-  avatarUrl?: string | null;
 }
 
 type Parsed =
@@ -85,19 +83,15 @@ const ImageThumb = ({ url }: { url: string }) => {
   );
 };
 
-const FileCard = ({ url, ext: rawExt, label }: { url: string; ext: string; label: string }) => {
-  const ext = rawExt.toLowerCase();
-  const FileIcon =
-    ext === "pdf" ? FileText :
-    ext === "xlsx" || ext === "xls" ? FileSpreadsheet :
-    ext === "docx" || ext === "doc" ? FileText :
-    ext === "zip" || ext === "rar" ? FileArchive :
-    File;
-  const iconColor =
-    ext === "pdf" ? "text-red-400" :
-    ext === "xlsx" || ext === "xls" ? "text-green-400" :
-    ext === "docx" || ext === "doc" ? "text-blue-400" :
-    "text-muted-foreground";
+// Etiqueta del tipo de fichero: todas iguales (color principal), solo cambia el texto.
+const badgeFor = (ext: string) => {
+  const e = ext.toLowerCase();
+  if (e === "xlsx" || e === "xls") return "XLS";
+  if (e === "docx" || e === "doc") return "DOC";
+  return e.slice(0, 3).toUpperCase() || "DOC";
+};
+
+const FileCard = ({ url, ext: rawExt, label, onPrimary }: { url: string; ext: string; label: string; onPrimary?: boolean }) => {
   const handleDownload = useCallback(() => {
     const downloadUrl = withDownloadParam(url, label);
     window.open(downloadUrl, "_system");
@@ -106,57 +100,73 @@ const FileCard = ({ url, ext: rawExt, label }: { url: string; ext: string; label
     <button
       type="button"
       onClick={handleDownload}
-      className="flex items-center gap-3 min-w-[220px] max-w-[280px] group text-left"
+      className={`flex items-center gap-3 w-full min-w-[220px] max-w-[320px] rounded-2xl py-2.5 pl-3 pr-2.5 text-left group ${
+        onPrimary ? "bg-white/10" : "neo-inset-sm"
+      }`}
     >
-      {/* Icono del tipo de archivo */}
-      <div className="w-12 h-12 rounded-xl bg-background/40 border border-border/60 flex items-center justify-center shrink-0">
-        <FileIcon size={26} className={iconColor} />
-      </div>
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate leading-tight">{label}</p>
-        <p className="text-xs text-muted-foreground mt-0.5 uppercase">{rawExt}</p>
-      </div>
-      {/* Botón descarga */}
-      <div className="w-8 h-8 rounded-full bg-secondary/60 group-hover:bg-secondary flex items-center justify-center shrink-0 transition-colors">
-        <Download size={15} className="text-secondary-foreground" />
-      </div>
+      <span
+        className={`w-[38px] h-[38px] rounded-[11px] flex items-center justify-center shrink-0 text-[10px] font-extrabold tracking-wide ${
+          onPrimary ? "bg-white text-[var(--neo-primary)]" : "neo-primary"
+        }`}
+        style={onPrimary ? undefined : { boxShadow: "none" }}
+      >
+        {badgeFor(rawExt)}
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className={`block text-[13px] font-bold truncate leading-tight ${onPrimary ? "" : "neo-text"}`}>{label}</span>
+        <span className={`block text-[11px] font-semibold uppercase mt-0.5 ${onPrimary ? "opacity-80" : "neo-text-2"}`}>{rawExt}</span>
+      </span>
+      <span className="neo-raised-sm neo-accent w-10 h-10 rounded-full flex items-center justify-center shrink-0 group-active:scale-95 transition-transform">
+        <Download size={17} strokeWidth={2.1} />
+      </span>
     </button>
   );
 };
 
-const ChatMessage = ({ sender, text, time, initial = "U", avatarUrl }: ChatMessageProps) => {
+const Time = ({ time, align }: { time: string; align: "left" | "right" }) => (
+  <span className={`neo-strip neo-text-2 inline-block text-[11px] font-semibold px-2 py-px rounded-md mt-1.5 ${align === "right" ? "self-end" : "self-start"}`}>
+    {time}
+  </span>
+);
+
+// Burbujas: el asistente en superficie en relieve; el usuario, rellena con el color principal.
+const BOT_BUBBLE = "neo-raised-sm neo-text rounded-[6px_22px_22px_22px]";
+const USER_BUBBLE = "neo-primary rounded-[22px_22px_6px_22px]";
+
+const ChatMessage = ({ sender, text, time }: ChatMessageProps) => {
   const parsed = parseMessage(text);
 
-  // Audio: burbuja compacta estilo WhatsApp, el avatar va dentro del reproductor.
+  // Audio: burbuja compacta con el reproductor.
   if (parsed.kind === "audio") {
-    const bubbleClass =
-      sender === "bot"
-        ? "bg-muted rounded-xl rounded-tl-sm px-3 py-2"
-        : "bg-secondary/20 rounded-xl rounded-tr-sm px-3 py-2";
-    return (
-      <div className={`flex max-w-2xl ${sender === "bot" ? "" : "ml-auto flex-row-reverse"}`}>
-        <div className={sender === "bot" ? "" : "text-right"}>
-          <div className={bubbleClass}>
-            <AudioPlayer
-              src={parsed.url}
-              sender={sender}
-              initial={initial}
-              avatarUrl={avatarUrl}
-              botAvatarSrc={sender === "bot" ? "bot" : undefined}
-            />
+    if (sender === "bot") {
+      return (
+        <div className="flex items-start gap-3 max-w-2xl">
+          <BotBadge />
+          <div className="flex flex-col min-w-0">
+            <div className={`${BOT_BUBBLE} px-2.5 py-2`}>
+              <AudioPlayer src={parsed.url} sender="bot" />
+            </div>
+            <Time time={time} align="left" />
           </div>
-          <span className="text-xs text-muted-foreground mt-1 block">{time}</span>
         </div>
+      );
+    }
+    return (
+      <div className="flex flex-col items-end max-w-2xl ml-auto">
+        <div className={`${USER_BUBBLE} px-2.5 py-2`}>
+          <AudioPlayer src={parsed.url} sender="user" />
+        </div>
+        <Time time={time} align="right" />
       </div>
     );
   }
 
+  const onPrimary = sender === "user";
   let body: JSX.Element;
   if (parsed.kind === "file") {
-    const card = <FileCard url={parsed.url} ext={parsed.ext} label={parsed.label} />;
+    const card = <FileCard url={parsed.url} ext={parsed.ext} label={parsed.label} onPrimary={onPrimary} />;
     body = parsed.text ? (
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         <span className="whitespace-pre-wrap block">{parsed.text}</span>
         {card}
       </div>
@@ -169,40 +179,29 @@ const ChatMessage = ({ sender, text, time, initial = "U", avatarUrl }: ChatMessa
 
   const bubblePadding =
     parsed.kind === "image" ? "p-1.5" :
-    parsed.kind === "file" && !parsed.text ? "p-3" :
-    "px-4 py-3";
+    parsed.kind === "file" && !parsed.text ? "p-2.5" :
+    "px-4 py-3 sm:px-[18px] sm:py-4";
 
   if (sender === "bot") {
     return (
-      <div className="flex gap-3 max-w-2xl">
-        <div className="w-8 h-8 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center overflow-hidden">
-          <BotAvatar className="w-5 h-5" />
-        </div>
-        <div>
-          <div className={`bg-muted rounded-xl rounded-tl-sm text-sm text-foreground ${bubblePadding}`}>
+      <div className="flex items-start gap-2.5 sm:gap-3 max-w-2xl">
+        <BotBadge />
+        <div className="flex flex-col min-w-0">
+          <div className={`${BOT_BUBBLE} text-[13px] sm:text-sm leading-relaxed font-medium ${bubblePadding}`}>
             {body}
           </div>
-          <span className="text-xs text-muted-foreground mt-1 block">{time}</span>
+          <Time time={time} align="left" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex gap-3 max-w-2xl ml-auto flex-row-reverse">
-      <div className="w-8 h-8 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center text-xs font-bold text-secondary-foreground overflow-hidden">
-        {avatarUrl ? (
-          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-        ) : (
-          initial
-        )}
+    <div className="flex flex-col items-end max-w-2xl ml-auto">
+      <div className={`${USER_BUBBLE} text-[13px] sm:text-sm leading-relaxed font-medium text-left ${bubblePadding}`}>
+        {body}
       </div>
-      <div className="text-right">
-        <div className={`bg-secondary/20 rounded-xl rounded-tr-sm text-sm text-foreground ${bubblePadding}`}>
-          {body}
-        </div>
-        <span className="text-xs text-muted-foreground mt-1 block">{time}</span>
-      </div>
+      <Time time={time} align="right" />
     </div>
   );
 };

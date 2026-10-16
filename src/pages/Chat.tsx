@@ -6,7 +6,7 @@ import ChatInput from "@/components/ChatInput";
 import { PendingFile } from "@/components/FilePreviewCard";
 import { createChat, getMessages, getLatestChat, getChatById, sendMessage, sendToN8n, updateChatTitle, ChatMessage as ChatMsg } from "@/services/chat";
 import { uploadDocument, getSignedDocumentUrl } from "@/services/storage";
-import BotAvatar from "@/components/BotAvatar";
+import { BotBadge } from "@/components/BotAvatar";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import type { LayoutContext } from "@/components/AppLayout";
@@ -260,64 +260,78 @@ const Chat = () => {
 
   if (initialLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-muted-foreground text-sm">Cargando...</span>
+      <div className="neo-chat flex items-center justify-center h-full">
+        <span className="neo-strip neo-text-2 text-sm font-semibold px-3 py-1 rounded-lg">Cargando...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full chat-bg">
-      <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 sm:py-3 bg-background/70 backdrop-blur-md border-b border-border/40 safe-top">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+    <div className="neo-chat flex flex-col h-full min-h-0">
+      <div className="px-3 sm:px-6 pt-3 sm:pt-4 safe-top">
+        <header className="neo-raised-sm max-w-3xl mx-auto flex items-center gap-2.5 sm:gap-3 rounded-[22px] p-2 sm:py-3 sm:pl-5 sm:pr-3">
           <button
             onClick={openSidebar}
-            className="lg:hidden p-1.5 rounded-lg text-foreground hover:bg-muted transition-colors"
+            className="neo-raised-sm neo-press neo-accent lg:hidden w-11 h-11 rounded-full flex items-center justify-center shrink-0"
             aria-label="Abrir menú"
           >
-            <Menu size={22} />
+            <Menu size={19} />
           </button>
-          <h1 className="text-base sm:text-lg font-semibold text-foreground truncate">{chatTitle}</h1>
-        </div>
-        <button
-          onClick={handleNewChat}
-          className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-secondary text-secondary-foreground text-xs sm:text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity shrink-0"
-        >
-          <Plus size={16} />
-          <span className="hidden sm:inline">Nueva conversación</span>
-          <span className="sm:hidden">Nueva</span>
-        </button>
+          <div className="min-w-0 flex-1">
+            <h1 className="neo-text text-sm sm:text-base font-extrabold truncate">{chatTitle}</h1>
+            {messages.length > 0 && (
+              <p className="neo-text-2 text-[11px] sm:text-xs font-medium">
+                {messages.length} {messages.length === 1 ? "mensaje" : "mensajes"}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={handleNewChat}
+            aria-label="Nueva conversación"
+            className="neo-raised-sm neo-press neo-accent flex items-center justify-center gap-2 w-11 h-11 sm:w-auto sm:h-auto sm:px-[18px] sm:py-2.5 rounded-full text-[13px] font-extrabold shrink-0"
+          >
+            <Plus size={17} strokeWidth={2.4} />
+            <span className="hidden sm:inline">Nueva conversación</span>
+          </button>
+        </header>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-        {messages.length === 0 && !currentChatId && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground text-sm">Envía un mensaje para comenzar una conversación</p>
-          </div>
-        )}
-        {messages.map((msg) => (
-          <ChatMessage
-            key={msg.id}
-            sender={msg.role === "user" ? "user" : "bot"}
-            text={msg.content}
-            time={formatTime(msg.created_at)}
-            initial={profile?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-            avatarUrl={msg.role === "user" ? profile?.avatar_url : undefined}
-          />
-        ))}
-        {isTyping && (
-          <div className="flex gap-3 max-w-2xl">
-            <div className="w-8 h-8 rounded-full bg-secondary flex-shrink-0 flex items-center justify-center overflow-hidden">
-              <BotAvatar className="w-5 h-5" />
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6 py-5 sm:py-6">
+        <div className="max-w-3xl mx-auto flex flex-col gap-4 sm:gap-[22px]">
+          {messages.length === 0 && !currentChatId && (
+            <div className="flex items-center justify-center py-16">
+              <p className="neo-strip neo-text-2 text-sm font-semibold px-3 py-1 rounded-lg">
+                Envía un mensaje para comenzar una conversación
+              </p>
             </div>
-            <div className="bg-muted rounded-xl rounded-tl-sm px-4 py-3 text-sm text-muted-foreground flex items-center gap-1">
-              <span className="inline-block w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="inline-block w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="inline-block w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          )}
+          {messages.map((msg) => (
+            <ChatMessage
+              key={msg.id}
+              sender={msg.role === "user" ? "user" : "bot"}
+              text={msg.content}
+              time={formatTime(msg.created_at)}
+            />
+          ))}
+          {isTyping && (
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <BotBadge />
+              <span
+                className="neo-raised-sm inline-flex items-center gap-1.5 px-[18px] py-3.5 rounded-[6px_22px_22px_22px]"
+                aria-label="Polarier está escribiendo"
+              >
+                {[0, 150, 300].map((delay) => (
+                  <span
+                    key={delay}
+                    className="inline-block w-2 h-2 rounded-full animate-bounce"
+                    style={{ animationDelay: `${delay}ms`, background: "var(--neo-accent)" }}
+                  />
+                ))}
+              </span>
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       <ChatInput

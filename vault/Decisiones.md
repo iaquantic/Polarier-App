@@ -4,6 +4,16 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-16 — Rediseño neoformista de lobby, chat y login
+
+- **Contexto:** Leo veía la app muy básica, sobre todo el lobby. Pidió un estilo neoformista con los colores de Polarier y poder mandar audio desde la barra del lobby. Primero se hicieron vistas previas y él las aprobó por secciones.
+- **Fondos regenerados en vectorial** a partir de sus dos imágenes, que habían perdido calidad. Los colores se rebajaron porque estaban muy vivos.
+- **Lobby y login:** superficies del color del fondo, en relieve. **Chat:** solo el fondo es amarillo o azul. El resto juega con blanco y azul en claro, y con blanco y amarillo en oscuro. La barra lateral es blanca.
+- **Un solo botón principal relleno por pantalla.** Todo lo demás es secundario en relieve, y el texto va más oscuro. Leo pidió más uniformidad entre botones.
+- **La nota de voz se revisa antes de enviarla.** Antes se enviaba nada más parar.
+- **Logo en azul marino en claro.** El logo amarillo no se veía sobre el fondo amarillo. Se detectó al montarlo en la app, no en las vistas previas.
+- Detalle en [[Diseno-Neoformista]].
+
 ## 2026-10-14 — Agente Modelo 1
 
 - **Contexto:** el Modelo 1 pasaba por Google Sheets solo para que `Modelo1.py` pudiera leer un Excel. Además, el extractor de JavaScript esperaba un formato de fila (`ccc Indicador PM RM PA RA %M %A`) que no es el de los PDF actuales.

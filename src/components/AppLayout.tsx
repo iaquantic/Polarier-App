@@ -13,7 +13,9 @@ const AppLayout = () => {
   const isChat = location.pathname.startsWith("/chat");
 
   return (
-    <div className="flex h-screen-dvh w-full bg-background overflow-hidden">
+    // En el chat, el mosaico Polarier hace de fondo de toda la pantalla y la barra
+    // lateral flota sobre él; el resto de páginas conservan su fondo.
+    <div className={`flex h-screen-dvh w-full overflow-hidden ${isChat ? "polarier-pattern" : "bg-background"}`}>
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col h-screen-dvh overflow-hidden">
         {/* Mobile header — oculto en /chat porque Chat.tsx tiene su propio header con botón */}
