@@ -335,9 +335,19 @@
     background: var(--neo-well);
     box-shadow: inset 4px 4px 8px var(--neo-id), inset -4px -4px 8px var(--neo-il);
   }
-  /* Pozo blanco (barra de input del lobby) */
-  .neo-well-white {
-    --neo-well: #FFFFFF;
+  /* Tono de las superficies del lobby (va junto a .neo-chat): crema vainilla en claro
+     y azul hielo en oscuro, elegidos por Leo el 2026-10-16 en vez del blanco puro. */
+  .neo-tono {
+    --neo-surface: #FAEFD4;
+    --neo-well: #EEDDB2;
+  }
+  .dark .neo-tono {
+    --neo-surface: #EAEFFC;
+    --neo-well: #D7DFF6;
+  }
+  /* Barra de input del lobby: el pozo toma el color de la superficie */
+  .neo-well-surface {
+    --neo-well: var(--neo-surface);
   }
   .neo-primary {
     background: var(--neo-primary);
