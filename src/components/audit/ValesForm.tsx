@@ -107,7 +107,7 @@ const ValesForm = ({ grupos, cabecera = [], prendas, data, onChange, readOnly }:
     <div className="space-y-4">
       {/* Datos generales del parte (cabecera) */}
       {cabecera.length > 0 && (
-        <div className="rounded-2xl border-2 border-border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-[22px] neo-raised-sm overflow-hidden">
           <div className="bg-muted px-4 py-2.5 border-b-2 border-border">
             <h2 className="text-sm font-semibold text-foreground">Datos del parte</h2>
           </div>
@@ -131,14 +131,14 @@ const ValesForm = ({ grupos, cabecera = [], prendas, data, onChange, readOnly }:
       )}
 
       {vales.length === 0 && (
-        <p className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+        <p className="rounded-[22px] neo-raised-sm p-6 text-center text-sm text-muted-foreground">
           No hay vales. Pulsa “Añadir vale” para registrar el primero.
         </p>
       )}
 
       {/* Un bloque por vale */}
       {vales.map((vale) => (
-        <div key={vale.id} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div key={vale.id} className="rounded-[22px] neo-raised-sm overflow-hidden">
           {/* Cabecera del vale (mismo azul que la tabla) */}
           <div className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 border-b-2 border-primary-foreground/25">
             <span className="text-sm font-semibold shrink-0">Vale</span>
@@ -254,7 +254,7 @@ const ValesForm = ({ grupos, cabecera = [], prendas, data, onChange, readOnly }:
       {!readOnly && (
         <button
           onClick={addVale}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed border-border text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+          className="inline-flex neo-raised-sm neo-press neo-accent items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold"
         >
           <Plus size={16} /> Añadir vale
         </button>

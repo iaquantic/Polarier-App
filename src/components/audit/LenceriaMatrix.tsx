@@ -131,7 +131,7 @@ const LenceriaMatrix = ({
       </div>
     )}
 
-    <div className="hidden lg:block overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
+    <div className="hidden lg:block overflow-x-auto rounded-[22px] neo-raised-sm">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="tbl-head">
@@ -261,7 +261,7 @@ const LenceriaMatrix = ({
       <button
         type="button"
         onClick={onAddUbicacion}
-        className="hidden lg:inline-flex items-center gap-2 mt-3 rounded-xl border border-dashed border-primary/50 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+        className="hidden lg:inline-flex mt-3 neo-raised-sm neo-press neo-accent items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold"
       >
         <Plus className="h-4 w-4" />
         Añadir ubicación
@@ -273,7 +273,7 @@ const LenceriaMatrix = ({
       {ubicaciones.map((u) => {
         const difFila = cmp?.porUbicacion[u.id]?.diferencia ?? 0;
         return (
-        <div key={u.id} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div key={u.id} className="rounded-[22px] neo-raised-sm overflow-hidden">
           <div className="flex items-center justify-between gap-2 bg-primary text-primary-foreground px-4 py-2.5">
             {esEditable(u) && !readOnly ? (
               <input
@@ -330,7 +330,7 @@ const LenceriaMatrix = ({
         <button
           type="button"
           onClick={onAddUbicacion}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/50 bg-primary/5 px-4 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+          className="inline-flex w-full neo-raised-sm neo-press neo-accent items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold"
         >
           <Plus className="h-4 w-4" />
           Añadir ubicación

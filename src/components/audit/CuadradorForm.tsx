@@ -170,7 +170,7 @@ const CuadradorForm = ({ prendas, cabecera = [], data, onChange, readOnly }: Pro
     <div className="space-y-4">
       {/* Datos del parte (cabecera) */}
       {cabecera.length > 0 && (
-        <div className="rounded-2xl border-2 border-border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-[22px] neo-raised-sm overflow-hidden">
           <div className="bg-muted px-4 py-2.5 border-b-2 border-border">
             <h2 className="text-sm font-semibold text-foreground">Datos del parte</h2>
           </div>
@@ -217,7 +217,7 @@ const CuadradorForm = ({ prendas, cabecera = [], data, onChange, readOnly }: Pro
       )}
 
       {/* Tabla (escritorio) */}
-      <div className="hidden lg:block rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="hidden lg:block rounded-[22px] neo-raised-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
@@ -297,7 +297,7 @@ const CuadradorForm = ({ prendas, cabecera = [], data, onChange, readOnly }: Pro
       {/* Líneas (móvil): tarjeta por línea */}
       <div className="lg:hidden space-y-3">
         {lineas.map((l, i) => (
-          <div key={l.id} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <div key={l.id} className="rounded-[22px] neo-raised-sm overflow-hidden">
             <div className="flex items-center justify-between bg-muted px-4 py-2 border-b border-border">
               <span className="text-xs font-medium text-muted-foreground">Línea {i + 1}</span>
               {!readOnly && lineas.length > 1 && (
@@ -360,7 +360,7 @@ const CuadradorForm = ({ prendas, cabecera = [], data, onChange, readOnly }: Pro
         <button
           type="button"
           onClick={addLinea}
-          className="inline-flex w-full lg:w-auto items-center justify-center gap-2 rounded-xl border border-dashed border-primary/50 bg-primary/5 px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+          className="inline-flex w-full lg:w-auto neo-raised-sm neo-press neo-accent items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold"
         >
           <Plus className="h-4 w-4" /> Añadir línea
         </button>

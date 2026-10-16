@@ -263,7 +263,7 @@ const AuditForm = () => {
   if (!def) {
     return (
       <div className="p-6">
-        <p className="text-sm text-muted-foreground">Formulario no encontrado.</p>
+        <p className="neo-raised-sm rounded-[22px] p-5 text-sm text-muted-foreground">Formulario no encontrado.</p>
       </div>
     );
   }
@@ -279,16 +279,16 @@ const AuditForm = () => {
       <div className="max-w-5xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
+          className="neo-raised-sm neo-press neo-accent inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold mb-4"
         >
           <ArrowLeft size={16} /> Volver
         </button>
 
-        <div className="mb-5 rounded-2xl bg-primary px-5 py-4 text-primary-foreground shadow-sm">
+        <div className="neo-primary mb-5 rounded-[22px] px-5 py-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <h1 className="text-lg font-semibold">{def.nombre}</h1>
-              <p className="text-sm text-primary-foreground/80">
+              <h1 className="text-lg font-extrabold">{def.nombre}</h1>
+              <p className="text-sm font-medium opacity-80">
                 {activeHotel?.nombre} · {fechaLabel}
                 {autorAjeno && <> · Rellenado por {autorAjeno.nombre}</>}
               </p>
@@ -296,7 +296,7 @@ const AuditForm = () => {
             <div className="flex items-center gap-2">
               {readOnly && (
                 <span
-                  className="flex items-center gap-1.5 text-xs bg-primary-foreground/15 px-3 py-1.5 rounded-full"
+                  className="flex items-center gap-1.5 text-xs bg-white/20 px-3 py-1.5 rounded-full"
                   title={
                     autorAjeno
                       ? `Este parte lo firma ${autorAjeno.nombre}. Solo quien lo rellenó puede modificarlo.`
@@ -308,7 +308,7 @@ const AuditForm = () => {
               )}
               <button
                 onClick={() => setInformeOpen(true)}
-                className="flex items-center gap-1.5 text-xs font-medium bg-primary-foreground/15 hover:bg-primary-foreground/25 px-3 py-1.5 rounded-full transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium neo-press bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors"
               >
                 <FileText size={14} /> Ver informe
               </button>
@@ -321,7 +321,7 @@ const AuditForm = () => {
             <button
               type="button"
               onClick={cargarDotacion}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="neo-raised-sm neo-press neo-accent inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold"
               title="Deja todas las casillas con la dotación fija del hotel"
             >
               <RotateCcw size={14} /> Restablecer a la dotación
@@ -404,14 +404,14 @@ const AuditForm = () => {
             <button
               onClick={() => persist("borrador")}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
+              className="neo-raised-sm neo-press neo-accent flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold"
             >
               <Save size={16} /> Guardar borrador
             </button>
             <button
               onClick={() => persist("completado")}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-secondary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="neo-primary neo-press flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-extrabold"
             >
               {saving ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
               Completar

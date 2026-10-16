@@ -96,13 +96,15 @@ const AuditHistory = () => {
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-xl font-semibold text-foreground mb-1">Histórico por meses</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Elige un mes para ver sus informes y, al cierre, su informe de comportamiento mensual.
-        </p>
+        <header className="neo-raised-sm rounded-[22px] px-5 py-4 mb-6">
+          <h1 className="text-lg sm:text-xl font-extrabold text-foreground">Histórico por meses</h1>
+          <p className="text-sm font-medium text-muted-foreground">
+            Elige un mes para ver sus informes y, al cierre, su informe de comportamiento mensual.
+          </p>
+        </header>
 
         {meses.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Aún no has registrado ningún formulario.</p>
+          <p className="neo-raised-sm rounded-[22px] p-5 text-sm text-muted-foreground">Aún no has registrado ningún formulario.</p>
         ) : (
           <div className="space-y-3">
             {meses.map((m) => {
@@ -112,15 +114,15 @@ const AuditHistory = () => {
                   key={m.clave}
                   onClick={() => navigate(`/auditoria/historico/${m.clave}`)}
                   role="button"
-                  className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:border-secondary hover:shadow-sm transition-all"
+                  className="neo-raised-sm neo-press rounded-[20px] p-4 cursor-pointer"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl neo-inset-sm flex items-center justify-center shrink-0">
                         <CalendarDays size={18} className="text-primary" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-foreground truncate capitalize">{m.nombre}</p>
+                        <p className="text-sm font-extrabold text-foreground truncate capitalize">{m.nombre}</p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <FileText size={12} />
                           {m.total} {m.total === 1 ? "informe" : "informes"}

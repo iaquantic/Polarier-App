@@ -28,8 +28,24 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
 - **Input:** `ChatInput` se usa en el chat y en el lobby (`variant="lobby"`). La nota de voz grabada en el lobby crea el chat y entra como `initialFile`, por el mismo camino que un audio del chat.
 - Tipografía: Plus Jakarta Sans dentro de los dos ámbitos.
 
+## Módulo de auditoría (2026-10-16)
+
+- **Mismo criterio que el chat:**
+  - El amarillo o el azul solo en el fondo.
+  - Superficies blancas, con azul marino en claro y amarillo/ocre en oscuro.
+  - Barra lateral blanca en relieve, con el hotel en un recuadro hundido.
+  - Quien no es solo auditor tiene además «Volver al inicio».
+- **Ámbito `.neo-audit`** (en `AuditLayout`): fija las `--neo-*` y además reescribe los tokens de shadcn, porque formularios, tablas y dashboard siguen usando `bg-card`, `text-primary`, `border-border`… En oscuro:
+  - `--primary` es ocre, porque también se usa como color de texto sobre blanco.
+  - `--secondary` es amarillo: es el de los botones rellenos.
+  - La cabecera de las tablas (`.tbl-head`) y los paneles del dashboard (`.polarier-head`) pasan a amarillo con texto oscuro.
+  - La banda superior del dashboard sigue siendo azul marino en los dos temas.
+- Tarjetas y cabeceras de página con `neo-raised-sm`. Botones de añadir fila, Volver y Guardar borrador como secundarios en relieve, y Completar como principal.
+- Como ya no hay superficies oscuras, se quitaron las variantes `dark:` del dashboard.
+- **Lobby:** tarjeta «Auditoría» para quien tiene algún rol en el módulo (`hasAuditAccess`). Va la primera de los accesos y en móvil ocupa las dos columnas.
+
 ## Fuera de alcance / pendiente
 
-- **Documentos, Historial y Configuración no se han rediseñado.** Desde el 2026-10-16 tienen el mismo fondo de mosaico y la barra lateral blanca. Su contenido va dentro de `.neo-ground` (en `AppLayout`), que adapta los tokens de shadcn, pero conserva sus componentes de antes. El módulo de auditoría no se ha tocado.
+- **Documentos, Historial y Configuración no se han rediseñado.** Desde el 2026-10-16 tienen el mismo fondo de mosaico y la barra lateral blanca. Su contenido va dentro de `.neo-ground` (en `AppLayout`), que adapta los tokens de shadcn, pero conserva sus componentes de antes.
 - El estado «transcribiendo» de las vistas previas no se implementó: la app no pasa la voz a texto, el audio se envía tal cual a n8n.
 - La grabación no se ha probado con un micrófono real ni en Android. La lógica es la de antes; lo nuevo es el paso de revisión antes de enviar.

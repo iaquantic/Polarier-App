@@ -47,11 +47,13 @@ const AuditHome = () => {
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-xl font-semibold text-foreground">Formularios de Control</h1>
-        <p className="text-sm text-muted-foreground mb-6 capitalize">{hoy()}</p>
+        <header className="neo-raised-sm rounded-[22px] px-5 py-4 mb-6">
+          <h1 className="text-lg sm:text-xl font-extrabold text-foreground">Formularios de Control</h1>
+          <p className="text-sm font-medium text-muted-foreground capitalize">{hoy()}</p>
+        </header>
 
         {defs.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No hay formularios configurados para este hotel.</p>
+          <p className="neo-raised-sm rounded-[22px] p-5 text-sm text-muted-foreground">No hay formularios configurados para este hotel.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {defs.map((def) => {
@@ -61,13 +63,13 @@ const AuditHome = () => {
                 <button
                   key={def.id}
                   onClick={() => navigate(`/auditoria/formulario/${def.id}`)}
-                  className="flex items-start gap-3 bg-card border border-border rounded-xl p-4 text-left hover:border-secondary hover:shadow-sm transition-all"
+                  className="flex items-start gap-3 neo-raised-sm neo-press rounded-[20px] p-4 text-left"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl neo-inset-sm flex items-center justify-center shrink-0">
                     <ClipboardList size={20} className="text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-foreground">{def.nombre}</p>
+                    <p className="text-sm font-extrabold text-foreground">{def.nombre}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       {done ? (
                         <>

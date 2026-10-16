@@ -234,15 +234,17 @@ const AuditMonth = () => {
       <div className="max-w-3xl mx-auto">
         <button
           onClick={() => navigate("/auditoria/historico")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="neo-raised-sm neo-press neo-accent inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold mb-4"
         >
           <ArrowLeft size={16} /> Volver a los meses
         </button>
-        <h1 className="text-xl font-semibold text-foreground mb-6 capitalize">{tituloMes}</h1>
+        <header className="neo-raised-sm rounded-[22px] px-5 py-4 mb-6">
+          <h1 className="text-lg sm:text-xl font-extrabold text-foreground capitalize">{tituloMes}</h1>
+        </header>
 
         {/* Informe de comportamiento mensual: lo redacta la routine de Claude en la
             nube, el día 1 de cada mes o cuando se pide desde aquí. */}
-        <div className="mb-6 rounded-xl border border-primary/30 bg-primary/5 p-5">
+        <div className="mb-6 rounded-[22px] neo-raised-sm p-5">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Sparkles size={16} className="text-primary" /> Informe de comportamiento mensual
@@ -343,11 +345,11 @@ const AuditMonth = () => {
                   key={s.id}
                   onClick={abrir}
                   role="button"
-                  className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:border-secondary hover:shadow-sm transition-all"
+                  className="neo-raised-sm neo-press rounded-[20px] p-4 cursor-pointer"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl neo-inset-sm flex items-center justify-center shrink-0">
                         <FileText size={18} className="text-primary" />
                       </div>
                       <div className="min-w-0">

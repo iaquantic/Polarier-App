@@ -94,7 +94,7 @@ const CategoriasForm = ({ columnas, cabecera = [], data, onChange, readOnly }: P
     <div className="space-y-4">
       {/* Datos del parte (cabecera) */}
       {cabecera.length > 0 && (
-        <div className="rounded-2xl border-2 border-border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-[22px] neo-raised-sm overflow-hidden">
           <div className="bg-muted px-4 py-2.5 border-b-2 border-border">
             <h2 className="text-sm font-semibold text-foreground">Datos del parte</h2>
           </div>
@@ -141,7 +141,7 @@ const CategoriasForm = ({ columnas, cabecera = [], data, onChange, readOnly }: P
       )}
 
       {categorias.map((cat, catIdx) => (
-        <div key={cat.nombre} className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div key={cat.nombre} className="rounded-[22px] neo-raised-sm overflow-hidden">
           {/* Cabecera de categoría */}
           <div className="bg-primary text-primary-foreground px-4 py-2.5 font-semibold text-sm border-b-2 border-primary-foreground/25">
             {cat.nombre}
@@ -236,7 +236,7 @@ const CategoriasForm = ({ columnas, cabecera = [], data, onChange, readOnly }: P
             <div className="p-3 border-t border-border">
               <button
                 onClick={() => addLinea(catIdx)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-border text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                className="inline-flex neo-raised-sm neo-press neo-accent items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold"
               >
                 <Plus size={15} /> Añadir línea a {cat.nombre}
               </button>
