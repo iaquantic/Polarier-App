@@ -39,7 +39,7 @@ La aplicación está **desplegada y conectada**:
 
 **Limpieza y reglas de documentos (2026-10-12):** se escribió [[Generacion-Documentos]] (catálogo completo de lo que genera el proyecto y de qué ficheros sale). Decisiones del día: la TABLA CA la generará un agente de n8n, `global_ai` se sincronizará al final de cada Modelo 1, el año sale del fichero y el correo pasa al n8n self-hosted. Plan por fases en [[Pendientes]].
 
-**Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en la rama `leslie/rediseno-neoformista`, sin desplegar. Detalle en [[Diseno-Neoformista]].
+**Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en main (PR 22). Documentos, Historial y Configuración ya tienen el mismo fondo. Detalle en [[Diseno-Neoformista]].
 
 ## Cómo mantener esta memoria
 

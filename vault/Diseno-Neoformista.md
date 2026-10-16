@@ -30,6 +30,6 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
 
 ## Fuera de alcance / pendiente
 
-- **Documentos, Historial, Configuración y el módulo de auditoría no se han rediseñado.** Comparten la barra lateral blanca, pero sus páginas conservan el estilo anterior.
+- **Documentos, Historial y Configuración no se han rediseñado.** Desde el 2026-10-16 tienen el mismo fondo de mosaico y la barra lateral blanca. Su contenido va dentro de `.neo-ground` (en `AppLayout`), que adapta los tokens de shadcn, pero conserva sus componentes de antes. El módulo de auditoría no se ha tocado.
 - El estado «transcribiendo» de las vistas previas no se implementó: la app no pasa la voz a texto, el audio se envía tal cual a n8n.
 - La grabación no se ha probado con un micrófono real ni en Android. La lógica es la de antes; lo nuevo es el paso de revisión antes de enviar.
