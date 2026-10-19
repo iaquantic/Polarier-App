@@ -50,4 +50,4 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
 
 - **Documentos, Historial y Configuración no se han rediseñado.** Desde el 2026-10-16 tienen el mismo fondo de mosaico y la barra lateral blanca. Su contenido va dentro de `.neo-ground` (en `AppLayout`), que adapta los tokens de shadcn, pero conserva sus componentes de antes.
 - El estado «transcribiendo» de las vistas previas no se implementó: la app no pasa la voz a texto, el audio se envía tal cual a n8n.
-- La grabación no se ha probado con un micrófono real ni en Android. La lógica es la de antes; lo nuevo es el paso de revisión antes de enviar.
+- La grabación se probó con un micrófono real el 2026-10-16 y funciona (grabar, revisar y enviar). Falta probarla en Android. La lógica es la de antes; lo nuevo es el paso de revisión antes de enviar.
