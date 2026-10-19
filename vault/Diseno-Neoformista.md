@@ -7,8 +7,8 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
 - **Fondo:** mosaico de iconos de lavandería. **Amarillo en claro, azul en oscuro**, con los colores rebajados respecto a las imágenes originales, que estaban muy vivas.
 - **Lobby y login:** las superficies son **del mismo color que el fondo** y salen en relieve (neomorfismo). El texto es oscuro.
   - **Cambio del 2026-10-16:** en el lobby, del input para abajo las superficies son **blancas**: la barra de input, los accesos (Auditoría, Mis documentos…), «Continuar donde lo dejaste» y los documentos recientes. Esas secciones usan el ámbito `.neo-chat`. La cabecera y el saludo siguen en el color del fondo.
-  - **Tono (2026-10-16):** Leo eligió entre seis tonos claros, en el tablero «Tonos» del canvas. Las superficies del lobby no son blancas puras: son **crema vainilla `#FAEFD4` en claro** y **azul hielo `#EAEFFC` en oscuro**, con pozos `#EEDDB2` y `#D7DFF6`. Las fija la clase `.neo-tono`, y la barra de input toma el color de la superficie con `.neo-well-surface`. El chat, las barras laterales y la auditoría siguen en blanco.
-- **Chat:** el amarillo o el azul **solo en el fondo**. Las superficies (barra lateral, cabecera, burbujas, barra de input) son **blancas**. En claro juegan con **blanco y azul marino**, y en oscuro con **blanco y amarillo**. La barra lateral es blanca en los dos temas.
+  - **Tono (2026-10-16):** Leo eligió entre seis tonos claros, en el tablero «Tonos» del canvas. Las superficies no son blancas puras: son **crema vainilla `#FAEFD4` en claro** y **azul hielo `#EAEFFC` en oscuro**, con pozos `#EEDDB2` y `#D7DFF6`. El 2026-10-19 Leo confirmó que valen también para el **chat, las barras laterales y la auditoría**. Los tonos viven en los ámbitos `.neo-chat` y `.neo-audit`: ya no hay clase aparte. La barra de input (lobby y chat) toma el color de la superficie con `.neo-well-surface`, y `.neo-white-btn` usa `--neo-white`, que es la superficie en esos ámbitos y blanco en el login. Los campos del login siguen blancos.
+- **Chat:** el amarillo o el azul **solo en el fondo**. Las superficies (barra lateral, cabecera, burbujas, barra de input) son **claras** (crema vainilla / azul hielo desde el 2026-10-19). En claro juegan con **blanco y azul marino**, y en oscuro con **blanco y amarillo**. La barra lateral es blanca en los dos temas.
 - **Login:** los campos de correo y contraseña llevan **fondo blanco**. El logo va sin placa detrás.
 - **Botones uniformes:** solo hay **uno principal relleno** (Enviar, Iniciar sesión, tus burbujas): azul marino en claro y dorado/amarillo en oscuro. **Todo lo demás es secundario en relieve**, con el icono en el color de acento. Las etiquetas de tipo de fichero (PDF, XLS…) son todas iguales.
 - **Micrófono en la barra de input** del lobby y del chat. Tiene tres estados:
@@ -34,7 +34,7 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
 
 - **Mismo criterio que el chat:**
   - El amarillo o el azul solo en el fondo.
-  - Superficies blancas, con azul marino en claro y amarillo/ocre en oscuro.
+  - Superficies claras (crema vainilla / azul hielo), con azul marino en claro y amarillo/ocre en oscuro.
   - Barra lateral blanca en relieve, con el hotel en un recuadro hundido.
   - Quien no es solo auditor tiene además «Volver al inicio».
 - **Ámbito `.neo-audit`** (en `AuditLayout`): fija las `--neo-*` y además reescribe los tokens de shadcn, porque formularios, tablas y dashboard siguen usando `bg-card`, `text-primary`, `border-border`… En oscuro:

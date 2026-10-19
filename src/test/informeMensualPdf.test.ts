@@ -11,7 +11,7 @@ const rep = {
   id: "r", hotel_id: "h", user_id: "u", anio: 2026, mes: 8, estado: "listo",
   resumen: { analisis: "## Título\n\n" + largo, valoraciones: ["Una.", "Dos.", "Tres."] },
   metricas: { totalPartes: 4, diasConParte: 4, diasMes: 31, porFormulario: [{ tipo: "lenceria", partes: 1, total: 0, kg: 0 }] },
-  pdf_url: null, generado_at: null, solicitado_at: null, created_at: "", updated_at: "",
+  generado_at: null, solicitado_at: null, created_at: "", updated_at: "",
 } as unknown as MonthlyReport;
 
 // Nota: en jsdom la imagen del logo no dispara onload/onerror, así que este test

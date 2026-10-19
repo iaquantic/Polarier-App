@@ -314,9 +314,9 @@ const ChatInput = ({
   const canSend = !!value.trim() && !disabled;
   const sideBtn = lobby ? "w-11 h-11 sm:w-12 sm:h-12" : "w-11 h-11";
   const mainBtn = lobby ? "w-12 h-12 sm:w-[52px] sm:h-[52px]" : "w-11 h-11 sm:w-12 sm:h-12";
-  // En el lobby la barra es del color de la superficie; en el chat, el pozo del ámbito.
-  const bar = `neo-inset flex items-center gap-2 sm:gap-3 rounded-[28px] ${
-    lobby ? "neo-well-surface px-2.5 py-2 sm:px-3.5 sm:py-3" : "px-2 py-2 sm:px-3"
+  // La barra es un pozo del color de la superficie (crema vainilla / azul hielo).
+  const bar = `neo-inset neo-well-surface flex items-center gap-2 sm:gap-3 rounded-[28px] ${
+    lobby ? "px-2.5 py-2 sm:px-3.5 sm:py-3" : "px-2 py-2 sm:px-3"
   }`;
   const reviewProgress = recorded && recorded.seconds > 0 ? Math.min(100, (previewTime / recorded.seconds) * 100) : 0;
 

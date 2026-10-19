@@ -25,7 +25,7 @@ afecta a informes:
 
 | Tabla | Descripción | Columnas clave |
 |-------|-------------|----------------|
-| `monthly_reports` | Un informe por hotel + usuario + año + mes | `estado` (`pendiente`\|`generando`\|`listo`\|`error`), `resumen` jsonb, `metricas` jsonb, `pdf_url`, `generado_at`, **`solicitado_at`** |
+| `monthly_reports` | Un informe por hotel + usuario + año + mes | `estado` (`pendiente`\|`generando`\|`listo`\|`error`), `resumen` jsonb, `metricas` jsonb, `generado_at`, **`solicitado_at`** |
 | `audit_daily` | Capa plana: 1 fila por parte, métricas normalizadas y nombres resueltos | `submission_id` (PK), `hotel_id`, `fecha`, `periodo`, `tipo`, `valor`, `kg`, `inventario`, `metricas` |
 | `audit_daily_detalle` | Formato largo: prenda / ubicación / métrica / valor | `submission_id`, `prenda`, `ubicacion`, `metrica`, `valor` |
 | `dotacion_lenceria` | Stock fijo de lencería del hotel por ubicación × prenda (2.877 en el Muthu). Precarga el parte de lencería y es la dotación del dashboard y del informe | `hotel_id`, `ubicacion_id`, `prenda_id`, `cantidad`; única por los tres. Escritura solo `supervisor`/`admin` vía `has_hotel_role(h, roles[])`. Migración `007` |
@@ -65,7 +65,7 @@ supabase functions deploy disparar-informe-mensual
 |--------|-----|-------|
 | `avatars` | Fotos de perfil | público, máx 2MB |
 | `documents` | Archivos de chat | **privado** (URLs firmadas), máx 50MB, sin restricción de MIME. **Ojo:** hasta el 2026-10-12 estaba en realidad **público** en Supabase, aunque aquí ponía privado. Se cerró ese día (ver [[Pendientes]]). El límite de 50MB solo lo aplica la app (`storage.ts`): el bucket no tiene `file_size_limit` |
-| `informes-mensuales` | PDF del informe mensual | **privado**, ruta `{hotel_id}/{anio}-{mes}.pdf`. Creado en la migración 005; todavía sin usar (`pdf_url` va a `null`) |
+| ~~`informes-mensuales`~~ | ~~PDF del informe mensual~~ | **Retirado** el 2026-10-19 (migración 011 + borrado a mano en el panel): el PDF se genera en el cliente. Nunca guardó nada. |
 
 - Los archivos privados se sirven con `createSignedUrl`. n8n los descarga con la credencial `supabaseApi` «Polarier» (service_role).
 - Las políticas de `storage.objects` limitan la lectura y escritura de `documents` a la carpeta `<user_id>/` de cada usuario. Con el bucket público, esas políticas no protegían nada: cualquiera con la ruta descargaba el fichero.

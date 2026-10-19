@@ -4,6 +4,12 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-19 — Tonos en todas las superficies, dotación fija y fuera el PDF guardado
+
+- **Crema vainilla (claro) y azul hielo (oscuro) en todas las superficies**: chat, barras laterales y auditoría, no solo el lobby. Lo confirmó Leo. Ver [[Diseno-Neoformista]].
+- **La dotación no se edita desde la app.** Se descarta la UI de edición: es una cantidad fija del hotel.
+- **Se retiran `monthly_reports.pdf_url`, el bucket `informes-mensuales` y el botón «Abrir PDF».** «Generar informe» funciona, y el PDF se hace en el cliente. Migración `011`; el bucket se borra a mano porque Supabase no deja hacerlo por SQL.
+
 ## 2026-10-16 — Auditoría con el diseño nuevo y acceso desde el lobby
 
 - **Contexto:** Leo vio que la sección de Auditoría era totalmente distinta del resto. Pidió adaptarla al diseño nuevo y poner un botón en el lobby para quien tenga acceso.

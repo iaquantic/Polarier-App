@@ -35,7 +35,6 @@ const reporteBase: MonthlyReport = {
       { tipo: "cuadrador", partes: 2, total: 0, kg: 0 },
     ],
   },
-  pdf_url: null,
   generado_at: "2026-09-03T15:56:19Z",
   solicitado_at: "2026-09-03T15:54:44Z",
   created_at: "2026-08-27T17:16:59Z",

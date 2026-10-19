@@ -280,7 +280,7 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
 
 - **Texto:** lo escribe la routine de Claude en `monthly_reports.resumen`, leyendo solo `audit_mes`, `audit_mes_dias` y `audit_mes_dotacion`. Nunca `form_submissions` en crudo.
 - **PDF:** en el cliente, reutilizando D7 vía `src/lib/informeMensual.ts`.
-- **Sin uso:** `monthly_reports.pdf_url` y el bucket `informes-mensuales`.
+- **Retirados (2026-10-19):** `monthly_reports.pdf_url` y el bucket `informes-mensuales` (migración 011).
 - Detalle en [[Routine-Informe-Mensual]].
 
 ### D9 — Envío por correo
