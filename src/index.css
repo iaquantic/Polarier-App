@@ -137,8 +137,9 @@
    Dos ámbitos que fijan las variables --neo-*; las clases .neo-* solo las leen:
    - .neo-ground (lobby y login): las superficies son del mismo color que el
      fondo (amarillo en claro, azul en oscuro) y salen en relieve de él.
-   - .neo-chat (chat y su barra lateral): solo el fondo es amarillo/azul; las
-     superficies son blancas y juegan con el azul (claro) o el amarillo (oscuro).
+   - .neo-chat (chat, barras laterales y secciones blancas del lobby): solo el
+     fondo es amarillo/azul; las superficies son crema vainilla (claro) o azul
+     hielo (oscuro) y juegan con el azul (claro) o el amarillo/ocre (oscuro).
    Principal = relleno (azul en claro, dorado/amarillo en oscuro); todo lo demás
    es secundario en relieve.
 --------------------------------------------------------------------------- */
@@ -197,8 +198,9 @@
   .neo-chat {
     --neo-danger: #B3261E;
     --neo-ground: #F0D274;
-    --neo-surface: #FFFFFF;
-    --neo-well: #EEF0F6;
+    --neo-surface: #FAEFD4;
+    --neo-well: #EEDDB2;
+    --neo-white: #FAEFD4;
     --neo-sd: rgba(30, 37, 69, 0.16);
     --neo-sl: rgba(255, 255, 255, 0.75);
     --neo-id: rgba(30, 37, 69, 0.14);
@@ -213,8 +215,9 @@
   }
   .dark .neo-chat {
     --neo-ground: #23347C;
-    --neo-surface: #FFFFFF;
-    --neo-well: #FBF1CF;
+    --neo-surface: #EAEFFC;
+    --neo-well: #D7DFF6;
+    --neo-white: #EAEFFC;
     --neo-sd: rgba(4, 8, 30, 0.5);
     --neo-sl: rgba(120, 140, 220, 0.25);
     --neo-id: rgba(122, 84, 8, 0.2);
@@ -235,8 +238,9 @@
   .neo-audit {
     --neo-danger: #B3261E;
     --neo-ground: #F0D274;
-    --neo-surface: #FFFFFF;
-    --neo-well: #EEF0F6;
+    --neo-surface: #FAEFD4;
+    --neo-well: #EEDDB2;
+    --neo-white: #FAEFD4;
     --neo-sd: rgba(30, 37, 69, 0.16);
     --neo-sl: rgba(255, 255, 255, 0.75);
     --neo-id: rgba(30, 37, 69, 0.14);
@@ -248,16 +252,16 @@
     --neo-on-primary: #FFFFFF;
     --neo-placeholder: #5A6080;
     --neo-field-icon: #30397F;
-    --background: 225 33% 97%;
+    --background: 44 100% 97%;
     --foreground: 230 57% 13%;
-    --card: 0 0% 100%;
+    --card: 43 79% 91%;
     --card-foreground: 230 57% 13%;
-    --popover: 0 0% 100%;
+    --popover: 44 100% 97%;
     --popover-foreground: 230 57% 13%;
-    --muted: 225 27% 95%;
+    --muted: 43 70% 86%;
     --muted-foreground: 229 21% 35%;
-    --border: 225 20% 87%;
-    --input: 225 20% 87%;
+    --border: 43 45% 78%;
+    --input: 43 45% 78%;
     --primary: 233 45% 34%;
     --primary-foreground: 0 0% 100%;
     --secondary: 233 45% 34%;
@@ -270,7 +274,14 @@
   }
   .dark .neo-audit {
     --neo-ground: #23347C;
-    --neo-well: #FBF1CF;
+    --neo-surface: #EAEFFC;
+    --neo-well: #D7DFF6;
+    --neo-white: #EAEFFC;
+    --background: 223 79% 98%;
+    --card: 223 75% 95%;
+    --popover: 223 79% 98%;
+    --border: 223 40% 85%;
+    --input: 223 40% 85%;
     --neo-sd: rgba(4, 8, 30, 0.5);
     --neo-sl: rgba(120, 140, 220, 0.25);
     --neo-id: rgba(122, 84, 8, 0.2);
@@ -283,7 +294,7 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 45 81% 70%;
     --secondary-foreground: 230 57% 13%;
-    --muted: 45 85% 94%;
+    --muted: 223 64% 92%;
     --ring: 40 88% 26%;
   }
   /* Cabecera de tablas: dorada en claro, amarilla en oscuro (ya no azul sobre blanco).
@@ -335,17 +346,7 @@
     background: var(--neo-well);
     box-shadow: inset 4px 4px 8px var(--neo-id), inset -4px -4px 8px var(--neo-il);
   }
-  /* Tono de las superficies del lobby (va junto a .neo-chat): crema vainilla en claro
-     y azul hielo en oscuro, elegidos por Leo el 2026-10-16 en vez del blanco puro. */
-  .neo-tono {
-    --neo-surface: #FAEFD4;
-    --neo-well: #EEDDB2;
-  }
-  .dark .neo-tono {
-    --neo-surface: #EAEFFC;
-    --neo-well: #D7DFF6;
-  }
-  /* Barra de input del lobby: el pozo toma el color de la superficie */
+  /* Barra de input (lobby y chat): el pozo toma el color de la superficie */
   .neo-well-surface {
     --neo-well: var(--neo-surface);
   }
@@ -365,7 +366,7 @@
   }
   /* Botón blanco dentro de un campo o de la barra lateral blanca */
   .neo-white-btn {
-    background: #FFFFFF;
+    background: var(--neo-white, #FFFFFF);
     box-shadow: 4px 4px 10px rgba(30, 37, 69, 0.16), 0 0 0 1px #ECEEF4;
   }
   /* Tira detrás de un texto suelto sobre el mosaico, para que se lea */

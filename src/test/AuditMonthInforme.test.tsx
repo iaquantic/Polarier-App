@@ -12,7 +12,7 @@ const reporteListo = {
     valoraciones: ["Cerrar los partes a diario."],
   },
   metricas: { totalPartes: 4, diasConParte: 4, diasMes: 31 },
-  pdf_url: null, generado_at: "2026-09-03T15:56:19Z", solicitado_at: "2026-09-03T15:54:44Z",
+  generado_at: "2026-09-03T15:56:19Z", solicitado_at: "2026-09-03T15:54:44Z",
   created_at: "", updated_at: "",
 } as unknown as MonthlyReport;
 
@@ -31,7 +31,6 @@ vi.mock("@/services/audit", () => ({
   getSubmissionsByMonth: vi.fn(async () => subs),
   getFormDefinitions: vi.fn(async () => [{ id: "d1", hotel_id: "h1", tipo: "produccion", nombre: "Control de Producción", schema_version: 1, config: {}, activo: true }]),
   getMonthlyReport: vi.fn(async () => reporteActual),
-  getMonthlyReportPdfUrl: vi.fn(async () => "https://example.test/x.pdf"),
   getPrendas: vi.fn(async () => []),
   getUbicaciones: vi.fn(async () => []),
   getDotacionLenceria: vi.fn(async () => ({})),

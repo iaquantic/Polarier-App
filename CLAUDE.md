@@ -42,7 +42,7 @@ Read `vault/Generacion-Documentos.md` before touching any n8n branch, VPS script
 
 **Supabase Tables:** `chats`, `chat_messages`, `profiles`, `documents` (chat); `polos_turisticos`, `hoteles`, `user_hotel_roles`, `catalogo_prendas`, `catalogo_ubicaciones`, `dotacion_lenceria`, `form_definitions`, `form_submissions`, `monthly_reports` (audit module)
 
-**Supabase Storage Buckets:** `avatars`, `documents`, `informes-mensuales` (private, monthly report PDFs)
+**Supabase Storage Buckets:** `avatars`, `documents` (the monthly report PDF is generated client-side; the old `informes-mensuales` bucket and `monthly_reports.pdf_url` were retired in migration `011`)
 
 ## Audit module (control de almacén hotelero)
 

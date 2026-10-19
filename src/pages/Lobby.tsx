@@ -227,9 +227,9 @@ const Lobby = () => {
         </section>
 
         {/* ── INPUT PRINCIPAL ── */}
-        {/* Del input para abajo, las superficies son claras (ámbito .neo-chat con el
-            tono .neo-tono): el amarillo/azul queda solo en el fondo, la cabecera y el saludo. */}
-        <section className="neo-chat neo-tono w-full">
+        {/* Del input para abajo, las superficies son las del chat (ámbito .neo-chat, crema
+            vainilla / azul hielo): el amarillo/azul queda solo en el fondo, la cabecera y el saludo. */}
+        <section className="neo-chat w-full">
           <ChatInput
             variant="lobby"
             value={query}
@@ -246,7 +246,7 @@ const Lobby = () => {
         </section>
 
         {/* ── ACCESOS ── */}
-        <section className={`neo-chat neo-tono grid grid-cols-2 gap-3.5 sm:gap-5 ${hasAuditAccess ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+        <section className={`neo-chat grid grid-cols-2 gap-3.5 sm:gap-5 ${hasAuditAccess ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
           {(hasAuditAccess ? [auditOption, ...gridOptions] : gridOptions).map((opt) => (
             <button
               key={opt.label}
@@ -269,7 +269,7 @@ const Lobby = () => {
 
         {/* ── CONTINUAR DONDE LO DEJASTE ── */}
         {latestChat && (
-          <section className="neo-chat neo-tono flex flex-col items-start gap-2.5 sm:gap-3.5">
+          <section className="neo-chat flex flex-col items-start gap-2.5 sm:gap-3.5">
             <h2 className="neo-strip neo-text-2 text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.12em] px-3 py-1 rounded-lg">
               Continuar donde lo dejaste
             </h2>
@@ -301,7 +301,7 @@ const Lobby = () => {
 
         {/* ── DOCUMENTOS RECIENTES ── */}
         {recentDocs.length > 0 && (
-          <section className="neo-chat neo-tono flex flex-col gap-2.5 sm:gap-3.5">
+          <section className="neo-chat flex flex-col gap-2.5 sm:gap-3.5">
             <div className="flex items-center justify-between gap-3">
               <h2 className="neo-strip neo-text-2 text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.12em] px-3 py-1 rounded-lg">
                 Documentos recientes

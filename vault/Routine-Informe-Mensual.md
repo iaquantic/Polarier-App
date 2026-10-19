@@ -351,9 +351,9 @@ PDF para que ambos muestren lo mismo. Antes se volcaba el markdown crudo en un
 Los tres botones están siempre a la vista; descargar y enviar salen desactivados
 mientras no haya un informe redactado que mandar.
 
-**`pdf_url` y el bucket `informes-mensuales` siguen sin usarse**, y puede que ya no
-hagan falta: el PDF se genera en el cliente al pulsar, igual que el diario. El botón
-«Abrir PDF» que mira `pdf_url` sigue en el código pero nunca aparece.
+**`pdf_url`, el bucket `informes-mensuales` y el botón «Abrir PDF» se retiraron el
+2026-10-19** (migración `011_retirar_pdf_mensual.sql`): el PDF se genera en el cliente
+al pulsar, igual que el diario, y nunca se llegó a guardar ninguno.
 
 `cargarLogo()` en `informePdf.ts` lleva un temporizador de 3 s. Sin él, si la imagen
 no dispara `onload` ni `onerror`, la promesa se queda pendiente para siempre y el

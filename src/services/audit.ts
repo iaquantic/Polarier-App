@@ -271,7 +271,6 @@ export interface MonthlyReport {
   estado: MonthlyEstado;
   resumen: Record<string, unknown>;
   metricas: Record<string, unknown>;
-  pdf_url: string | null;
   generado_at: string | null;
   /** Cuándo se pidió el informe desde la app. Es la cola que atiende la routine. */
   solicitado_at: string | null;
@@ -343,21 +342,6 @@ export const getMonthlyReport = async (
 };
 
 /**
- * URL firmada del PDF del informe mensual (bucket privado 'informes-mensuales').
- * pdfUrl es la ruta guardada en monthly_reports.pdf_url.
- */
-export const getMonthlyReportPdfUrl = async (
-  pdfUrl: string,
-  expiresInSec = 3600
-): Promise<string> => {
-  const { data, error } = await supabase.storage
-    .from('informes-mensuales')
-    .createSignedUrl(pdfUrl, expiresInSec);
-  if (error || !data) throw new Error('No se pudo generar la URL del informe');
-  return data.signedUrl;
-};
-
-/**
  * Crea o actualiza el informe mensual de un (hotel, usuario, año, mes).
  * Pensado para que el agente lo rellene más adelante; disponible ya como enganche.
  */
@@ -368,7 +352,6 @@ export const upsertMonthlyReport = async (params: {
   estado?: MonthlyEstado;
   resumen?: Record<string, unknown>;
   metricas?: Record<string, unknown>;
-  pdfUrl?: string | null;
 }): Promise<MonthlyReport> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('No authenticated user');
@@ -382,7 +365,6 @@ export const upsertMonthlyReport = async (params: {
   if (params.estado !== undefined) row.estado = params.estado;
   if (params.resumen !== undefined) row.resumen = params.resumen;
   if (params.metricas !== undefined) row.metricas = params.metricas;
-  if (params.pdfUrl !== undefined) row.pdf_url = params.pdfUrl;
 
   const { data, error } = await supabase
     .from('monthly_reports')

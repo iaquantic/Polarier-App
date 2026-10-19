@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Loader2, FileText, Download, CheckCircle2, Circle, ChevronRight, ArrowLeft, Sparkles, FileDown, Wand2, Mail } from "lucide-react";
+import { Loader2, FileText, Download, CheckCircle2, Circle, ChevronRight, ArrowLeft, Sparkles, Wand2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { useRole } from "@/context/RoleContext";
 import {
@@ -12,7 +12,6 @@ import {
   getAutores,
   Autor,
   getMonthlyReport,
-  getMonthlyReportPdfUrl,
   solicitarInformeMensual,
   FormSubmission,
   FormDefinition,
@@ -60,7 +59,6 @@ const AuditMonth = () => {
   // personas, así que sin esto no se sabe de quién es cada fila.
   const [autores, setAutores] = useState<Record<string, Autor>>({});
   const [loading, setLoading] = useState(true);
-  const [pdfLoading, setPdfLoading] = useState(false);
   const [pidiendo, setPidiendo] = useState(false);
   const [informe, setInforme] = useState<Informe | null>(null);
   const [informeOpen, setInformeOpen] = useState(false);
@@ -191,7 +189,7 @@ const AuditMonth = () => {
   };
 
   // Descarga el informe mensual como PDF, generado en el cliente igual que el
-  // de los partes diarios (no depende de `pdf_url` ni de n8n).
+  // de los partes diarios (no depende de n8n).
   const descargarMensual = async () => {
     if (!informeMensual || !reporte) return;
     setDescargandoMensual(true);
@@ -201,20 +199,6 @@ const AuditMonth = () => {
       toast.error(err instanceof Error ? err.message : "No se pudo generar el PDF");
     } finally {
       setDescargandoMensual(false);
-    }
-  };
-
-  // Abre el PDF del informe mensual (URL firmada del bucket privado).
-  const abrirPdfMensual = async () => {
-    if (!reporte?.pdf_url) return;
-    setPdfLoading(true);
-    try {
-      const url = await getMonthlyReportPdfUrl(reporte.pdf_url);
-      window.open(url, "_blank", "noopener");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo abrir el informe");
-    } finally {
-      setPdfLoading(false);
     }
   };
 
@@ -250,16 +234,6 @@ const AuditMonth = () => {
               <Sparkles size={16} className="text-primary" /> Informe de comportamiento mensual
             </h2>
             <div className="flex flex-wrap items-center justify-end gap-2">
-              {reporte?.estado === "listo" && reporte.pdf_url && (
-                <button
-                  onClick={abrirPdfMensual}
-                  disabled={pdfLoading}
-                  className="flex items-center gap-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground px-3 py-1.5 hover:opacity-90 transition-opacity disabled:opacity-60"
-                >
-                  {pdfLoading ? <Loader2 size={14} className="animate-spin" /> : <FileDown size={14} />}
-                  Abrir PDF
-                </button>
-              )}
               {/* Los tres botones están siempre a la vista; descargar y enviar
                   se activan cuando hay un informe redactado que mandar. */}
               {!enCurso && (
