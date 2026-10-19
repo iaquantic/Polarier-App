@@ -65,7 +65,7 @@ supabase functions deploy disparar-informe-mensual
 |--------|-----|-------|
 | `avatars` | Fotos de perfil | público, máx 2MB |
 | `documents` | Archivos de chat | **privado** (URLs firmadas), máx 50MB, sin restricción de MIME. **Ojo:** hasta el 2026-10-12 estaba en realidad **público** en Supabase, aunque aquí ponía privado. Se cerró ese día (ver [[Pendientes]]). El límite de 50MB solo lo aplica la app (`storage.ts`): el bucket no tiene `file_size_limit` |
-| ~~`informes-mensuales`~~ | ~~PDF del informe mensual~~ | **Retirado** el 2026-10-19 (migración 011 + borrado a mano en el panel): el PDF se genera en el cliente. Nunca guardó nada. |
+| ~~`informes-mensuales`~~ | ~~PDF del informe mensual~~ | **Retirado** el 2026-10-19 (migración 011 aplicada y bucket borrado): el PDF se genera en el cliente. Nunca guardó nada. |
 
 - Los archivos privados se sirven con `createSignedUrl`. n8n los descarga con la credencial `supabaseApi` «Polarier» (service_role).
 - Las políticas de `storage.objects` limitan la lectura y escritura de `documents` a la carpeta `<user_id>/` de cada usuario. Con el bucket público, esas políticas no protegían nada: cualquiera con la ruta descargaba el fichero.

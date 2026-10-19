@@ -10,9 +10,10 @@
 -- 'informes-mensuales' (migración 005). Ninguna vista depende de la columna.
 --
 -- El bucket NO se borra aquí: Supabase protege storage.buckets con el trigger
--- protect_buckets_delete y solo deja borrarlo por la Storage API. Hay que
--- eliminarlo a mano en el panel: Storage → informes-mensuales → Delete bucket
--- (está vacío).
+-- protect_buckets_delete. Se borró aparte el 2026-10-19, tras comprobar que
+-- estaba vacío, activando storage.allow_delete_query solo en esa transacción
+-- (o, si se repite en otro entorno, desde el panel: Storage → Delete bucket).
+-- Aplicada el 2026-10-19 como «retirar_pdf_mensual».
 -- ============================================================================
 
 drop policy if exists informes_mensuales_read on storage.objects;
