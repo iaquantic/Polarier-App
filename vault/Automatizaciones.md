@@ -1,6 +1,8 @@
 # Automatizaciones (sección de la app)
 
-Sección nueva (2026-10-20) que **saca del chat el disparo de los documentos**. Cada proceso tiene su apartado: dice qué fichero espera, lo revisa antes de enviarlo y llama al **trigger propio de su rama** en n8n. El chat conversacional no cambia, y subir un fichero por el chat sigue funcionando igual.
+Sección nueva (2026-10-20) que **saca del chat el disparo de los documentos**. Cada proceso tiene su apartado: dice qué fichero espera, lo revisa antes de enviarlo y llama al **trigger propio de su rama** en n8n.
+
+**Cada automatización entra por un solo sitio: su trigger.** El chat conversacional sigue igual (texto, audio, imágenes, base de conocimiento), pero si alguien sube ahí un Modelo 1, un CA o un Integral, el chat ya no lo procesa: responde diciendo en qué apartado subirlo.
 
 > Por qué: el nombre del fichero era el único contrato ([[Generacion-Documentos]], regla 1). La gente no sabía qué mandar, un nombre mal puesto se iba a la rama equivocada sin aviso y todas las automatizaciones se mezclaban en la misma conversación.
 
@@ -21,9 +23,9 @@ Los triggers nuevos viven **dentro del mismo workflow** «Polarier Auto App» (`
 El problema a sortear era que todos los nodos de rama referencian `$('Webhook')` **por nombre**, y una ejecución que arranque en otro trigger revienta esa expresión. Solución:
 
 ```
-WH Modelo 1  →  M1 - Descargar  ─┐
-                                 ├→  M1 - Entrada  →  M1 - Guardar → …
-Webhook (chat) → … → Switch3[1][3] ┘
+WH Modelo 1  →  M1 - Descargar  →  M1 - Entrada  →  M1 - Guardar → …
+
+Webhook (chat) → … → Switch3[1][3] →  Aviso Modelo 1 →  Responder aviso
 ```
 
 - `WH <rama>`: Webhook POST con `responseMode: responseNode`.
@@ -40,7 +42,8 @@ return $input.all().map(item => ({ json: { body }, binary: item.binary }));
 - En los nodos de la rama, `$('Webhook')` pasó a `$('M1 - Entrada')` / `$('CD - Entrada')`. Son: `M1 - Guardar`, `M1 - Preparar`, `Agente Modelo 1`, `CD - Guardar`, `CD - Preparar`, `Agente TABLA CA`, `CD - Limpiar` y las cuatro herramientas `ver_hoja_cd`, `ver_global`, `estado_tabla`, `escribir_tabla`. **Si añades un nodo a una rama, referencia el nodo de entrada, nunca `Webhook`.**
 - **Ocupación no necesita entrada**: ningún nodo de esa rama referencia el webhook, así que `OC - Descargar` entra directo en `Extract from File1`.
 - Los `Respond to Webhook` de cada rama responden al trigger que arrancó la ejecución: sirven para los dos caminos sin tocarlos.
-- `Switch3` y la rama de chat quedan **intactos**.
+- **`Switch3` ya no alimenta ninguna rama de documentos.** Sus salidas «Modelo 1», «Comprimido», «Leslie CA» y «Raydel» (Integral) van a un `Aviso *` (Set con el campo `Aviso`) y de ahí a `Responder aviso`, que contesta en el chat: *«Este fichero ya no se procesa desde el chat. Súbelo en Automatizaciones → …»*. Las salidas «Carla» y la del agente de chat no se tocaron.
+- Los nodos `* - Entrada` leen primero su trigger y dejan la lectura del `Webhook` del chat como reserva, por si algún día se vuelve a conectar `Switch3` a la rama.
 
 ## Cómo está montado en la app
 
@@ -66,6 +69,8 @@ Ojo: ese texto viaja con **HTTP 200**, como en el chat. La app lo pinta como res
 
 ## Estado (2026-10-20)
 
-- Workflow **publicado** (versión `f29a4861`). Las tres URL de producción responden.
+- Workflow **publicado** (versión `032b9758`). Las tres URL de producción responden.
+- Comprobado con datos fijados (`test_workflow`, ejecuciones 532–534): un CP, un CA y un Integral subidos **por el chat** salen por `Switch3` 1, 5 y 2, dan el aviso correcto y **no ejecutan ninguna rama**.
+- Comprobado contra producción (ejecución 524): el trigger propio entra, autentica contra Supabase Storage y descarga. **La vuelta completa con un fichero real está sin probar**: lo primero que hay que mirar en la primera subida de verdad es que `M1 - Entrada` entrega `body` y el binario.
 - Migración `012` **aplicada**.
 - **Falta**: `VITE_N8N_WEBHOOK_BASE(_TEST)` en Easypanel + Rebuild, y probar las tres ramas con ficheros reales por los dos caminos.

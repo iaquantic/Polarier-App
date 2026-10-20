@@ -42,7 +42,7 @@ La aplicación está **desplegada y conectada**:
 
 **Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en main (PR 22). Documentos, Historial y Configuración ya tienen el mismo fondo. Detalle en [[Diseno-Neoformista]].
 
-**Automatizaciones (2026-10-20):** el disparo de los documentos sale del chat. La app tiene una sección «Automatizaciones» con un apartado por proceso (Modelo 1, Tabla CA, Ocupación) y cada uno llama a su **propio webhook** en n8n, dentro del mismo workflow y sin duplicar las ramas. El chat sigue igual. Detalle en [[Automatizaciones]].
+**Automatizaciones (2026-10-20):** el disparo de los documentos sale del chat. La app tiene una sección «Automatizaciones» con un apartado por proceso (Modelo 1, Tabla CA, Ocupación) y cada uno llama a su **propio webhook** en n8n, dentro del mismo workflow y sin duplicar las ramas. Cada automatización entra **solo** por su trigger: el chat conversacional sigue igual, pero si alguien sube ahí un CP, un CA o un Integral, responde diciendo en qué apartado subirlo. Detalle en [[Automatizaciones]].
 
 ## Cómo mantener esta memoria
 

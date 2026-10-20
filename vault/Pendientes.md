@@ -259,7 +259,7 @@ Sección nueva en la app con un apartado por proceso y un trigger propio por ram
 - [x] **Publicar la versión del workflow** «Polarier Auto App». Los triggers nuevos (`WH Modelo 1`, `WH Tabla CA`, `WH Ocupacion`) están creados, pero la versión activa sigue siendo la anterior, así que en producción todavía no existen esas URL.
 - [x] **Aplicar la migración `012_automation_runs.sql`** en el SQL editor de Supabase. Aplicada el 2026-10-20; el linter de seguridad no saca ningún aviso de la tabla.
 - [ ] **Easypanel:** añadir `VITE_N8N_WEBHOOK_BASE` y `VITE_N8N_WEBHOOK_BASE_TEST` y hacer Rebuild.
-- [ ] Probar de punta a punta las tres ramas por los dos caminos (chat y sección), con un fichero real de cada una.
+- [ ] **Probar de punta a punta las tres ramas con un fichero real.** El camino del chat ya está comprobado (avisa y no ejecuta nada, ejecuciones 532–534); del trigger propio está comprobado hasta la descarga (ejecución 524). Falta la vuelta completa: lo primero que hay que mirar es que `* - Entrada` entregue `body` y el binario.
 - [ ] Decidir si la rama `Informe` (base de conocimiento) merece también su apartado. Hoy solo entra por el chat.
 
 ## Ideas / futuro

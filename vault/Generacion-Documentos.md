@@ -42,16 +42,16 @@ flowchart LR
 
 ### 1. El nombre del fichero es el contrato
 
-> **Desde el 2026-10-20 esto solo vale para el chat.** Modelo 1, TABLA CA y Ocupación tienen además su propio trigger, que la app llama desde la sección «Automatizaciones»: ahí la rama la elige el apartado, no el nombre, y el nombre solo se revisa para avisar. Ver [[Automatizaciones]].
+> **Desde el 2026-10-20 esto ya no vale para Modelo 1, TABLA CA ni Ocupación.** Esas tres entran **solo** por su propio trigger, desde la sección «Automatizaciones» de la app: la rama la elige el apartado, no el nombre, y el nombre solo se revisa para avisar. En el chat, `Switch3` sigue reconociéndolas, pero sus salidas ya no van a la rama: responden «súbelo en Automatizaciones → …». La tabla de abajo describe el enrutado del chat. Ver [[Automatizaciones]].
 
 En el chat, **el nombre del fichero subido decide qué documento se genera**. `Switch3` compara por subcadena (`contains`) y en modo *primera coincidencia*, en este orden:
 
 | Orden | Si el nombre contiene… | Rama | Estado |
 |---|---|---|---|
 | 0 | `MU` | Carla → COMU GENERAL | **Rota a propósito** (decisión 2026-10-05) |
-| 1 | regex sin distinguir mayúsculas: `<polo>CP….pdf`, `<polo>M-1….pdf`, `Mod 1…`, `Modelo 1…` o `Modelo I….pdf` (salida «Modelo 1») | **Agente Modelo 1** (ver D1) | Operativa (versión `9d0654b9`, 2026-10-15) |
-| 2 | `Integral` | Ocupación | Funciona, **no se usa** |
-| 3 | mime `zip`/`rar` o nombre `.zip`/`.rar`, sin distinguir mayúsculas (salida «Comprimido») | La misma rama que la salida 1. Dentro del comprimido el nombre no importa: el polo y el mes salen del contenido | Operativa |
+| 1 | regex sin distinguir mayúsculas: `<polo>CP….pdf`, `<polo>M-1….pdf`, `Mod 1…`, `Modelo 1…` o `Modelo I….pdf` (salida «Modelo 1») | **Aviso**: la rama se dispara desde Automatizaciones → Modelo 1 (ver D1) | Desconectada del chat el 2026-10-20 |
+| 2 | `Integral` | **Aviso**: la rama se dispara desde Automatizaciones → Ocupación | Desconectada del chat el 2026-10-20 |
+| 3 | mime `zip`/`rar` o nombre `.zip`/`.rar`, sin distinguir mayúsculas (salida «Comprimido») | El mismo aviso que la salida 1. Dentro del comprimido el nombre no importa: el polo y el mes salen del contenido | Desconectada del chat el 2026-10-20 |
 | 4 | `Informe` | Base de conocimiento | Operativa |
 | — | nada de lo anterior / audio | Agente Benjamin (texto, imagen o audio) | Operativa |
 
