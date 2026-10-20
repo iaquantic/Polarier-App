@@ -48,6 +48,17 @@ export const getEjecuciones = async (slug: string, limite = 10): Promise<Ejecuci
   return (data ?? []) as EjecucionAutomatizacion[];
 };
 
+/** Una ejecución concreta, para abrirla desde un enlace (`?run=<id>`). */
+export const getEjecucion = async (id: string): Promise<EjecucionAutomatizacion | null> => {
+  const { data, error } = await supabase
+    .from('automation_runs')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return null;
+  return (data as EjecucionAutomatizacion) ?? null;
+};
+
 const anotarInicio = async (
   slug: string,
   userId: string,

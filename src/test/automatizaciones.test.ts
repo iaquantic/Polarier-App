@@ -52,12 +52,12 @@ describe("revisarArchivo", () => {
     }
   });
 
-  it("acepta CA y el nombre antiguo CD", () => {
-    expect(revisarArchivo(tablaCa, "CACA202504.xlsx").aviso).toBeUndefined();
-    expect(revisarArchivo(tablaCa, "VACD202512.xlsx").aviso).toBeUndefined();
+  it("acepta el CD, que es lo que se manda, y también el prefijo CA", () => {
+    expect(revisarArchivo(tablaCa, "CACD202504.xlsx").aviso).toBeUndefined();
+    expect(revisarArchivo(tablaCa, "VACA202512.xlsx").aviso).toBeUndefined();
   });
 
-  it("avisa si el CA no lleva año y mes", () => {
+  it("avisa si el CD no lleva año y mes", () => {
     expect(revisarArchivo(tablaCa, "caibarien.xlsx").aviso).toBeTruthy();
   });
 });
