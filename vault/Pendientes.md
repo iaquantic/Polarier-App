@@ -137,7 +137,9 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
   - `Switch3` «Leslie CA» acepta `CA` y `CD` sin distinguir mayúsculas;
   - `escribir_tabla` acepta `quimicos`;
   - prompt nuevo.
-  - **Al publicar entran también los cambios del editor de Leo:** rama «Informe» quitada (su salida queda sin conectar, así que un fichero con «Informe» en el nombre no recibe respuesta), nota adhesiva y `caseSensitive: true` en las reglas Modelo 1 y Comprimido. Con esto último, un `VACP202601.PDF` en mayúsculas ya no entra por Modelo 1.
+  - **Al publicar entran también los cambios del editor de Leo:** nota adhesiva.
+  - [x] **Modelo 1 y Comprimido no quedaron en `caseSensitive: true`** (verificado el 2026-10-19 en el flujo vivo, misma versión activa `9d0654b9…` del 2026-10-15). Aquí se dio por hecho que ese publicado dejaba esas dos reglas de `Switch3` distinguiendo mayúsculas, y de ahí el ejemplo de que un `VACP202601.PDF` en mayúsculas ya no entraría por Modelo 1. No se sostiene: las dos están en `caseSensitive: false` (igual que «Leslie CA»; solo «Carla», «Raydel» e «Informe» están en `true`), y el autoguardado posterior del editor las tiene igual. El ejemplo tampoco se cumple: con `false`, n8n pasa el nombre a minúsculas y el patrón de Modelo 1 ya está en minúsculas y termina en `\.pdf$`, así que `VACP202601.PDF` sí entra por Modelo 1.
+  - [x] **La rama «Informe» no estaba quitada** (verificado el 2026-10-19 en el flujo vivo). Aquí se dio por hecho que ese publicado había dejado la salida «Informe» de `Switch3` sin conectar, de modo que un fichero con «Informe» en el nombre no recibiría respuesta. No se sostiene: en la versión activa (`9d0654b9…`, 2026-10-15) esa salida va a `Supabase Vector Store2` (insert sobre `document_chunks`, con sus nodos de embeddings y de carga de documentos) y de ahí a `Respond to Webhook10`. El autoguardado posterior del editor también la tiene conectada, así que publicar no la quita. La sección D5 de [[Generacion-Documentos]] es la correcta.
 - [x] **Re-subir un CA no reescribe nada** (PR #13, versión `373eb792`). El escritor deja en `sin_cambios` las celdas que ya tienen ese valor y solo guarda (y respalda) si algo cambia. El resumen añade la línea «Sin cambios (N)». Decisión de Leo.
 - [x] **Arreglo del enrutado** (versión `a4b17be8`). Los CA caían al chat general («No puedo acceder directamente a archivos subidos»), con cualquier nombre, incluso los `CD` antiguos.
   - Causa: con `caseSensitive: false`, n8n pasa a minúsculas el nombre del fichero pero no el patrón, y el regex estaba en mayúsculas.
@@ -249,6 +251,16 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 - [x] **`Leslie/Modelo1.py` retirado del VPS** (2026-10-15, ejecución 504). No se borró: está en `Leslie/_retirados/Modelo1.py` (19.285 bytes, SHA-256 `df3ddd28…`). En `Leslie/` no quedaba ningún «Modelo 1 *.xlsx» de staging. Lo que sigue ahí es el wheel `pypdf-6.10.2-py3-none-any.whl`, que ya no hace falta porque `pypdf` está en la imagen del runner. No estorba.
 - [ ] **Drive: mandar a la papelera la carpeta «Modelo 1»** (`1QRhYDffKNfDikZZdspFZf1YTDIzFXTME`, cuenta leodev0211). Tiene las 6 hojas «Modelo 1 <polo>» y la copia `GLOBAL-CP26.xlsx` (julio de 2026), y ya nada de n8n la usa. El permiso automático de la sesión bloqueó la papelera de Drive, así que lo hace Leo a mano.
 - [ ] Revisar los avisos de acumulado de las pruebas: en Cayo Cruz, La Habana y Holguín (2025), la suma de los meses del GLOBAL no da el acumulado del PDF en 4–9 filas, así que hay meses anteriores cargados distintos.
+
+## Automatizaciones (2026-10-20)
+
+Sección nueva en la app con un apartado por proceso y un trigger propio por rama en n8n. Lo hecho y el cómo, en [[Automatizaciones]]. Queda:
+
+- [ ] **Publicar la versión del workflow** «Polarier Auto App». Los triggers nuevos (`WH Modelo 1`, `WH Tabla CA`, `WH Ocupacion`) están creados, pero la versión activa sigue siendo la anterior, así que en producción todavía no existen esas URL.
+- [ ] **Aplicar la migración `012_automation_runs.sql`** en el SQL editor de Supabase. Hasta entonces la sección funciona, pero sin historial (todas las lecturas se tragan el error).
+- [ ] **Easypanel:** añadir `VITE_N8N_WEBHOOK_BASE` y `VITE_N8N_WEBHOOK_BASE_TEST` y hacer Rebuild.
+- [ ] Probar de punta a punta las tres ramas por los dos caminos (chat y sección), con un fichero real de cada una.
+- [ ] Decidir si la rama `Informe` (base de conocimiento) merece también su apartado. Hoy solo entra por el chat.
 
 ## Ideas / futuro
 

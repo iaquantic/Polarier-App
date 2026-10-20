@@ -58,7 +58,7 @@ export const uploadAvatar = async (file: File): Promise<string> => {
 
 export const uploadDocument = async (
   file: File,
-  chatId?: string,
+  chatId?: string | null,
   role: 'user' | 'assistant' = 'user'
 ): Promise<{
   id: string;
@@ -117,7 +117,7 @@ export const uploadDocument = async (
  */
 export const uploadAssistantBlob = async (
   blob: Blob,
-  chatId: string,
+  chatId: string | null,
   mimeType: string,
   originalName?: string
 ): Promise<{ id: string; file_path: string; signedUrl: string; mime_type: string; fileName: string }> => {

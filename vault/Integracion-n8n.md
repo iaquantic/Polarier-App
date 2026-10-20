@@ -13,6 +13,10 @@ n8n **self-hosted en Easypanel**:
 
 > Antes se usaba n8n cloud (`automate-cuba24.app.n8n.cloud`), que se migró. Ver [[Decisiones]].
 
+## Un trigger por rama (2026-10-20)
+
+Además del webhook del chat, el workflow tiene un webhook por rama de documentos, que usa la sección «Automatizaciones» de la app. Mismo payload, misma lógica: lo que cambia es por dónde entra. El cómo (nodos `WH *`, `* - Descargar`, `* - Entrada` y la regla de no referenciar `$('Webhook')` desde una rama) está en [[Automatizaciones]].
+
 ## Modo prod vs test
 
 Se controla con la variable **`VITE_N8N_MODE`** (`prod` | `test`), decidida en **build time** (`n8nMode.ts`). Ningún usuario puede cambiarlo desde la app. Para alternar: cambiar la variable en [[Deploy-Easypanel|Easypanel]] + Rebuild.

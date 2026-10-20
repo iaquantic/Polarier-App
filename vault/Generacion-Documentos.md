@@ -42,6 +42,8 @@ flowchart LR
 
 ### 1. El nombre del fichero es el contrato
 
+> **Desde el 2026-10-20 esto solo vale para el chat.** Modelo 1, TABLA CA y Ocupación tienen además su propio trigger, que la app llama desde la sección «Automatizaciones»: ahí la rama la elige el apartado, no el nombre, y el nombre solo se revisa para avisar. Ver [[Automatizaciones]].
+
 En el chat, **el nombre del fichero subido decide qué documento se genera**. `Switch3` compara por subcadena (`contains`) y en modo *primera coincidencia*, en este orden:
 
 | Orden | Si el nombre contiene… | Rama | Estado |

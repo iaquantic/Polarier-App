@@ -10,6 +10,7 @@ import {
   Moon,
   Sun,
   ClipboardCheck,
+  Workflow,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -54,6 +55,12 @@ const auditOption: GridOption = {
 };
 
 const gridOptions: GridOption[] = [
+  {
+    label: "Automatizaciones",
+    description: "Modelo 1, Tabla CA, Ocupación",
+    icon: Workflow,
+    path: "/automatizaciones",
+  },
   {
     label: "Analizar documento",
     description: "Sube un archivo y pregúntale",
@@ -246,7 +253,7 @@ const Lobby = () => {
         </section>
 
         {/* ── ACCESOS ── */}
-        <section className={`neo-chat grid grid-cols-2 gap-3.5 sm:gap-5 ${hasAuditAccess ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+        <section className="neo-chat grid grid-cols-2 sm:grid-cols-3 gap-3.5 sm:gap-5">
           {(hasAuditAccess ? [auditOption, ...gridOptions] : gridOptions).map((opt) => (
             <button
               key={opt.label}

@@ -26,6 +26,8 @@ VITE_N8N_WEBHOOK_URL_TEST=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook
 VITE_N8N_MODE=test
 VITE_N8N_EMAIL_WEBHOOK_URL=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook/19a7f802-ebd2-43da-9bba-457403f2e4ca
 VITE_N8N_EMAIL_WEBHOOK_URL_TEST=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook-test/19a7f802-ebd2-43da-9bba-457403f2e4ca
+VITE_N8N_WEBHOOK_BASE=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook
+VITE_N8N_WEBHOOK_BASE_TEST=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook-test
 ```
 
 | Variable | Descripción |
@@ -37,6 +39,8 @@ VITE_N8N_EMAIL_WEBHOOK_URL_TEST=https://polarierauto-n8n.1tn4v0.easypanel.host/w
 | `VITE_N8N_MODE` | `prod` o `test` — decide cuál de las dos URLs usa la app (aplica también al webhook de correo) |
 | `VITE_N8N_EMAIL_WEBHOOK_URL` | Webhook n8n de **producción** para envío de informes por correo (workflow «Emails» del n8n self-hosted) |
 | `VITE_N8N_EMAIL_WEBHOOK_URL_TEST` | Webhook n8n de **test** para envío de correo |
+| `VITE_N8N_WEBHOOK_BASE` | Base de los webhooks de las **automatizaciones** en producción (el path de cada una está en `src/lib/automatizaciones.ts`) |
+| `VITE_N8N_WEBHOOK_BASE_TEST` | Lo mismo para test (`/webhook-test`) |
 
 ### Cambiar entre producción y test
 
