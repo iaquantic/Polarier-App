@@ -10,6 +10,7 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Stack-y-Convenciones]] — Tecnologías, comandos, reglas del proyecto.
 - [[Supabase]] — Tablas, buckets de Storage, RLS.
 - [[Integracion-n8n]] — Webhooks, modos prod/test, formato de respuestas.
+- [[Automatizaciones]] — **Sección «Automatizaciones»**: un apartado por proceso y un trigger propio por rama en n8n.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).
 - [[Routine-Informe-Mensual]] — Informe mensual: capa de datos plana para la IA, cola y routine de Claude en la nube.
 - [[Diseno-Neoformista]] — Diseño del lobby, chat y login: fondos, colores, botones y nota de voz.
@@ -40,6 +41,8 @@ La aplicación está **desplegada y conectada**:
 **Limpieza y reglas de documentos (2026-10-12):** se escribió [[Generacion-Documentos]] (catálogo completo de lo que genera el proyecto y de qué ficheros sale). Decisiones del día: la TABLA CA la generará un agente de n8n, `global_ai` se sincronizará al final de cada Modelo 1, el año sale del fichero y el correo pasa al n8n self-hosted. Plan por fases en [[Pendientes]].
 
 **Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en main (PR 22). Documentos, Historial y Configuración ya tienen el mismo fondo. Detalle en [[Diseno-Neoformista]].
+
+**Automatizaciones (2026-10-20):** el disparo de los documentos sale del chat. La app tiene una sección «Automatizaciones» con un apartado por proceso (Modelo 1, Tabla CA, Ocupación) y cada uno llama a su **propio webhook** en n8n, dentro del mismo workflow y sin duplicar las ramas. Cada automatización entra **solo** por su trigger: el chat conversacional sigue igual, pero si alguien sube ahí un CP, un CA o un Integral, responde diciendo en qué apartado subirlo. Detalle en [[Automatizaciones]].
 
 ## Cómo mantener esta memoria
 

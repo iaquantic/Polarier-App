@@ -21,6 +21,8 @@ import AuthCallback from "./pages/AuthCallback";
 import Lobby from "./pages/Lobby";
 import Chat from "./pages/Chat";
 import Documents from "./pages/Documents";
+import AutomationsHome from "./pages/automations/AutomationsHome";
+import AutomationRun from "./pages/automations/AutomationRun";
 import History from "./pages/History";
 import SettingsPage from "./pages/SettingsPage";
 import AppLayout from "./components/AppLayout";
@@ -103,6 +105,8 @@ const App = () => (
                 <Route element={<ProtectedRoute><NonAuditorGate><AppLayout /></NonAuditorGate></ProtectedRoute>}>
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/chat/:chatId" element={<Chat />} />
+                  <Route path="/automatizaciones" element={<AutomationsHome />} />
+                  <Route path="/automatizaciones/:slug" element={<AutomationRun />} />
                   <Route path="/documents" element={<Documents />} />
                   <Route path="/history" element={<History />} />
                   <Route path="/settings" element={<SettingsPage />} />

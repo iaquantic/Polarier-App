@@ -1,18 +1,8 @@
-import { useState, useCallback } from "react";
-import { Download, X } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import AudioPlayer from "@/components/AudioPlayer";
+import FileDownloadCard from "@/components/FileDownloadCard";
 import { BotBadge } from "@/components/BotAvatar";
-
-const withDownloadParam = (url: string, fileName: string) => {
-  try {
-    const u = new URL(url);
-    u.searchParams.set("download", fileName);
-    return u.toString();
-  } catch {
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}download=${encodeURIComponent(fileName)}`;
-  }
-};
 
 interface ChatMessageProps {
   sender: "bot" | "user";
@@ -83,46 +73,6 @@ const ImageThumb = ({ url }: { url: string }) => {
   );
 };
 
-// Etiqueta del tipo de fichero: todas iguales (color principal), solo cambia el texto.
-const badgeFor = (ext: string) => {
-  const e = ext.toLowerCase();
-  if (e === "xlsx" || e === "xls") return "XLS";
-  if (e === "docx" || e === "doc") return "DOC";
-  return e.slice(0, 3).toUpperCase() || "DOC";
-};
-
-const FileCard = ({ url, ext: rawExt, label, onPrimary }: { url: string; ext: string; label: string; onPrimary?: boolean }) => {
-  const handleDownload = useCallback(() => {
-    const downloadUrl = withDownloadParam(url, label);
-    window.open(downloadUrl, "_system");
-  }, [url, label]);
-  return (
-    <button
-      type="button"
-      onClick={handleDownload}
-      className={`flex items-center gap-3 w-full min-w-[220px] max-w-[320px] rounded-2xl py-2.5 pl-3 pr-2.5 text-left group ${
-        onPrimary ? "bg-white/10" : "neo-inset-sm"
-      }`}
-    >
-      <span
-        className={`w-[38px] h-[38px] rounded-[11px] flex items-center justify-center shrink-0 text-[10px] font-extrabold tracking-wide ${
-          onPrimary ? "bg-white text-[var(--neo-primary)]" : "neo-primary"
-        }`}
-        style={onPrimary ? undefined : { boxShadow: "none" }}
-      >
-        {badgeFor(rawExt)}
-      </span>
-      <span className="flex-1 min-w-0">
-        <span className={`block text-[13px] font-bold truncate leading-tight ${onPrimary ? "" : "neo-text"}`}>{label}</span>
-        <span className={`block text-[11px] font-semibold uppercase mt-0.5 ${onPrimary ? "opacity-80" : "neo-text-2"}`}>{rawExt}</span>
-      </span>
-      <span className="neo-raised-sm neo-accent w-10 h-10 rounded-full flex items-center justify-center shrink-0 group-active:scale-95 transition-transform">
-        <Download size={17} strokeWidth={2.1} />
-      </span>
-    </button>
-  );
-};
-
 const Time = ({ time, align }: { time: string; align: "left" | "right" }) => (
   <span className={`neo-strip neo-text-2 inline-block text-[11px] font-semibold px-2 py-px rounded-md mt-1.5 ${align === "right" ? "self-end" : "self-start"}`}>
     {time}
@@ -164,7 +114,7 @@ const ChatMessage = ({ sender, text, time }: ChatMessageProps) => {
   const onPrimary = sender === "user";
   let body: JSX.Element;
   if (parsed.kind === "file") {
-    const card = <FileCard url={parsed.url} ext={parsed.ext} label={parsed.label} onPrimary={onPrimary} />;
+    const card = <FileDownloadCard url={parsed.url} ext={parsed.ext} label={parsed.label} onPrimary={onPrimary} />;
     body = parsed.text ? (
       <div className="space-y-3.5">
         <span className="whitespace-pre-wrap block">{parsed.text}</span>

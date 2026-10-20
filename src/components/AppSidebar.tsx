@@ -1,4 +1,4 @@
-import { MessageSquare, FolderOpen, Clock, Settings, LogOut, Sun, Moon, ClipboardCheck } from "lucide-react";
+import { MessageSquare, FolderOpen, Clock, Settings, LogOut, Sun, Moon, ClipboardCheck, Workflow, ChevronDown } from "lucide-react";
 import PolarierLogo from "@/components/PolarierLogo";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useRole } from "@/context/RoleContext";
 import { useEffect, useState } from "react";
 import { getChats, Chat } from "@/services/chat";
+import { AUTOMATIZACIONES } from "@/lib/automatizaciones";
 
 const navItems = [
   { label: "Chat", icon: MessageSquare, path: "/chat" },
@@ -26,6 +27,14 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
   const { theme, toggleTheme } = useTheme();
   const { hasAuditAccess } = useRole();
   const [chats, setChats] = useState<Chat[]>([]);
+  // El submenú se abre solo cuando estás dentro de la sección, y se puede
+  // plegar a mano sin salir de ella.
+  const enAutomatizaciones = location.pathname.startsWith("/automatizaciones");
+  const [autosOpen, setAutosOpen] = useState(enAutomatizaciones);
+
+  useEffect(() => {
+    if (enAutomatizaciones) setAutosOpen(true);
+  }, [enAutomatizaciones]);
 
   const refreshChats = () => getChats().then(setChats).catch(() => {});
 
@@ -87,6 +96,43 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
               <ClipboardCheck size={18} className="neo-accent" />
               <span>Auditoría</span>
             </button>
+          )}
+
+          {/* Automatizaciones: un apartado por rama de n8n. El chat sigue
+              aceptando ficheros, pero aquí se sabe qué pide cada proceso. */}
+          <button
+            onClick={() => setAutosOpen((v) => !v)}
+            aria-expanded={autosOpen}
+            className={itemClass(enAutomatizaciones)}
+          >
+            <Workflow size={18} className="neo-accent" />
+            <span className="flex-1">Automatizaciones</span>
+            <ChevronDown
+              size={15}
+              className={`neo-accent transition-transform ${autosOpen ? "" : "-rotate-90"}`}
+            />
+          </button>
+
+          {autosOpen && (
+            <div className="flex flex-col gap-0.5 ml-[26px] pl-3 border-l-2 border-[var(--neo-well)]">
+              {AUTOMATIZACIONES.map((auto) => {
+                const active = location.pathname === `/automatizaciones/${auto.slug}`;
+                return (
+                  <button
+                    key={auto.slug}
+                    onClick={() => handleNav(`/automatizaciones/${auto.slug}`)}
+                    aria-current={active ? "page" : undefined}
+                    className={`text-left text-[13px] px-3 py-2 rounded-xl transition-colors ${
+                      active
+                        ? "neo-inset-sm neo-accent font-extrabold"
+                        : "neo-text-2 font-semibold hover:bg-[var(--neo-well)]"
+                    }`}
+                  >
+                    {auto.nombre}
+                  </button>
+                );
+              })}
+            </div>
           )}
 
           {navItems.map((item) => {
