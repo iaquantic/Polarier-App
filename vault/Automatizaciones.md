@@ -58,8 +58,14 @@ return $input.all().map(item => ({ json: { body }, binary: item.binary }));
 
 Los patrones del catálogo son **copia de los de `Switch3`**. Si cambias uno en n8n, cambia el otro.
 
-## Pendiente
+## Si la descarga falla
 
-- Publicar la versión del workflow (los triggers están creados pero el workflow sigue sirviendo la versión activa anterior).
-- Aplicar la migración `012` en el SQL editor.
-- Poner `VITE_N8N_WEBHOOK_BASE(_TEST)` en Easypanel y hacer Rebuild.
+Probado el 2026-10-20: cuando `M1/CD - Descargar` no encuentra el fichero, la ejecución moría sin pasar por ningún `Respond to Webhook` y quien llamaba recibía un **200 con el cuerpo vacío**. Ahora esos nodos sacan el error por su segunda salida hacia `M1 - Error` / `CD - Error`, que responden con el texto de siempre.
+
+Ojo: ese texto viaja con **HTTP 200**, como en el chat. La app lo pinta como resultado, no como error. Se dejó así a propósito: con un código de error el chat no enseñaría nada.
+
+## Estado (2026-10-20)
+
+- Workflow **publicado** (versión `f29a4861`). Las tres URL de producción responden.
+- Migración `012` **aplicada**.
+- **Falta**: `VITE_N8N_WEBHOOK_BASE(_TEST)` en Easypanel + Rebuild, y probar las tres ramas con ficheros reales por los dos caminos.

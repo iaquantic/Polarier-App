@@ -256,8 +256,8 @@ Reglas en [[Generacion-Documentos]]. No se tocan: la rama Carla, la rama `Integr
 
 Sección nueva en la app con un apartado por proceso y un trigger propio por rama en n8n. Lo hecho y el cómo, en [[Automatizaciones]]. Queda:
 
-- [ ] **Publicar la versión del workflow** «Polarier Auto App». Los triggers nuevos (`WH Modelo 1`, `WH Tabla CA`, `WH Ocupacion`) están creados, pero la versión activa sigue siendo la anterior, así que en producción todavía no existen esas URL.
-- [ ] **Aplicar la migración `012_automation_runs.sql`** en el SQL editor de Supabase. Hasta entonces la sección funciona, pero sin historial (todas las lecturas se tragan el error).
+- [x] **Publicar la versión del workflow** «Polarier Auto App». Los triggers nuevos (`WH Modelo 1`, `WH Tabla CA`, `WH Ocupacion`) están creados, pero la versión activa sigue siendo la anterior, así que en producción todavía no existen esas URL.
+- [x] **Aplicar la migración `012_automation_runs.sql`** en el SQL editor de Supabase. Aplicada el 2026-10-20; el linter de seguridad no saca ningún aviso de la tabla.
 - [ ] **Easypanel:** añadir `VITE_N8N_WEBHOOK_BASE` y `VITE_N8N_WEBHOOK_BASE_TEST` y hacer Rebuild.
 - [ ] Probar de punta a punta las tres ramas por los dos caminos (chat y sección), con un fichero real de cada una.
 - [ ] Decidir si la rama `Informe` (base de conocimiento) merece también su apartado. Hoy solo entra por el chat.
