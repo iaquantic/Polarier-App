@@ -56,9 +56,11 @@ export const AUTOMATIZACIONES: Automatizacion[] = [
     icono: FileSpreadsheet,
     webhookPath: '375ae1e4-ffc2-4862-a5a2-cb8c6bb18614',
     extensiones: ['.xlsx'],
-    queSube: 'El CA del polo y el mes: <POLO>CA<AAAAMM>.xlsx.',
+    queSube: 'El CD del polo y el mes: <POLO>CD<AAAAMM>.xlsx.',
     queRecibe: 'La TABLA CA del año con la columna del mes rellena, y los avisos de la carga.',
-    ejemplos: ['CACA202504.xlsx', 'HOCA202601.xlsx', 'VACD202512.xlsx'],
+    // Lo que se sube es el CD; «TABLA CA» es lo que sale. El patrón acepta
+    // también el prefijo CA, que es como lo llama el regex de Switch3.
+    ejemplos: ['CACD202504.xlsx', 'HOCD202601.xlsx', 'VACA202512.xlsx'],
     patron: /^(lh|ha|va|ca|cc|ccx|cx|ccz|hol|ho)\s*c[ad]\s*\d{6}.*\.xlsx$/i,
   },
   {

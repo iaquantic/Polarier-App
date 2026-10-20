@@ -11,7 +11,7 @@ Sección nueva (2026-10-20) que **saca del chat el disparo de los documentos**. 
 | Automatización | slug | Espera | Rama de n8n | Webhook (path) |
 |---|---|---|---|---|
 | Modelo 1 | `modelo-1` | PDF «Ingresos y Gastos», o ZIP/RAR con varios | `M1 - *` (Agente Modelo 1) | `d872f8b4-5994-45e8-96d9-cf5c3a82f5b1` |
-| Tabla CA | `tabla-ca` | `<POLO>CA<AAAAMM>.xlsx` (también el antiguo `CD`) | `CD - *` (Agente TABLA CA) | `375ae1e4-ffc2-4862-a5a2-cb8c6bb18614` |
+| Tabla CA | `tabla-ca` | el **CD**: `<POLO>CD<AAAAMM>.xlsx` (el patrón acepta también `CA`) | `CD - *` (Agente TABLA CA) | `375ae1e4-ffc2-4862-a5a2-cb8c6bb18614` |
 | Ocupación | `ocupacion` | fichero `Integral…` | `Extract from File1 → …` | `023e33ed-e085-43a1-b444-40960b4d10de` |
 
 El detalle de qué hace cada rama está en [[Generacion-Documentos]] (D1, D2, D4). Fuera quedan, a propósito, la rama **Carla / COMU** (rota por decisión) y la **base de conocimiento** (`Informe`), que sigue solo por el chat.
