@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { AlertTriangle, ArrowDownToLine, ChevronLeft, CircleCheck, CircleX, Upload } from "lucide-react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { AlertTriangle, ArrowDownToLine, ChevronLeft, ChevronRight, CircleCheck, CircleX, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { getSignedDocumentUrl } from "@/services/storage";
 import FileDownloadCard from "@/components/FileDownloadCard";
 import { fechaCorta, getAutomatizacion, revisarArchivo } from "@/lib/automatizaciones";
 import type { ArchivoRespuesta } from "@/lib/n8nRespuesta";
 import {
   ejecutarAutomatizacion,
+  getEjecucion,
   getEjecuciones,
   type EjecucionAutomatizacion,
 } from "@/services/automatizaciones";
@@ -34,12 +36,50 @@ const AutomationRun = () => {
   const [resultado, setResultado] = useState<ArchivoRespuesta | null>(null);
   const [fallo, setFallo] = useState<string | null>(null);
   const [ejecuciones, setEjecuciones] = useState<EjecucionAutomatizacion[]>([]);
+  // Una ejecución pasada abierta desde el historial: enseña el mismo resumen
+  // que salió al terminar, con su fichero.
+  const [verEjecucion, setVerEjecucion] = useState<EjecucionAutomatizacion | null>(null);
+  const [archivoVisto, setArchivoVisto] = useState<ArchivoRespuesta | null>(null);
+  const [buscandoArchivo, setBuscandoArchivo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [params, setParams] = useSearchParams();
 
   const refrescarHistorial = useCallback(() => {
     if (!slug) return;
     getEjecuciones(slug, 8).then(setEjecuciones).catch(() => {});
   }, [slug]);
+
+  // El fichero de una ejecución vieja se guarda por su ruta: la URL firmada
+  // caduca, así que se pide una nueva al abrirla.
+  const abrirEjecucion = useCallback(async (e: EjecucionAutomatizacion) => {
+    setVerEjecucion(e);
+    setArchivoVisto(null);
+    setParams(e.id === params.get("run") ? params : { run: e.id }, { replace: true });
+    if (!e.resultado_path) return;
+    setBuscandoArchivo(true);
+    try {
+      const url = await getSignedDocumentUrl(e.resultado_path);
+      const nombre = e.resultado_nombre || "archivo";
+      setArchivoVisto({
+        nombre,
+        file_path: e.resultado_path,
+        url,
+        ext: nombre.includes(".") ? nombre.split(".").pop()! : "file",
+        mime: "",
+      });
+    } catch {
+      // El fichero pudo borrarse (la limpieza de documentos antiguos): se
+      // enseña el resumen igual, sin descarga.
+    } finally {
+      setBuscandoArchivo(false);
+    }
+  }, [params, setParams]);
+
+  const cerrarEjecucion = () => {
+    setVerEjecucion(null);
+    setArchivoVisto(null);
+    if (params.get("run")) setParams({}, { replace: true });
+  };
 
   useEffect(() => {
     // Al cambiar de automatización, la pantalla vuelve a empezar.
@@ -49,8 +89,24 @@ const AutomationRun = () => {
     setTexto(null);
     setResultado(null);
     setFallo(null);
+    setVerEjecucion(null);
+    setArchivoVisto(null);
     refrescarHistorial();
   }, [slug, refrescarHistorial]);
+
+  // Entrada por enlace (?run=<id>), que es como llega desde el índice.
+  const runParam = params.get("run");
+  useEffect(() => {
+    if (!runParam || verEjecucion?.id === runParam) return;
+    const yaCargada = ejecuciones.find((e) => e.id === runParam);
+    if (yaCargada) {
+      abrirEjecucion(yaCargada);
+      return;
+    }
+    getEjecucion(runParam).then((e) => { if (e) abrirEjecucion(e); }).catch(() => {});
+    // abrirEjecucion cambia con los params, y volver a entrar aquí sería un bucle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runParam, ejecuciones]);
 
   if (!auto) {
     return (
@@ -69,6 +125,9 @@ const AutomationRun = () => {
 
   const lanzar = async (file: File) => {
     if (!user) return;
+    setVerEjecucion(null);
+    setArchivoVisto(null);
+    if (params.get("run")) setParams({}, { replace: true });
     setFase("trabajando");
     setTexto(null);
     setResultado(null);
@@ -165,6 +224,63 @@ const AutomationRun = () => {
               }}
             />
 
+            {/* Una ejecución del historial: el mismo resumen que salió al terminar. */}
+            {verEjecucion ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    {verEjecucion.estado === "completada" && <CircleCheck size={22} strokeWidth={2.2} style={{ color: "#1F6B3B" }} />}
+                    {verEjecucion.estado === "error" && <CircleX size={22} strokeWidth={2.2} style={{ color: "var(--neo-danger)" }} />}
+                    <span
+                      className="text-[14px] font-extrabold"
+                      style={{
+                        color:
+                          verEjecucion.estado === "completada" ? "#1F6B3B"
+                          : verEjecucion.estado === "error" ? "var(--neo-danger)"
+                          : "var(--neo-accent)",
+                      }}
+                    >
+                      {verEjecucion.estado === "completada" ? "Resultado"
+                        : verEjecucion.estado === "error" ? "No se pudo procesar"
+                        : "Quedó en curso"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={cerrarEjecucion}
+                    className="neo-white-btn neo-press neo-accent px-4 py-2 rounded-full text-[12.5px] font-bold"
+                  >
+                    Volver
+                  </button>
+                </div>
+
+                <p className="neo-text-2 text-[12.5px] font-semibold">
+                  {verEjecucion.archivo_nombre} · {fechaCorta(verEjecucion.created_at)}
+                </p>
+
+                <div className="neo-inset rounded-[18px] p-4 sm:p-5">
+                  <p className="neo-text text-[13px] font-medium leading-relaxed whitespace-pre-wrap">
+                    {verEjecucion.estado === "error"
+                      ? verEjecucion.error || "Sin detalle del error."
+                      : verEjecucion.respuesta
+                        || (verEjecucion.estado === "en_curso"
+                          ? "Se lanzó y la app no llegó a recibir la respuesta. Puede que n8n terminara igualmente: míralo en sus ejecuciones."
+                          : "Terminó sin texto de respuesta.")}
+                  </p>
+                </div>
+
+                {archivoVisto && (
+                  <FileDownloadCard url={archivoVisto.url} ext={archivoVisto.ext} label={archivoVisto.nombre} />
+                )}
+                {buscandoArchivo && <p className="neo-text-2 text-[12.5px] font-medium">Buscando el fichero…</p>}
+                {verEjecucion.resultado_path && !archivoVisto && !buscandoArchivo && (
+                  <p className="neo-text-2 text-[12.5px] font-medium">
+                    El fichero ya no está disponible para descargar.
+                  </p>
+                )}
+              </div>
+            ) : (
+            <>
             {fase === "reposo" && (
               <div
                 onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
@@ -283,6 +399,9 @@ const AutomationRun = () => {
               </div>
             )}
 
+            </>
+            )}
+
             {/* Qué espera y qué devuelve: siempre visible, es el motivo de la sección. */}
             <div className="flex flex-col gap-3.5 pt-1">
               <div className="flex gap-3">
@@ -320,7 +439,15 @@ const AutomationRun = () => {
             ) : (
               <div className="flex flex-col gap-2.5">
                 {ejecuciones.map((e) => (
-                  <div key={e.id} className="neo-inset-sm rounded-[14px] p-3.5">
+                  <button
+                    key={e.id}
+                    type="button"
+                    onClick={() => abrirEjecucion(e)}
+                    aria-current={verEjecucion?.id === e.id ? "true" : undefined}
+                    className={`w-full text-left rounded-[14px] p-3.5 transition-shadow ${
+                      verEjecucion?.id === e.id ? "neo-raised-sm" : "neo-inset-sm hover:opacity-90"
+                    }`}
+                  >
                     <div className="flex items-center gap-2.5 mb-1.5">
                       <span
                         className="w-2 h-2 rounded-full shrink-0"
@@ -331,6 +458,7 @@ const AutomationRun = () => {
                       />
                       <span className="neo-text text-[13px] font-extrabold flex-1 min-w-0 truncate">{e.archivo_nombre}</span>
                       <span className="neo-text-2 text-[11.5px] font-bold shrink-0">{fechaCorta(e.created_at)}</span>
+                      <ChevronRight size={15} className="neo-accent shrink-0" />
                     </div>
                     {e.estado === "error" ? (
                       <p className="text-[12px] font-medium leading-snug" style={{ color: "var(--neo-danger)" }}>{e.error}</p>
@@ -341,7 +469,7 @@ const AutomationRun = () => {
                         {e.estado === "en_curso" ? "En curso" : "Sin texto de respuesta"}
                       </p>
                     )}
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

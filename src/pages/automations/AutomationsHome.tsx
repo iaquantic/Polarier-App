@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Info } from "lucide-react";
+import { ChevronRight, Info } from "lucide-react";
 import { AUTOMATIZACIONES, fechaCorta } from "@/lib/automatizaciones";
 import { getEjecuciones, type EjecucionAutomatizacion } from "@/services/automatizaciones";
 
@@ -89,9 +89,11 @@ const AutomationsHome = () => {
             </h2>
             <div className="neo-raised rounded-[22px] px-5 sm:px-6">
               {ejecuciones.map((e, i) => (
-                <div
+                <button
                   key={e.id}
-                  className={`flex flex-wrap items-center gap-x-4 gap-y-1 py-3.5 ${
+                  type="button"
+                  onClick={() => navigate(`/automatizaciones/${e.slug}?run=${e.id}`)}
+                  className={`w-full text-left flex flex-wrap items-center gap-x-4 gap-y-1 py-3.5 hover:opacity-80 transition-opacity ${
                     i < ejecuciones.length - 1 ? "border-b border-[var(--neo-well)]" : ""
                   }`}
                 >
@@ -108,7 +110,8 @@ const AutomationsHome = () => {
                     {ESTADO[e.estado]?.texto ?? e.estado}
                   </span>
                   <span className="neo-text-2 text-xs font-semibold w-[120px] text-right">{fechaCorta(e.created_at)}</span>
-                </div>
+                  <ChevronRight size={15} className="neo-accent shrink-0" />
+                </button>
               ))}
             </div>
           </section>

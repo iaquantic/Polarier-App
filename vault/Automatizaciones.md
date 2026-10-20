@@ -51,7 +51,7 @@ return $input.all().map(item => ({ json: { body }, binary: item.binary }));
 - **URL:** `getAutomationWebhookUrl(path)` en `src/lib/n8nMode.ts`, con `VITE_N8N_WEBHOOK_BASE(_TEST)`. Respeta `VITE_N8N_MODE`. Si la variable no está, deduce la base recortando la URL del chat.
 - **Servicio:** `src/services/automatizaciones.ts` → `ejecutarAutomatizacion()`: revisa el fichero, lo sube al bucket `documents` (`chat_id` nulo), anota la ejecución, llama al webhook con **el mismo payload que el chat** (más `automatizacion: <slug>`) e interpreta la respuesta.
 - **Respuesta:** `src/lib/n8nRespuesta.ts`, extraída de `sendToN8n`. La usan chat y automatizaciones: binario, `{respuesta, archivo:{base64}}`, texto, o una URL suelta.
-- **Historial:** tabla `automation_runs` (migración `012`), RLS personal. Estados `en_curso`, `completada`, `error`. Si la espera se corta (timeout del proxy) la fila se queda en `en_curso`: n8n puede seguir trabajando, así que no se da por perdida.
+- **Historial:** tabla `automation_runs` (migración `012`), RLS personal. Cada ejecución del listado se puede **abrir**: enseña el mismo resumen que salió al terminar, con su fichero. Como la URL firmada caduca, al abrirla se pide una nueva a partir de `resultado_path`; si el fichero ya se borró, se ve el resumen sin descarga. Desde el índice se entra con `?run=<id>`. Estados `en_curso`, `completada`, `error`. Si la espera se corta (timeout del proxy) la fila se queda en `en_curso`: n8n puede seguir trabajando, así que no se da por perdida.
 
 ## Validación del nombre: avisa, no bloquea
 
