@@ -1,0 +1,13 @@
+Comando para el nodo "Execute Command" de n8n:
+
+cd "c:\Trabajo\Consejo Direccion Claude\polarier-consejo-direccion" && claude -p "Genera el informe mensual del Consejo de Dirección. El DOCX de entrada ya está en data/input/mes_actual/. Sigue el flujo completo: lee las tablas, redacta todos los análisis con los agentes de agents/active/, crea el JSON en data/processed/ y ejecuta scripts/generate_report.py. No pidas confirmaciones intermedias, completa todo el proceso hasta tener el DOCX final en data/output/."
+
+---
+
+Flujo completo n8n:
+1. Telegram trigger  → recibe el DOCX
+2. Write Binary File → guarda en data/input/mes_actual/{filename}
+3. Execute Command   → ejecuta el comando de arriba (timeout: 10-15 min)
+4. Read Binary File  → lee data/output/consejo_direccion_*.docx
+5. Telegram          → envía el DOCX al remitente
+6. Delete File       → borra data/input/mes_actual/{filename}

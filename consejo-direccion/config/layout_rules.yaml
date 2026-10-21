@@ -1,0 +1,11 @@
+# layout_rules.yaml
+# Estrategia de generación documental para los informes del Consejo de Dirección de Polarier.
+#
+# El sistema NO genera estilos dinámicamente. Toda la apariencia del documento
+# proviene de la plantilla maestra aprobada. Este archivo define solo los
+# parámetros de control del flujo de clonado.
+
+generation_strategy: clone_master_docx
+master_template_path: templates/master/consejo_direccion_master.docx
+preserve_formatting: true
+replace_content_only: true

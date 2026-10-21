@@ -1,0 +1,115 @@
+# table_classification.yaml
+# Reglas de clasificación de tablas por categoría temática.
+#
+# Estas reglas complementan las señales por defecto de table_classifier.py.
+# Se pueden ampliar manualmente tras el discovery para mejorar la precisión.
+# El sistema usa este archivo si existe; si no existe, usa solo las señales internas.
+
+version: "1.0"
+generated_by: "manual / discovery"
+
+# Señales adicionales por categoría (se suman a las internas del clasificador)
+extra_signals:
+  economia:
+    - "ejecuci"
+    - "cumplimiento"
+    - "acumulado"
+    - "período"
+    - "periodo"
+    - "trimestre"
+  produccion:
+    - "turno"
+    - "puesta en marcha"
+    - "horas productivas"
+    - "tiempo"
+  lavanderia:
+    - "lavandería 1"
+    - "lavandería 2"
+    - "lavandería 3"
+    - "habana"
+    - "cuba"
+  personal:
+    - "jornada"
+    - "incapacidad"
+    - "maternidad"
+    - "promedio"
+  mantenimiento:
+    - "preventivo"
+    - "correctivo"
+    - "planificado"
+    - "horas paro"
+  energia:
+    - "kw"
+    - "mwh"
+    - "tonelada vapor"
+    - "metros cúbicos"
+  lenceria:
+    - "saldo"
+    - "stock"
+    - "almacén"
+    - "baja"
+  comercial:
+    - "captaci"
+    - "fidelizaci"
+    - "crecimiento"
+  calidad:
+    - "satisfacci"
+    - "encuesta"
+    - "no conformidad"
+  inversiones:
+    - "presupuesto inversión"
+    - "ejecución inversión"
+    - "equipamiento"
+
+# Umbrales de confianza
+thresholds:
+  min_confidence_for_assignment: 0.1   # por debajo → "desconocida"
+  high_confidence: 0.6                  # tabla bien clasificada
+  review_required_below: 0.3            # registrar en warnings
+
+# Mapeo explícito: nombre de hoja/archivo → categoría (mayor prioridad que señales)
+# Basado en la terminología real de los documentos Polarier
+explicit_mappings:
+  "plan de negocios": "economia"
+  "cumplimiento del plan": "economia"
+  "indicadores de eficiencia": "economia"
+  "partidas sobregiradas": "economia"
+  "cuentas por cobrar": "economia"
+  "cuentas por pagar": "economia"
+  "costo por peso": "economia"
+  "ingresos": "economia"
+  "estadísticas de producción": "produccion"
+  "estadisticas de produccion": "produccion"
+  "kilogramos lavados": "produccion"
+  "kg lavados": "produccion"
+  "productos químicos": "produccion"
+  "situación de la lencería": "lenceria"
+  "situacion de la lenceria": "lenceria"
+  "montas de lencería": "lenceria"
+  "inventario de lencería": "lenceria"
+  "inyecciones de lencería": "lenceria"
+  "arribos de lencería": "lenceria"
+  "rechazo de lencería": "lenceria"
+  "mal uso": "lenceria"
+  "recuperaciones de lencería": "lenceria"
+  "retiro de lencería": "lenceria"
+  "resultados de inventarios": "lenceria"
+  "servicios técnicos": "mantenimiento"
+  "servicios tecnicos": "mantenimiento"
+  "portadores energéticos": "mantenimiento"
+  "disponibilidad del equipamiento": "mantenimiento"
+  "cdt": "mantenimiento"
+  "cdo": "mantenimiento"
+  "inversiones en proceso": "mantenimiento"
+  "estado del transporte": "transporte"
+  "presupuesto del transporte": "transporte"
+  "flota de vehículos": "transporte"
+  "vehículos contratados": "transporte"
+  "gestión de la calidad": "calidad"
+  "encuestas de satisfacción": "calidad"
+  "satisfacción de los clientes": "calidad"
+  "recursos humanos": "personal"
+  "salario medio": "personal"
+  "promedio de trabajadores": "personal"
+  "cargos vacantes": "personal"
+  "plantilla": "personal"

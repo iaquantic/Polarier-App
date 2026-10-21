@@ -1,0 +1,14 @@
+# Artefactos de Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Scripts temporales de exploración
+scripts/_tmp_*.py
+
+# Datos reales de Polarier (informes del Consejo, tablas del mes, análisis).
+# El repositorio es PÚBLICO: nunca se suben. Solo se conserva la estructura de
+# carpetas que necesita scripts/generate_report.py.
+data/**
+!data/**/
+!data/**/.gitkeep

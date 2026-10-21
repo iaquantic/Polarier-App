@@ -1,0 +1,202 @@
+# report_sections.yaml
+# Secciones del Consejo de Dirección — inferidas de los PDF finales aprobados
+# (informe_202412_final.pdf y informe_202501_final.pdf)
+# Generado: 2026-05-14
+
+sections:
+  - id: section_001
+    title: "CUMPLIMIENTO DEL PLAN DE NEGOCIOS Y COMPORTAMIENTO DE LOS PRINCIPALES INDICADORES DE EFICIENCIA"
+    short_title: "Plan de Negocios e Indicadores"
+    category: "economia"
+    order: 1
+    agent_id: "agent_economia"
+    subsections:
+      - "Comportamiento de los ingresos"
+      - "Relación entre los ingresos y la ocupación"
+      - "Análisis de las partidas sobregiradas y subejecuciones"
+      - "Costos y Gastos – Utilidades – Costo por peso"
+      - "Relación entre los gastos y la ocupación"
+      - "Ingresos por turista día"
+      - "Precios de Venta del kilogramo lavado"
+      - "Cuentas por Cobrar y Pagar"
+    tables_expected:
+      - "Cumplimiento del plan de Ingresos (por polo)"
+      - "Relación ingresos / ocupación (impacto de la ocupación sobre los ingresos)"
+      - "Presupuesto de gastos y flujo de caja"
+      - "Análisis de partidas sobregiradas y subejecuciones"
+      - "Costos (ejecución vs plan por polo)"
+      - "Gastos (ejecución vs plan por polo)"
+      - "Relación gastos / ocupación"
+      - "Utilidades (resultado del período)"
+      - "Costo y gasto por peso de ingreso"
+      - "Ingresos por turista día"
+      - "Precio de venta del kg lavado (por polo)"
+      - "Cuentas por Cobrar"
+      - "Cuentas por Pagar"
+    polos: ["La Habana", "Varadero", "Caibarién", "Cayo Coco", "Cayo Cruz", "Holguín", "Consolidado"]
+    notes: >
+      Sección más extensa del informe — puede contener hasta 13 tablas distintas.
+      No todas las tablas aparecen en todos los meses; generar solo las subsecciones
+      para las que haya datos en la tabla de entrada.
+
+  - id: section_002
+    title: "ANÁLISIS DE LAS ESTADÍSTICAS DE LA PRODUCCIÓN"
+    short_title: "Estadísticas de Producción"
+    category: "produccion"
+    order: 2
+    agent_id: "agent_produccion"
+    subsections:
+      - "Kilogramos Lavados, kg por turista día"
+      - "Comportamiento del consumo de productos químicos"
+    tables_expected:
+      - "Kilogramos Lavados y kg por turista día (consolidado por polo)"
+      - "Consumo de productos químicos"
+    polos: ["La Habana", "Varadero", "Caibarién", "Cayo Coco", "Cayo Cruz", "Holguín", "Consolidado"]
+    notes: "Métricas de producción física. Indicador clave: kg/turista día."
+
+  - id: section_003
+    title: "SITUACIÓN DE LA LENCERÍA"
+    short_title: "Lencería"
+    category: "lenceria"
+    order: 3
+    agent_id: "agent_lenceria"
+    subsections:
+      - "Arribos de lencería"
+      - "Completamiento de las montas de lencería"
+      - "Inventario de lencería en uso"
+      - "Inventario de lencería nueva"
+      - "Rechazo de lencería en el proceso productivo"
+      - "Detección de mal uso"
+      - "Recuperaciones de lencería"
+      - "Retiro"
+      - "Inyecciones de lencería"
+      - "Resultados de los inventarios"
+    tables_expected:
+      - "Montas de lencería por habitación y por cliente"
+      - "Inventario de lencería en uso"
+      - "Inventario de lencería nueva"
+      - "Rechazos por tipo de prenda"
+      - "Mal uso por categoría"
+      - "Recuperaciones de lencería"
+      - "Retiro (prendas y kg)"
+      - "Inyecciones de lencería por tipo de prenda"
+      - "Resultados de inventarios"
+    notes: >
+      'Arribos de lencería' fue añadido en enero 2026 (RULE-001).
+      Verificar siempre el total de prendas inyectadas (RULE-009).
+      Las prendas con mayores inyecciones deben coincidir con la tabla (RULE-008).
+
+  - id: section_004
+    title: "COMPORTAMIENTO DE LOS INDICADORES DE SERVICIOS TÉCNICOS"
+    short_title: "Servicios Técnicos"
+    category: "mantenimiento"
+    order: 4
+    agent_id: "agent_servicios_tecnicos"
+    subsections:
+      - "Análisis de los índices de consumo físicos de portadores energéticos"
+      - "Análisis de la disponibilidad del equipamiento productivo"
+      - "Ejecución de las inversiones en proceso"
+    tables_expected:
+      - "Índices de consumo de diesel, electricidad y agua por kg lavado"
+      - "Coeficiente de Disponibilidad Técnica (CDT)"
+      - "Coeficiente de Disponibilidad Operativa (CDO)"
+      - "Ejecución de inversiones en proceso"
+    notes: "Incluye portadores energéticos. Indicadores CDT y CDO son críticos."
+
+  - id: section_005
+    title: "ESTADO DEL TRANSPORTE"
+    short_title: "Transporte"
+    category: "transporte"
+    order: 5
+    agent_id: "agent_transporte"
+    subsections:
+      - "Estado de ejecución del presupuesto del transporte"
+      - "Estado del CDT de vehículos"
+      - "Estado General. Operación de Vehículos contratados"
+    tables_expected:
+      - "Ejecución del presupuesto de transporte por polo"
+      - "CDT de vehículos (disponibilidad operativa de flota)"
+    notes: "Analiza disponibilidad de flota y ejecución de presupuesto de transporte."
+
+  - id: section_006
+    title: "GESTIÓN DE LA CALIDAD"
+    short_title: "Calidad"
+    category: "calidad"
+    order: 6
+    agent_id: "agent_calidad"
+    subsections:
+      - "Resultados de las encuestas de satisfacción de los clientes"
+    tables_expected:
+      - "Encuestas de satisfacción de clientes por polo"
+    notes: "No mezclar con RRHH (RULE-010). Enfocada en satisfacción del cliente hotelero."
+
+  - id: section_007
+    title: "INDICADORES RECURSOS HUMANOS"
+    short_title: "Recursos Humanos"
+    category: "personal"
+    order: 7
+    agent_id: "agent_rrhh"
+    subsections:
+      - "Salario medio por trabajador"
+      - "Promedio de trabajadores"
+      - "Resumen de cargos vacantes"
+    tables_expected:
+      - "Salario medio por trabajador"
+      - "Promedio de trabajadores (plantilla)"
+      - "Cargos vacantes por categoría"
+    notes: >
+      'Mando extranjero' es una subsección opcional: se incluye si los datos están
+      disponibles en la tabla de entrada; se omite sin marcar error si no hay datos.
+      No requiere agente separado — lo gestiona agent_rrhh.
+
+  - id: section_008
+    title: "VALORACIÓN SINTETIZADA DE LA ADMINISTRACIÓN"
+    short_title: "Valoración de la Administración"
+    category: "valoracion"
+    order: 8
+    agent_id: "agent_valoracion"
+    subsections: []
+    tables_expected: []
+    notes: "Sección narrativa sin tablas. Síntesis ejecutiva del período."
+
+  - id: section_009
+    title: "RIESGOS IDENTIFICADOS"
+    short_title: "Riesgos"
+    category: "riesgos"
+    order: 9
+    agent_id: "agent_riesgos"
+    subsections:
+      - "Riesgos críticos"
+      - "Riesgos relevantes"
+      - "Riesgo moderado"
+    tables_expected: []
+    notes: >
+      Estructura de tres niveles (críticos / relevantes / moderados) desde enero 2026.
+      Riesgos recurrentes: ocupación hotelera, déficit de combustible, disponibilidad
+      de flota, repuestos, mal uso de lencería.
+
+  - id: section_010
+    title: "CONCLUSIONES"
+    short_title: "Conclusiones"
+    category: "conclusiones"
+    order: 10
+    agent_id: "agent_valoracion"
+    subsections: []
+    tables_expected: []
+    notes: "Cierre del informe. Síntesis de hallazgos principales. Sin tablas."
+
+metadata:
+  source_documents:
+    - "informe_202412_final.pdf"
+    - "informe_202501_final.pdf"
+  generated: "2026-05-14"
+  polos_operacionales:
+    - "La Habana"
+    - "Varadero"
+    - "Caibarién"
+    - "Cayo Coco"
+    - "Cayo Cruz"
+    - "Holguín"
+    - "Consolidado"
+  total_sections: 10
+  heading_structure: "H1_Tema (títulos principales) / H3_Encabezado_Justificado (subsecciones)"

@@ -16,6 +16,10 @@ Beyond the chat, the app has an **audit module** (control de almacén hotelero) 
 
 Read `vault/Generacion-Documentos.md` before touching any n8n branch, VPS script or app code that reads or writes documents. In short: in the chat, the **uploaded file name is the contract** (`Switch3` in n8n "Polarier Auto App" routes by substring, first match: `MU` → `CP` → `Integral` → zip → `Informe` → agent). Masters live on the VPS at `/data/Polarier/` (local copies under `C:\Trabajo\N8N\Polarier` may be stale). Python runs only through the internal pythonrunner (`POST http://polarierauto_pythonrunner:8000/run`) — the n8n container has no Python. Excel output must be real `.xlsx` (force `googleFileConversion` on Drive downloads). Polo codes differ per legacy system — use the table in that note.
 
+## Informe del Consejo de Dirección (`consejo-direccion/`)
+
+Python sub-project (its own `CLAUDE.md`, read it before touching anything there) that writes Polarier's **monthly Consejo de Dirección report** — not to be confused with the audit module's monthly report. Today a single input DOCX supplies every table; the AI writes only the narrative into `data/processed/analisis_{mes}_{año}.json`; `scripts/generate_report.py` clones the approved master template and swaps markers. **Not integrated into the app yet** — today it runs by hand from that folder. **Being redesigned** (Leo, 2026-10-21): no upload; the tables will be built from the GLOBAL and the TABLA CA for a chosen month, with a data-availability check. `vault/Informe-Consejo-Origen-Datos.md` maps every table to its source. **The repo is public:** `consejo-direccion/data/` is git-ignored, and no real figure, report or person's name may be committed. Read `vault/Informe-Consejo-Direccion.md` first: it covers the flow, the three absolute rules (clone the design, never invent data, no absolute figures in the prose) and how each input table is matched to its `{TABLA_*}` marker by its title (`config/table_markers.yaml`). An unrecognised table stops the run on purpose: add its pattern there, never place tables by position.
+
 ## Commands
 
 - `bun dev` — Start dev server on port 8080

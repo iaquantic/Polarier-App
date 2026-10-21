@@ -13,6 +13,8 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Automatizaciones]] — **Sección «Automatizaciones»**: un apartado por proceso y un trigger propio por rama en n8n.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).
 - [[Routine-Informe-Mensual]] — Informe mensual: capa de datos plana para la IA, cola y routine de Claude en la nube.
+- [[Informe-Consejo-Direccion]] — **Informe del Consejo de Dirección**: DOCX de tablas → análisis de la IA → plantilla maestra. Aún fuera de la app.
+- [[Informe-Consejo-Origen-Datos]] — De dónde sale cada tabla del informe en el GLOBAL y la TABLA CA (estudio del 2026-10-21).
 - [[Diseno-Neoformista]] — Diseño del lobby, chat y login: fondos, colores, botones y nota de voz.
 - [[Generacion-Documentos]] — **Reglas de generación de documentos**: qué fichero dispara qué, maestros, códigos de polo, formatos, año.
 - [[Referencias-Formularios]] — Mapeo Excel original ↔ módulo de la app.
@@ -41,6 +43,8 @@ La aplicación está **desplegada y conectada**:
 **Limpieza y reglas de documentos (2026-10-12):** se escribió [[Generacion-Documentos]] (catálogo completo de lo que genera el proyecto y de qué ficheros sale). Decisiones del día: la TABLA CA la generará un agente de n8n, `global_ai` se sincronizará al final de cada Modelo 1, el año sale del fichero y el correo pasa al n8n self-hosted. Plan por fases en [[Pendientes]].
 
 **Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en main (PR 22). Documentos, Historial y Configuración ya tienen el mismo fondo. Detalle en [[Diseno-Neoformista]].
+
+**Informe del Consejo de Dirección (2026-10-21):** entra al repo el proyecto que redacta el informe mensual del Consejo de Dirección (`consejo-direccion/`), traído de `C:\Trabajo\Consejo Direccion Claude`. Funciona — el II Trimestre 2026 se regenera limpio desde su nueva ubicación — pero **sigue siendo un proyecto Python que se ejecuta a mano con Claude Code: no está integrado en la app**. El plan es que sea un apartado más de [[Automatizaciones]]. Detalle, flujo y puntos frágiles en [[Informe-Consejo-Direccion]].
 
 **Automatizaciones (2026-10-20):** el disparo de los documentos sale del chat. La app tiene una sección «Automatizaciones» con un apartado por proceso (Modelo 1, Tabla CA, Ocupación) y cada uno llama a su **propio webhook** en n8n, dentro del mismo workflow y sin duplicar las ramas. Cada automatización entra **solo** por su trigger: el chat conversacional sigue igual, pero si alguien sube ahí un CP, un CA o un Integral, responde diciendo en qué apartado subirlo. Detalle en [[Automatizaciones]].
 

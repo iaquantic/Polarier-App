@@ -1,0 +1,74 @@
+# document_sources.yaml
+# Define los formatos de archivo aceptados para la ingesta mensual
+# y las rutas de entrada/salida del sistema.
+#
+# Este archivo es leído por monthly_file_ingestion.py y el orquestador.
+
+input:
+  monthly_dir: "data/input/mes_actual"
+  supported_formats:
+    - extension: ".xlsx"
+      type: excel
+      description: "Excel moderno — formato preferido para tablas de datos"
+      extractor: "table_extractor._extract_excel"
+    - extension: ".xls"
+      type: excel
+      description: "Excel legado — soportado mediante xlrd"
+      extractor: "table_extractor._extract_excel_xlrd"
+    - extension: ".csv"
+      type: csv
+      description: "CSV — una tabla por archivo, cabecera en primera fila"
+      extractor: "table_extractor._extract_csv"
+    - extension: ".docx"
+      type: docx
+      description: "Word — extrae todas las tablas insertadas en el documento"
+      extractor: "table_extractor._extract_docx"
+    - extension: ".pdf"
+      type: pdf
+      description: "PDF — requiere pymupdf >= 1.23 para detección automática de tablas"
+      extractor: "table_extractor._extract_pdf"
+    - extension: ".ods"
+      type: ods
+      description: "OpenDocument Spreadsheet — requiere ezodf"
+      extractor: "table_extractor._extract_ods"
+
+historical:
+  drafts_dir: "data/historical/drafts_docx"
+  finals_dir: "data/historical/final_pdfs"
+  draft_pattern: "informe_*_draft.docx"
+  final_pattern: "informe_*_final.pdf"
+
+output:
+  reports_dir: "data/output"
+  processed_dir: "data/processed"
+  extracted_dir: "data/extracted"
+  report_filename_pattern: "informe_{month_slug}.md"
+  docx_filename_pattern: "informe_{month_slug}.docx"
+  ingestion_log_pattern: "ingestion_warnings_{month_slug}.json"
+
+dependencies:
+  required:
+    - package: pyyaml
+      import: yaml
+      install: "pip install pyyaml"
+  optional:
+    - package: openpyxl
+      import: openpyxl
+      install: "pip install openpyxl"
+      needed_for: [".xlsx"]
+    - package: python-docx
+      import: docx
+      install: "pip install python-docx"
+      needed_for: [".docx"]
+    - package: pymupdf
+      import: fitz
+      install: "pip install pymupdf"
+      needed_for: [".pdf"]
+    - package: ezodf
+      import: ezodf
+      install: "pip install ezodf"
+      needed_for: [".ods"]
+    - package: xlrd
+      import: xlrd
+      install: "pip install xlrd"
+      needed_for: [".xls"]

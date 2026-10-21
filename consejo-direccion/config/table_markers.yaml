@@ -1,0 +1,168 @@
+# table_markers.yaml
+# Qué marcador {TABLA_*} de la plantilla maestra recibe cada tabla del DOCX de entrada.
+# Lo usa scripts/generate_report.py a través de src/table_markers.py.
+#
+# Sustituye a los antiguos mapas posición → marcador: una tabla se reconoce por
+# lo que dice, no por el sitio que ocupa, así que un mes con una tabla de más,
+# de menos o en otro orden no descoloca a las demás.
+#
+# Cómo se reconoce una tabla (en este orden):
+#   1. titulo:      su primera fila. En el DOCX mensual casi todas las tablas
+#                   llevan su nombre ahí ("Cumplimiento del plan de Ingresos",
+#                   "LENCERÍA EN USO"...). Es la señal más fiable.
+#   2. encabezado:  si la primera fila no casa con nada, el título de sección
+#                   (H1/H2/H3) que va justo encima de la tabla, sin otra tabla
+#                   en medio. Para las que empiezan directamente por columnas.
+#   3. continuación: si tampoco, y la tabla va pegada a la anterior (ningún
+#                   párrafo con texto entre las dos), se considera parte de
+#                   ella y recibe su mismo marcador. Es el caso de una tabla
+#                   partida en dos en Word, como las inyecciones de lencería.
+#
+# Si una tabla no se reconoce, o casa con dos marcadores distintos, el script
+# se detiene y dice cuál es. No coloca nada a ciegas: es preferible parar a
+# meter una tabla bajo el encabezado equivocado.
+#
+# Los patrones son expresiones regulares de Python que se buscan dentro del
+# texto ya pasado a minúsculas y sin tildes ("Diésel" se compara como "diesel").
+# Deben ser específicos: si un patrón casa con la tabla de otro marcador, el
+# script lo detecta como ambigüedad y se detiene.
+#
+# Varias tablas pueden ir al mismo marcador: se insertan seguidas, en el orden
+# del DOCX de entrada (p. ej. las dos tablas de satisfacción y su fila de
+# crecimiento).
+#
+# Para añadir una tabla nueva: crear su marcador en la plantilla maestra
+# ({TABLA_X} y {ANALISIS_X}) y añadir aquí su entrada. Ver tests/test_table_markers.py.
+
+markers:
+  # ── Economía ────────────────────────────────────────────────────
+  - marker: TABLA_INGRESOS
+    titulo: ['cumplimiento del plan de ingresos']
+
+  - marker: TABLA_OCUPACION
+    titulo: ['impacto de la ocupacion sobre los ingresos']
+    encabezado: ['relacion entre los ingresos y la ocupacion']
+
+  - marker: TABLA_PRESUPUESTO_GASTOS
+    titulo: ['partida presupuestaria']
+
+  - marker: TABLA_COSTOS
+    titulo: ['cumplimiento del plan de costos']
+
+  - marker: TABLA_GASTOS
+    titulo: ['cumplimiento del plan de gastos']
+
+  - marker: TABLA_RELACION_GASTOS_OCUPACION
+    titulo: ['impacto de la ocupacion sobre los gastos']
+    encabezado: ['relacion entre los gastos y la ocupacion']
+
+  - marker: TABLA_UTILIDADES
+    titulo: ['cumplimiento del plan de utilidades']
+
+  - marker: TABLA_COSTO_POR_PESO
+    titulo: ['costo y gasto por peso']
+
+  - marker: TABLA_INGRESO_TURISTA_DIA
+    titulo: ['ingresos? por turista dia']
+
+  - marker: TABLA_PRECIO_KG
+    titulo: ['precios? de venta del (kilogramo|kg)']
+
+  - marker: TABLA_CXC
+    titulo: ['cuentas por cobrar']
+
+  - marker: TABLA_CXP
+    titulo: ['cuentas por pagar']
+
+  # ── Producción ──────────────────────────────────────────────────
+  - marker: TABLA_KG_LAVADOS
+    titulo: ['producciones? - productividad']
+
+  - marker: TABLA_KG_TURISTA_DIA
+    titulo: ['kg (x|por) turista dia']
+
+  - marker: TABLA_CONSUMO_QUIMICOS
+    titulo: ['producto quimico']
+
+  # ── Lencería ────────────────────────────────────────────────────
+  - marker: TABLA_ARRIBOS
+    titulo: ['^arribos']
+    encabezado: ['^arribos de lenceria']
+
+  - marker: TABLA_MONTAS_HABITACION
+    titulo: ['montas por habitacion']
+
+  - marker: TABLA_MONTAS_CLIENTE
+    titulo: ['montas por cliente']
+
+  - marker: TABLA_LENCERIA_USO
+    titulo: ['lenceria en uso']
+
+  - marker: TABLA_LENCERIA_NUEVA
+    titulo: ['lenceria nueva']
+
+  - marker: TABLA_RECHAZO
+    titulo: ['rechazo de lenceria']
+
+  - marker: TABLA_MAL_USO
+    titulo: ['^mal uso']
+
+  - marker: TABLA_DESMANCHE
+    titulo: ['desmanche']
+
+  - marker: TABLA_RETIRO
+    titulo: ['retiro generado']
+
+  - marker: TABLA_INYECCIONES
+    titulo: ['inyecciones de lenceria']
+
+  - marker: TABLA_INVENTARIOS
+    titulo: ['inventarios realizados', 'cant\. inventarios']
+
+  - marker: TABLA_FALTANTES
+    titulo: ['faltantes detectados']
+
+  # ── Servicios técnicos ──────────────────────────────────────────
+  - marker: TABLA_DIESEL
+    titulo: ['consumo por kg lavados - diesel']
+
+  - marker: TABLA_ELECTRICIDAD
+    titulo: ['consumo por kg lavados - electricidad']
+
+  - marker: TABLA_AGUA
+    titulo: ['consumo por kg lavados - agua']
+
+  - marker: TABLA_CDT
+    titulo: ['^cdt equipos']
+
+  - marker: TABLA_CDO
+    titulo: ['^cdo equipos']
+
+  # ── Transporte ──────────────────────────────────────────────────
+  # La tabla del presupuesto empieza directamente por columnas genéricas
+  # (Descripción | Plan mensual | Real mensual...): se reconoce por su encabezado.
+  - marker: TABLA_PRESUPUESTO_TRANSPORTE
+    encabezado: ['presupuesto del transporte']
+
+  - marker: TABLA_DISPONIBILIDAD_VEHICULOS
+    titulo: ['disponibilidad de vehiculos', 'total de vehiculos']
+
+  # ── Calidad ─────────────────────────────────────────────────────
+  # Van juntas: la del año en curso, la del anterior y la fila de crecimiento
+  # entre ambas, como en los informes aprobados.
+  - marker: TABLA_SATISFACCION
+    titulo: ['satisfaccion cliente', '^crecimiento \d{4}/\d{4}']
+
+  # ── Recursos humanos ────────────────────────────────────────────
+  - marker: TABLA_SALARIO
+    titulo: ['^salario medio']
+
+  - marker: TABLA_TRABAJADORES
+    titulo: ['promedio de trabajadores']
+
+  - marker: TABLA_VACANTES
+    titulo: ['cargos vacantes']
+
+  # Subsección opcional: el listado nominal del mando extranjero.
+  - marker: TABLA_MANDO_EXTRANJERO
+    titulo: ['nombre y apellidos']

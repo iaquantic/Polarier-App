@@ -4,6 +4,23 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-21 — Informe del Consejo: los datos salen del GLOBAL y la TABLA CA, no de un DOCX subido
+
+- **Contexto:** el informe se alimentaba de un DOCX de tablas subido a mano. Al preparar su apartado en Automatizaciones, Leo decidió cambiarlo.
+- **Decisión (Leo):** los datos se sacan directamente del **GLOBAL** y la **TABLA CA**. En la app, el apartado será solo «Generar informe», el historial y, para el mes elegido, la comprobación de si están todos los datos, con la lista de lo que falta.
+- **Primer paso:** el estudio de dónde sale cada tabla, en [[Informe-Consejo-Origen-Datos]]. Encontró que el DOCX se monta hoy copiando y pegando desde la TABLA CA. Verificado con los ficheros de 2026 del VPS: 22 tablas salen ya por mes, 15 están tecleadas sin mes y 2 no están en ninguna fuente (arribos y mando extranjero, las dos condicionales).
+- **Leo eligió cargar desde el CD, por mes, lo que hoy se teclea.** Antes de tocar el agente se comprobó con los CD de mayo de 2026 de tres polos: **solo 4 de las 15 tablas salen del CD** (montas por habitación y por cliente, rechazo e inyecciones). Las otras 11 tienen otro origen o se ajustan a mano. Detalle en [[Informe-Consejo-Origen-Datos]].
+- **La economía se leerá del GLOBAL**, no de la TABLA CA: en la TABLA CA esas filas son vínculos externos que solo se refrescan al abrirla en Excel.
+- **Pendiente de decidir:** cómo entran por mes las 15 sin mes y de dónde salen las 2 que faltan.
+
+## 2026-10-21 — Informe del Consejo de Dirección: las tablas se reconocen por su título
+
+- **Contexto:** `generate_report.py` colocaba cada tabla según su posición en el DOCX, con cuatro mapas hardcodeados. Leo pidió quitarlo para que el proceso pueda dispararse desde la app sin tocar Python.
+- **Se reconoce cada tabla por su primera fila, luego por el encabezado de encima, y si no, como continuación de la tabla anterior.** Las reglas están en `consejo-direccion/config/table_markers.yaml`. Se comprobó contra los cuatro DOCX reales que hay: 161 tablas, todas en su sitio.
+- **Si una tabla no se reconoce, el proceso se detiene antes de crear nada.** Se descartó colocarla por aproximación: es preferible parar a meter una tabla bajo el encabezado equivocado. Eso es justo lo que hacía el mapa viejo, en silencio.
+- **Las tablas de satisfacción (año en curso, año anterior y crecimiento) van juntas en Calidad.** Es lo que muestra el informe aprobado de diciembre. El mapa viejo mandaba la del año anterior a «Mando extranjero (opcional)», en RRHH, con un análisis duplicado para llenar ese hueco. «Mando extranjero» queda para la tabla nominal real (No. / Nombre y Apellidos / Cargo).
+- Detalle en [[Informe-Consejo-Direccion]].
+
 ## 2026-10-19 — Tonos en todas las superficies, dotación fija y fuera el PDF guardado
 
 - **Crema vainilla (claro) y azul hielo (oscuro) en todas las superficies**: chat, barras laterales y auditoría, no solo el lobby. Lo confirmó Leo. Ver [[Diseno-Neoformista]].

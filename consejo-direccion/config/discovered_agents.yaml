@@ -1,0 +1,158 @@
+# discovered_agents.yaml
+# Agentes inferidos de los documentos históricos — todos en estado active
+# Generado: 2026-05-14
+
+agents:
+  - id: agent_economia
+    name: "Agente de Economía y Plan de Negocios"
+    description: >
+      Analiza hasta 13 tablas económicas: ingresos, relación ingresos/ocupación,
+      presupuesto de gastos, flujo de caja, partidas sobregiradas/subejecuciones,
+      costos, gastos, relación gastos/ocupación, utilidades, costo/gasto por peso
+      de ingreso, ingresos por turista día, precio de venta del kg lavado,
+      cuentas por cobrar y cuentas por pagar. Solo genera subsecciones con datos disponibles.
+    sections:
+      - "section_001"
+    category: "economia"
+    status: active
+    file: "agents/active/agent_economia.md"
+    pipeline_position: 1
+    rules_applied: ["RULE-002", "RULE-003", "RULE-004", "RULE-005"]
+    patterns_applied: ["PATTERN-001", "PATTERN-002", "PATTERN-003"]
+
+  - id: agent_produccion
+    name: "Agente de Estadísticas de Producción"
+    description: "Analiza kilogramos lavados, kg por turista día y consumo de productos químicos por polo"
+    sections:
+      - "section_002"
+    category: "produccion"
+    status: active
+    file: "agents/active/agent_produccion.md"
+    pipeline_position: 2
+    patterns_applied: ["PATTERN-001", "PATTERN-002"]
+
+  - id: agent_lenceria
+    name: "Agente de Situación de la Lencería"
+    description: "Analiza el ciclo completo de lencería: arribos, inventarios, montas, rechazos, mal uso, recuperaciones, retiro e inyecciones"
+    sections:
+      - "section_003"
+    category: "lenceria"
+    status: active
+    file: "agents/active/agent_lenceria.md"
+    pipeline_position: 3
+    rules_applied: ["RULE-001", "RULE-007", "RULE-008", "RULE-009"]
+    patterns_applied: ["PATTERN-004", "PATTERN-005"]
+
+  - id: agent_servicios_tecnicos
+    name: "Agente de Servicios Técnicos"
+    description: "Analiza portadores energéticos (CDT/CDO del equipamiento) e inversiones en proceso"
+    sections:
+      - "section_004"
+    category: "mantenimiento"
+    status: active
+    file: "agents/active/agent_servicios_tecnicos.md"
+    pipeline_position: 4
+    patterns_applied: ["PATTERN-006", "PATTERN-007"]
+
+  - id: agent_transporte
+    name: "Agente de Estado del Transporte"
+    description: "Analiza presupuesto de transporte y disponibilidad de flota de vehículos (CDT/CDO)"
+    sections:
+      - "section_005"
+    category: "transporte"
+    status: active
+    file: "agents/active/agent_transporte.md"
+    pipeline_position: 5
+    patterns_applied: ["PATTERN-001", "PATTERN-006"]
+
+  - id: agent_calidad
+    name: "Agente de Gestión de la Calidad"
+    description: "Analiza encuestas de satisfacción de clientes hoteleros por polo"
+    sections:
+      - "section_006"
+    category: "calidad"
+    status: active
+    file: "agents/active/agent_calidad.md"
+    pipeline_position: 6
+    rules_applied: ["RULE-010"]
+
+  - id: agent_rrhh
+    name: "Agente de Recursos Humanos"
+    description: >
+      Analiza salario medio, promedio de trabajadores y cobertura de cargos vacantes.
+      Incluye subsección opcional 'Mando extranjero' si los datos están presentes;
+      la omite sin error si no están disponibles.
+    sections:
+      - "section_007"
+    category: "personal"
+    status: active
+    file: "agents/active/agent_rrhh.md"
+    pipeline_position: 7
+    patterns_applied: ["PATTERN-008"]
+
+  - id: agent_valoracion
+    name: "Agente de Valoración y Conclusiones"
+    description: "Genera la valoración ejecutiva de la administración y las conclusiones del informe"
+    sections:
+      - "section_008"
+      - "section_010"
+    category: "valoracion"
+    status: active
+    file: "agents/active/agent_valoracion.md"
+    pipeline_position: 8
+    patterns_applied: ["PATTERN-010"]
+
+  - id: agent_riesgos
+    name: "Agente de Riesgos Identificados"
+    description: "Genera la sección de riesgos en tres niveles: críticos, relevantes y moderados"
+    sections:
+      - "section_009"
+    category: "riesgos"
+    status: active
+    file: "agents/active/agent_riesgos.md"
+    pipeline_position: 9
+    patterns_applied: ["PATTERN-009"]
+
+  # Agentes de infraestructura (siempre activos)
+  - id: evidence_auditor_agent
+    name: "Auditor de Evidencias"
+    description: >
+      Valida que todo dato del informe esté respaldado por la tabla de entrada.
+      Verifica RULE-012: registra tablas no clasificadas como
+      'tabla no clasificada - requiere revisión'. Autoridad para bloquear la entrega.
+    sections: []
+    category: "auditoria"
+    status: active
+    file: "agents/evidence_auditor_agent.md"
+    pipeline_position: 98
+    rules_applied: ["RULE-007", "RULE-008", "RULE-009", "RULE-011", "RULE-012"]
+
+  - id: agent_diseno_documental
+    name: "Agente de Diseño Documental"
+    description: >
+      Genera el DOCX final con los estilos corporativos de Polarier: fuentes,
+      tamaños, colores, bordes, encabezados, pies de página, tablas, márgenes
+      y paginación. Nunca modifica contenido textual.
+    sections: []
+    category: "diseno"
+    status: active
+    file: "agents/active/agent_diseno_documental.md"
+    pipeline_position: 99
+    rules_applied: ["RULE-006"]
+    skill: "document-layout-replication"
+    modules:
+      - "src/layout_extractor.py"
+      - "src/docx_builder.py"
+    config:
+      - "config/layout_rules.yaml"
+
+metadata:
+  generated: "2026-05-14"
+  updated: "2026-05-14"
+  source_documents:
+    - "informe_202412_draft.docx"
+    - "informe_202501_draft.docx"
+    - "informe_202412_final.pdf"
+    - "informe_202501_final.pdf"
+  total_content_agents: 9
+  infrastructure_agents: 2
