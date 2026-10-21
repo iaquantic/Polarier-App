@@ -12,6 +12,19 @@ Beyond the chat, the app has an **audit module** (control de almacén hotelero) 
 
 `/vault` is an Obsidian vault (versioned in git) that is the **source of truth for project state, decisions, and history**. Before non-trivial work, read `vault/Inicio.md` (index + current state), then the relevant note. Key notes: `Generacion-Documentos.md` (rules for every generated document: which uploaded file name triggers what, master files and where they live, polo codes, formats, year), `Modulo-Auditoria.md`, `Routine-Informe-Mensual.md`, `Supabase.md`, `Decisiones.md`, `Pendientes.md`. Keep the vault updated when something important changes.
 
+## n8n
+
+Any work inside n8n (creating, changing, debugging or auditing a flow, reading executions) goes to the global `n8n-worker` agent. Instance: `polarierauto-n8n` (self-hosted). This repo's flows live in the n8n folder **Polarier** (`0792aLggmkSLKn0l`).
+
+| Workflow | ID | Folder | What it does |
+|---|---|---|---|
+| Polarier Auto App | `BQoya6xrMaF1UAkU` | Polarier | Chat webhook (`sendToN8n`), one webhook per document branch for the «Automatizaciones» section, and the document branches themselves (Modelo 1, TABLA CA, Carla, Integral…). ~140 nodes. |
+| Emails | `TIwrYY0MIntv5GLj` | Polarier | Sends the audit report by Gmail with the PDF in base64 (`src/services/informeCorreo.ts`). Replaces the old n8n cloud flow `Komb1YycRFKXTvkX`. |
+
+`HwhQ5VLp9QpoAAP6` is an inactive copy of "Polarier Auto App" (2026-10-15) with no use: do not work on it by mistake.
+
+Detail: `vault/Integracion-n8n.md` (webhooks, payload and response contract, infra, known debt and decisions such as the Carla branch staying broken), `vault/Automatizaciones.md` (per-branch triggers), `vault/Generacion-Documentos.md` (which file triggers what). Python scripts run on the VPS under `/data/Polarier/` (`Carla`, `Leslie`, `Leslie Global 2025`, `python-runner`) through the pythonrunner; local copies in `C:\Trabajo\N8N\Polarier` may be stale, and scripts versioned in this repo live in `vps/`.
+
 ## Document generation (n8n + VPS)
 
 Read `vault/Generacion-Documentos.md` before touching any n8n branch, VPS script or app code that reads or writes documents. In short: in the chat, the **uploaded file name is the contract** (`Switch3` in n8n "Polarier Auto App" routes by substring, first match: `MU` → `CP` → `Integral` → zip → `Informe` → agent). Masters live on the VPS at `/data/Polarier/` (local copies under `C:\Trabajo\N8N\Polarier` may be stale). Python runs only through the internal pythonrunner (`POST http://polarierauto_pythonrunner:8000/run`) — the n8n container has no Python. Excel output must be real `.xlsx` (force `googleFileConversion` on Drive downloads). Polo codes differ per legacy system — use the table in that note.

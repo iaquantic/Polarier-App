@@ -85,6 +85,8 @@ Envío del informe de auditoría por correo con el PDF adjunto. **Instancia dist
 
 Existe un conector MCP de n8n disponible en las sesiones de Claude (requiere autorización). Permite inspeccionar/editar workflows programáticamente. El workflow debe tener **"Available in MCP"** activado para poder leerlo/editarlo.
 
+Desde el 2026-10-21 el trabajo en n8n lo hace el agente **global** `n8n-worker` (fuente en `C:\Trabajo\n8n worker`), que sustituye al antiguo `n8n-polarier` de este repo. Sabe qué workflows son de este proyecto por la sección «n8n» del `CLAUDE.md`.
+
 ---
 
 ## Infraestructura: versiones fijadas y el pythonrunner (2026-10-05)
