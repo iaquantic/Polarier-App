@@ -4,9 +4,15 @@
 // anotada en `automation_runs` y llama al webhook propio de esa rama en n8n con
 // el MISMO payload que manda el chat, para que los nodos de la rama no tengan
 // que cambiar de contrato.
+//
+// Las automatizaciones asíncronas (`asincrona` en el catálogo) tardan más de lo
+// que aguanta una petición HTTP. Para ellas la respuesta del webhook es solo el
+// acuse de recibo: la rama cierra ella misma la fila de `automation_runs` (con
+// la service role) cuando termina o falla, y la página la va consultando. El
+// payload lleva `run_id` para que sepa cuál.
 
 import { supabase } from '@/lib/supabaseClient';
-import { uploadDocument } from '@/services/storage';
+import { getSignedDocumentUrl, uploadDocument } from '@/services/storage';
 import { getAutomationWebhookUrl } from '@/lib/n8nMode';
 import { interpretarRespuestaN8n, type ArchivoRespuesta } from '@/lib/n8nRespuesta';
 import { revisarArchivo, type Automatizacion } from '@/lib/automatizaciones';
@@ -33,7 +39,30 @@ export interface ResultadoEjecucion {
   /** Texto del agente, sin el marcador del fichero. */
   texto: string | null;
   archivo: ArchivoRespuesta | null;
+  /** Automatización asíncrona: la rama aceptó el encargo y cerrará la ejecución por su cuenta. */
+  enCurso?: boolean;
 }
+
+/**
+ * El fichero que dejó una ejecución, con una URL firmada nueva (las viejas
+ * caducan). Null si no dejó ninguno o si ya se borró.
+ */
+export const archivoDeEjecucion = async (e: EjecucionAutomatizacion): Promise<ArchivoRespuesta | null> => {
+  if (!e.resultado_path) return null;
+  try {
+    const url = await getSignedDocumentUrl(e.resultado_path);
+    const nombre = e.resultado_nombre || 'archivo';
+    return {
+      nombre,
+      file_path: e.resultado_path,
+      url,
+      ext: nombre.includes('.') ? nombre.split('.').pop()! : 'file',
+      mime: '',
+    };
+  } catch {
+    return null;
+  }
+};
 
 /** Últimas ejecuciones de una automatización (las propias: lo que deja ver la RLS). */
 export const getEjecuciones = async (slug: string, limite = 10): Promise<EjecucionAutomatizacion[]> => {
@@ -108,8 +137,13 @@ export const ejecutarAutomatizacion = async (
 
   const doc = await uploadDocument(file, null);
   const ejecucion = await anotarInicio(auto.slug, usuario.id, doc);
+  // Sin fila no hay por dónde recoger el resultado de una asíncrona.
+  if (auto.asincrona && !ejecucion) {
+    throw new Error('No se pudo registrar la ejecución, y sin ella no habría forma de recoger el resultado. Inténtalo de nuevo.');
+  }
 
   const payload = {
+    run_id: ejecucion?.id ?? null,
     chat_id: null,
     user_id: usuario.id,
     user_name: usuario.nombre ?? null,
@@ -150,6 +184,10 @@ export const ejecutarAutomatizacion = async (
   }
 
   const { texto, archivo } = await interpretarRespuestaN8n(res, null);
+
+  // Asíncrona: lo recibido es el acuse. La fila sigue en 'en_curso' hasta que
+  // la rama la cierre.
+  if (auto.asincrona) return { ejecucion, texto, archivo: null, enCurso: true };
 
   const actualizada = await anotarFin(ejecucion?.id, {
     estado: 'completada',
