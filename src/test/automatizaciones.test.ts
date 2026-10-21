@@ -15,6 +15,8 @@ describe("catálogo de automatizaciones", () => {
       expect(a.descripcion).toBeTruthy();
       expect(a.queSube).toBeTruthy();
       expect(a.queRecibe).toBeTruthy();
+      // La mensual (informe del Consejo) no sube fichero: no tiene extensiones ni ejemplos.
+      if (a.modo === "mensual") continue;
       expect(a.extensiones.length).toBeGreaterThan(0);
       expect(a.ejemplos.length).toBeGreaterThan(0);
       // Las extensiones se comparan tal cual contra el final del nombre.
@@ -62,31 +64,12 @@ describe("revisarArchivo", () => {
   });
 });
 
-describe("revisarArchivo · Informe Consejo de Dirección", () => {
+describe("Informe Consejo de Dirección en el catálogo", () => {
   const consejo = getAutomatizacion("informe-consejo")!;
 
-  it("es asíncrona: la rama cierra la ejecución por su cuenta", () => {
+  it("va por meses y es asíncrono: no sube fichero, la rama cierra el informe por su cuenta", () => {
+    expect(consejo.modo).toBe("mensual");
     expect(consejo.asincrona).toBe(true);
-  });
-
-  it("acepta los nombres de los que generate_report.py saca el período", () => {
-    for (const nombre of [
-      "Informe JULIO tablas.docx",
-      "Informe junio tablas.docx",
-      "Informe II Trimestre 2026 tablas.docx",
-      "Informe I Trimestre 2026 -tablas.docx",
-      "Informe 1er trimestre 2026.docx",
-    ]) {
-      expect(revisarArchivo(consejo, nombre).aviso, nombre).toBeUndefined();
-    }
-  });
-
-  it("avisa si el nombre no dice de qué mes o trimestre es", () => {
-    expect(revisarArchivo(consejo, "tablas consejo.docx").aviso).toBeTruthy();
-    expect(revisarArchivo(consejo, "Informe Trimestre 2026.docx").aviso).toBeTruthy();
-  });
-
-  it("rechaza un PDF", () => {
-    expect(revisarArchivo(consejo, "Informe JULIO tablas.pdf").error).toBeTruthy();
+    expect(consejo.extensiones).toEqual([]);
   });
 });

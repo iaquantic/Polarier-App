@@ -177,6 +177,45 @@ Las tablas laterales de la TABLA CA agregan así, y conviene mantenerlo para que
 - **Lo que está sin mes (🟡)** no se puede comprobar ni generar por mes tal como está. Que el Agente TABLA CA cargue las hojas de lencería del CD resuelve las montas, el rechazo y las inyecciones. **Para las otras 11 hay que averiguar de dónde salen** antes de decidir cómo entran por mes.
 - **Polos cerrados:** en 2026 Cayo Coco, Cayo Cruz y Holguín están cerrados. Algunas tablas los muestran a cero y otras solo enseñan los polos con actividad. Hay que fijar la regla para que «falta» no salte por un polo cerrado.
 
+## Comprobación por mes (montada el 2026-10-21)
+
+Lo que enseña el apartado de la app ([[Automatizaciones]], «Informe del Consejo: por meses»). Lo calcula `disponibilidad_informe_consejo(anio)` (migración 013, [[Supabase]]).
+
+| Grupo | Qué se pide | A quién | Bloquea |
+|---|---|---|---|
+| GLOBAL | El mes cargado (tiene filas en `global_ai`) | Los seis polos: las tablas económicas los llevan siempre | Sí |
+| TABLA CA · datos del CD del mes | TD real, producción, prendas, ingresos, trabajadores, CDT, CDO, diésel, electricidad, agua, calidad y químicos | Polos operativos ese mes | Sí |
+| TABLA CA · plan del mes | TD plan y producción plan | Polos operativos | Sí |
+| TABLA CA · mismo mes del año anterior | TD, producción e ingresos del bloque «año anterior» | Polos operativos | Sí |
+| Tecleado | Montas, lencería, rechazo y demás, cuentas, vehículos, vacantes, plan de consumos | — | No: «sin comprobar» (decisión de Leo) |
+
+**Polo operativo:** el GLOBAL tiene ventas de lavandería (código 33) ese mes; si el GLOBAL aún no trae el mes, cuenta el anterior. Con datos de 2026 salen La Habana, Varadero y Caibarién todo el año; Cayo Coco hasta febrero; Holguín hasta marzo; Cayo Cruz enero, febrero y abril. **Si el polo no tiene turistas-día ese mes** (venta residual de un polo que cerró), solo se le piden los ingresos de su CD.
+
+**De dónde sale la TABLA CA en Supabase:** `vps/Polarier/Leslie/CD/sync_tabla_ca.py` lee la TABLA CA del año e imprime, por mes × polo × indicador, si el dato está. La función `sync_tabla_ca_meses()` lo carga. Mismo patrón que `sync_global_ai.py` ([[Generacion-Documentos]], D6). Lo delicado son las fórmulas:
+- Los vínculos al GLOBAL cuentan si la celda del GLOBAL tiene número o si la caché trae un número distinto de 0. El 0 en caché es lo que deja Excel en los meses sin cargar.
+- Las sumas sobre celdas vacías no cuentan; por eso los ingresos del CD se miran en alquiler, lavado y otros, no en el total.
+
+Probado con la copia local de la TABLA CA 2026 y simulado en la base de datos: enero a mayo completos; en junio falta la calidad de La Habana; julio pide los CD de los polos abiertos; agosto y septiembre, además, el GLOBAL de Cayo Cruz y de Varadero.
+
+**Estado (2026-10-21):** la pantalla está hecha y la migración 013 **aplicada** (registrada como `informe_consejo`).
+
+`sync_tabla_ca.py` está en el VPS, en `/data/Polarier/Leslie/CD/`, con SHA-256 `b7b96c19…3a41`, el mismo que el del repo. La primera carga de la TABLA CA 2026 dejó 1.224 filas en `tabla_ca_meses`. El GLOBAL se encontró y no quedó ningún vínculo sin resolver. Se hizo con un flujo temporal de n8n, ejecución 555, que ya está archivado. El script llegó al flujo a través de una tabla temporal de Supabase, ya borrada.
+
+Disponibilidad real después de la carga:
+- **Enero, marzo, abril y mayo:** completos.
+- **Febrero:** a Cayo Coco le faltan la calidad y los químicos.
+- **Junio:** a La Habana le falta la calidad; a Caibarién, las prendas y los consumos.
+- **Julio a septiembre:** faltan los CD de los polos abiertos, y en agosto y septiembre también el GLOBAL de Cayo Cruz y de Varadero.
+- **Octubre a diciembre:** falta el GLOBAL.
+
+**Resincronización tras cada Tabla CA (en producción desde el 2026-10-21, versión `6d5308c2` de «Polarier Auto App»).** Después de `CD - Responder` van dos nodos nuevos. Como el usuario ya tiene su respuesta, no le hacen esperar:
+- `CD - Resumir para Supabase` ejecuta en el pythonrunner `Leslie/CD/sync_tabla_ca.py`. Le pasa `TABLA CA <año>.xlsx`, con el año que da `CD - Preparar`, la misma ruta que lee `CD - Leer tabla`.
+- `CD - Cargar en tabla_ca_meses` llama a la RPC `sync_tabla_ca_meses` con la credencial «Polarier».
+
+Funciona igual que `Normalizar GLOBAL` → `Cargar en global_ai`. Se probó con un flujo temporal que imitaba `CD - Preparar` (ejecución 556, 1.224 filas), ya archivado. Si el agente falla, la rama acaba en `CD - Error` y no resincroniza: la tabla se queda como estaba hasta la siguiente carga buena.
+
+Falta: la rama de n8n que genera el informe.
+
 ## Verificación con los ficheros de 2026 (VPS, 2026-10-21)
 
 Se trajeron del VPS `GLOBAL-CP26.xlsx` y `TABLA CA 2026.xlsx` con un flujo temporal de n8n, de solo lectura y disparador manual, que se archivó al terminar. Con ellos se cruzaron las tablas de **junio de 2026** y del **II Trimestre de 2026**:

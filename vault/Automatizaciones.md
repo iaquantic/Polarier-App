@@ -13,7 +13,7 @@ Sección nueva (2026-10-20) que **saca del chat el disparo de los documentos**. 
 | Modelo 1 | `modelo-1` | PDF «Ingresos y Gastos», o ZIP/RAR con varios | `M1 - *` (Agente Modelo 1) | `d872f8b4-5994-45e8-96d9-cf5c3a82f5b1` |
 | Tabla CA | `tabla-ca` | el **CD**: `<POLO>CD<AAAAMM>.xlsx` (el patrón acepta también `CA`) | `CD - *` (Agente TABLA CA) | `375ae1e4-ffc2-4862-a5a2-cb8c6bb18614` |
 | Ocupación | `ocupacion` | fichero `Integral…` | `Extract from File1 → …` | `023e33ed-e085-43a1-b444-40960b4d10de` |
-| Informe Consejo de Dirección | `informe-consejo` | Hoy, `Informe MES tablas.docx`. **En rediseño:** sin subida, con selector de mes y comprobación de datos ([[Informe-Consejo-Origen-Datos]]) | **por montar** — asíncrona, ver abajo | `acb55dbd-290c-4c7b-a5d2-6858ce77649b` |
+| Informe Consejo de Dirección | `informe-consejo` | Nada: va **por meses** (modo `mensual`), ver abajo | **por montar** — asíncrona | `acb55dbd-290c-4c7b-a5d2-6858ce77649b` |
 
 El detalle de qué hace cada rama está en [[Generacion-Documentos]] (D1, D2, D4). Fuera quedan, a propósito, la rama **Carla / COMU** (rota por decisión) y la **base de conocimiento** (`Informe`), que sigue solo por el chat.
 
@@ -67,6 +67,23 @@ Las tres primeras contestan en segundos o en un par de minutos, y la app espera 
 5. La página consulta la fila **cada 15 s** mientras la tenga abierta, como `AuditMonth`. Sirve tanto para la recién lanzada como para una «En marcha» abierta del historial. Al cerrarse, enseña el resultado o el motivo. Se puede cerrar la pestaña: el resultado queda en el historial.
 
 Si una asíncrona lleva **más de dos horas** en `en_curso`, la página avisa de que probablemente la rama murió sin cerrar la fila. Es el único caso que la app no puede distinguir por sí sola.
+
+## Informe del Consejo: por meses (2026-10-21)
+
+El apartado `informe-consejo` no sube ningún fichero (`modo: 'mensual'` en el catálogo; página propia, `src/pages/automations/InformeConsejo.tsx`, ruta antes de `:slug`):
+
+- Un selector de año y una tarjeta por mes, del actual hacia atrás.
+- Cada tarjeta dice si el mes está **listo para generar**, cuántos **datos faltan**, si se está **generando** o si ya tiene **informe**. Desplegada, enseña cada dato por polo:
+  - GLOBAL: el mes cargado en las seis hojas.
+  - TABLA CA: el CD del mes, el plan y el mismo mes del año anterior, solo de los polos operativos.
+  - Lo tecleado sin mes, como «sin comprobar».
+- **Generar informe** solo se habilita si no falta nada. El servidor lo vuelve a comprobar (`solicitar_informe_consejo`), deja el informe en `pendiente` y la app llama al webhook con `{informe_id, anio, mes, archivo_nombre, user_*}`.
+- Si el mes ya tiene informe, sale **Descargar informe** (URL firmada del bucket `informes-consejo`) y **Regenerar**.
+- Mientras uno se genera, la página consulta `consejo_informes` cada 15 s y avisa al terminar.
+
+**Contrato con la rama de n8n (por montar):** al recibir el webhook, pasa el informe a `generando`. Al terminar, sube el DOCX a `informes-consejo/<año>/<mes>/<nombre>` y deja `estado='listo'`, `archivo_path`, `archivo_nombre` y `generado_at`. Si falla, deja `estado='error'` y `error`. Todo con la service role. Mientras esa rama no exista, el botón acaba en error: la app marca la fila con el motivo.
+
+Datos, reglas y migración en [[Informe-Consejo-Origen-Datos]] y [[Supabase]].
 
 ## Validación del nombre: avisa, no bloquea
 

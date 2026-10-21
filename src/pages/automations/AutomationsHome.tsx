@@ -44,7 +44,7 @@ const AutomationsHome = () => {
               Automatizaciones
             </h1>
             <p className="neo-strip neo-text-2 text-[13px] sm:text-[14.5px] font-medium leading-relaxed max-w-[620px] mt-2 px-1 rounded-xl">
-              Cada proceso tiene su apartado: sube el fichero que te pide y recibe el documento. No hace falta acertar con el nombre en el chat.
+              Cada proceso tiene su apartado: sube el fichero que te pide, o elige el mes, y recibe el documento. No hace falta acertar con el nombre en el chat.
             </p>
           </div>
           <span className="neo-raised-sm neo-accent hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold">
@@ -68,16 +68,18 @@ const AutomationsHome = () => {
               <span className="neo-text text-[17px] font-extrabold leading-tight">{auto.nombre}</span>
               <span className="neo-text-2 text-[13px] font-medium leading-relaxed">{auto.descripcion}</span>
               <span className="flex flex-wrap gap-1.5">
-                {auto.extensiones.map((ext) => (
+                {(auto.modo === "mensual" ? ["Por mes"] : auto.extensiones.map((ext) => ext.replace(".", "").toUpperCase())).map((chip) => (
                   <span
-                    key={ext}
+                    key={chip}
                     className="neo-inset-sm neo-text-2 px-2.5 py-1 rounded-lg text-[10px] font-extrabold tracking-wide"
                   >
-                    {ext.replace(".", "").toUpperCase()}
+                    {chip.toUpperCase()}
                   </span>
                 ))}
               </span>
-              <span className="neo-text-2 text-[11.5px] font-semibold">Ejemplo: {auto.ejemplos[0]}</span>
+              <span className="neo-text-2 text-[11.5px] font-semibold">
+                {auto.modo === "mensual" ? "Elige el mes y genera el informe" : `Ejemplo: ${auto.ejemplos[0]}`}
+              </span>
             </button>
           ))}
         </section>
