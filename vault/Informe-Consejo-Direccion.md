@@ -68,7 +68,7 @@ Sigue pendiente: la maestra tiene `{TABLA_SOBREGIROS}`, `{TABLA_SUBEJECUCIONES}`
 
 ## Lo que falta para que sea una automatización de la app
 
-**Hecho en la app (2026-10-21, sin commitear):** apartado `informe-consejo` en [[Automatizaciones]], con webhook propio (`acb55dbd-…`) y en **modo asíncrono**: n8n solo acusa recibo y la rama cierra ella misma la fila de `automation_runs`. El contrato que tiene que cumplir el backend está en [[Automatizaciones]], sección «Automatizaciones asíncronas». **Con el cambio de enfoque, la subida del DOCX sobra.** El modo asíncrono sigue sirviendo; la pantalla pasará a selector de mes, comprobación de datos y «Generar informe».
+**Hecho en la app (2026-10-21, en `main` con el PR #34):** apartado `informe-consejo` en [[Automatizaciones]], con webhook propio (`acb55dbd-…`) y en **modo asíncrono**: n8n solo acusa recibo y la rama cierra ella misma la fila de `automation_runs`. El contrato que tiene que cumplir el backend está en [[Automatizaciones]], sección «Automatizaciones asíncronas». **Con el cambio de enfoque, la subida del DOCX sobra.** El modo asíncrono sigue sirviendo; la pantalla pasará a selector de mes, comprobación de datos y «Generar informe».
 
 **Falta el backend.** Lo que hay que decidir:
 
