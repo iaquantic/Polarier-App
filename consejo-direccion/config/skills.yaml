@@ -1,0 +1,80 @@
+# skills.yaml
+# Registro de skills disponibles en el sistema.
+# Se actualiza con: python src/main.py build-skills
+#
+# Cada entrada referencia el SKILL.md correspondiente en skills/<id>/
+
+skills:
+  - id: document-structure-mining
+    path: skills/document-structure-mining/SKILL.md
+    status: base
+    description: "Extrae secciones, títulos y estructura de documentos históricos"
+
+  - id: docx-comment-extraction
+    path: skills/docx-comment-extraction/SKILL.md
+    status: base
+    description: "Lee y clasifica comentarios de revisión de archivos DOCX"
+
+  - id: pdf-final-report-analysis
+    path: skills/pdf-final-report-analysis/SKILL.md
+    status: base
+    description: "Analiza PDF finales para extraer patrones de análisis y estilo"
+
+  - id: rule-inference-from-revisions
+    path: skills/rule-inference-from-revisions/SKILL.md
+    status: base
+    description: "Convierte comentarios de revisión en reglas formales"
+
+  - id: business-analysis-patterns
+    path: skills/business-analysis-patterns/SKILL.md
+    status: base
+    description: "Aplica patrones de análisis empresarial al texto del informe"
+
+  - id: evidence-validation
+    path: skills/evidence-validation/SKILL.md
+    status: base
+    description: "Valida que todo dato del informe esté respaldado por la tabla"
+
+  - id: council-report-writing
+    path: skills/council-report-writing/SKILL.md
+    status: base
+    description: "Genera texto de informe con tono ejecutivo formal"
+
+  - id: document-layout-replication
+    path: skills/document-layout-replication/SKILL.md
+    status: base
+    description: >
+      Replica el diseño visual exacto de los informes históricos aprobados al generar DOCX:
+      fuentes, tamaños, colores, bordes, encabezados, pies de página, tablas, márgenes y paginación.
+    agent: agent_diseno_documental
+    modules:
+      - src/layout_extractor.py
+      - src/docx_builder.py
+    config:
+      - config/layout_rules.yaml
+    templates:
+      - templates/consejo_direccion_template.docx
+      - templates/document_style_reference.md
+    design_values:
+      font: "Agfa Rotis Sans Serif (fallback: Arial)"
+      page: "A4, márgenes 3.00/2.50/2.20/1.50 cm"
+      heading_color: "#DD990D"
+      table_header_color: "#F4BC46"
+      positive_color: "#006100"
+      negative_color: "#9C0006"
+
+  - id: monthly-table-ingestion
+    path: skills/monthly-table-ingestion/SKILL.md
+    status: base
+    description: "Detecta, extrae, clasifica y ordena tablas de múltiples archivos mensuales"
+    modules:
+      - src/monthly_file_ingestion.py
+      - src/table_extractor.py
+      - src/table_classifier.py
+      - src/table_ordering.py
+      - src/section_mapper.py
+    config:
+      - config/document_sources.yaml
+      - config/table_classification.yaml
+
+# Estados posibles: base | enriched | deprecated

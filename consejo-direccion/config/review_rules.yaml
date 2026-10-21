@@ -1,0 +1,201 @@
+# review_rules.yaml
+# Reglas de revisión extraídas de los comentarios en los DOCX históricos
+# Autora de todos los comentarios: la revisora de la dirección (nombre omitido: el repositorio es público)
+# Generado: 2026-05-14
+
+rules:
+  - id: RULE-001
+    category: estructura
+    severity: obligatorio
+    section: "section_003"
+    description: >
+      La sección de Lencería DEBE incluir 'Arribos de lencería' como primer punto,
+      antes de 'Completamiento de las montas'.
+    source: informe_202412_draft.docx
+    comment: "Agregar como primer punto 'Arribos de Lencería'."
+    examples:
+      wrong: "La sección de lencería comienza directamente con el completamiento de montas."
+      correct: "La sección de lencería comienza con Arribos de lencería, indicando el total de piezas recibidas en el período."
+    applies_to: ["agent_lenceria"]
+
+  - id: RULE-002
+    category: datos
+    severity: error
+    section: "section_001"
+    description: >
+      Toda partida sobregirada DEBE incluir una explicación de la causa del sobregiro.
+      No es aceptable listar una partida sobregirada sin justificar por qué.
+    source: informe_202412_draft.docx
+    comment: "¿Por qué no se explica el sobregiro en las partidas 76 y 77?."
+    examples:
+      wrong: "Partida 76: ejecutado 120, plan 100, desviación +20."
+      correct: "Partida 76: ejecutado 120, plan 100, desviación +20. La causa principal fue el incremento de tarifas del proveedor X durante el período."
+    applies_to: ["agent_economia"]
+
+  - id: RULE-003
+    category: datos
+    severity: obligatorio
+    section: "section_001"
+    description: >
+      El análisis de costos DEBE incluir el porcentaje de ejecución respecto al plan.
+      No basta con indicar desviación absoluta — debe expresarse el ratio porcentual.
+    source: informe_202412_draft.docx
+    comment: "Considero debe ponerse en la explicación que los costos con respecto al plan se comportaron a un 65.00%."
+    examples:
+      wrong: "Los costos se ejecutaron por debajo del plan en X pesos."
+      correct: "Los costos se ejecutaron al 64,73% del plan, con una subejecución de X pesos."
+    applies_to: ["agent_economia"]
+
+  - id: RULE-004
+    category: datos
+    severity: obligatorio
+    section: "section_001"
+    description: >
+      El análisis de costos y gastos DEBE incluir comparación interanual con el mismo
+      período del año anterior, indicando si los costos fueron superiores o inferiores
+      por polo, con una breve explicación de la causa.
+    source: informe_202412_draft.docx
+    comment: "Debería agregarse que en relación a 2024 en casi todos los polos los costos fueron superiores y dar una breve explicación."
+    examples:
+      wrong: "Los costos del período se comportaron según lo planificado."
+      correct: "En relación al mismo período de 2024, en casi todos los polos los costos fueron superiores, explicado principalmente por [causa]."
+    applies_to: ["agent_economia"]
+
+  - id: RULE-005
+    category: datos
+    severity: obligatorio
+    section: "section_001"
+    description: >
+      El análisis de partidas sobregiradas DEBE incluir la comparación respecto
+      al año anterior. Si en el año anterior existió sobregiro, debe mencionarse
+      el porcentaje y la causa.
+    source: informe_202412_draft.docx
+    comment: "Debe incluirse el análisis respecto a 2024, donde existió un sobregiro en un 17,48% y dar una breve explicación del motivo."
+    examples:
+      wrong: "Las partidas sobregiradas del período son las siguientes: [lista]."
+      correct: "Las partidas sobregiradas del período son [lista]. En comparación con 2024, donde se registró un sobregiro del 17,48%, la situación actual [mejora/empeora] debido a [causa]."
+    applies_to: ["agent_economia"]
+
+  - id: RULE-006
+    category: maquetacion
+    severity: advertencia
+    section: "global"
+    description: >
+      Las tablas NO deben cortarse entre páginas. Ninguna tabla debe terminar
+      en una página con su última fila en la página siguiente.
+      El agente de diseño (layout_replication_agent) debe verificar esto antes
+      de generar el DOCX final.
+    source: informe_202412_draft.docx
+    comment: "La tabla me parece picada con la última fila en la otra página."
+    examples:
+      wrong: "Una tabla de 10 filas con 9 filas en página 3 y 1 fila en página 4."
+      correct: "La tabla completa en una misma página, o partida en un punto lógico con repetición de encabezado."
+    applies_to: ["layout_replication_agent"]
+
+  - id: RULE-007
+    category: coherencia
+    severity: error
+    section: "section_003"
+    description: >
+      Los datos de arriibos de lencería DEBEN coincidir exactamente con el
+      Informe de Fundamentación. Si hay discrepancia, debe identificarse la causa
+      antes de publicar. No aceptar cifras sin verificar con la fuente primaria.
+    source: informe_202412_draft.docx
+    comment: "Falta añadir los arribos que según Informe de Fundamentación llegaron 34.243 piezas. Ahora revisé con Taimi y en el informe de Fundamentación nos faltó poner el ítem Toallas de Baño pero las cantidades coinciden con las dos últimas cargas de Caribbean que llegaron."
+    examples:
+      wrong: "Los arribos del período fueron 30.000 piezas. [sin verificar con Fundamentación]"
+      correct: "Los arribos del período fueron 34.243 piezas, confirmado con el Informe de Fundamentación (incluye Toallas de Baño de las últimas cargas de Caribbean)."
+    applies_to: ["agent_lenceria", "evidence_auditor_agent"]
+
+  - id: RULE-008
+    category: coherencia
+    severity: error
+    section: "section_003"
+    description: >
+      Las prendas mencionadas en el texto como 'con mayores inyecciones' DEBEN
+      coincidir exactamente con las prendas que encabezan la tabla de inyecciones.
+      No mencionar prendas de la tabla en orden incorrecto.
+    source: informe_202412_draft.docx
+    comment: "Aquí según la tabla las prendas con mayores inyecciones son Toallas de Baño, Toallas de Cara y Fundas, no de Piscina. Revisa porfa."
+    examples:
+      wrong: "Las prendas con mayores inyecciones son Toallas de Piscina, Sábanas y Fundas."
+      correct: "Las prendas con mayores inyecciones son Toallas de Baño, Toallas de Cara y Fundas, tal como refleja la tabla."
+    applies_to: ["agent_lenceria", "evidence_auditor_agent"]
+
+  - id: RULE-009
+    category: datos
+    severity: error
+    section: "section_003"
+    description: >
+      El total de prendas planificadas para inyección DEBE verificarse aritméticamente
+      antes de incluirlo en el informe. El sistema debe sumar las filas de la tabla
+      y comparar con el total declarado.
+    source: informe_202412_draft.docx
+    comment: "Verifica este total de los planificados que me da 58 no 62."
+    examples:
+      wrong: "Total prendas planificadas: 62. [sin verificar la suma]"
+      correct: "Total prendas planificadas: 58. [verificado: suma de filas = 58]"
+    applies_to: ["agent_lenceria", "evidence_auditor_agent"]
+
+  - id: RULE-010
+    category: estructura
+    severity: error
+    section: "section_006"
+    description: >
+      La sección 'Gestión de la Calidad' NO debe contener análisis de Recursos Humanos.
+      Cada sección debe mantenerse dentro de su ámbito temático.
+      El agente de Calidad solo analiza satisfacción del cliente y gestión de calidad.
+    source: informe_202412_draft.docx
+    comment: "Aquí se habla de Recursos Humanos cuando el epígrafe es de Gestión de la Calidad."
+    examples:
+      wrong: "Dentro de la sección de Calidad: 'El salario medio de los trabajadores fue de...'"
+      correct: "La sección de Calidad se limita a: encuestas de satisfacción, indicadores de calidad del servicio y reclamaciones de clientes."
+    applies_to: ["agent_calidad", "orchestrator"]
+
+  - id: RULE-011
+    category: datos
+    severity: obligatorio
+    section: "global"
+    description: >
+      Cuando Taimi (responsable de datos) actualice una tabla, la versión del
+      informe debe usar los datos actualizados, no los datos originales.
+      Verificar siempre que se está trabajando con la versión más reciente
+      de cada tabla antes de redactar el análisis.
+    source: informe_202501_draft.docx
+    comment: "Corregir tabla según actualización de Taimi."
+    examples:
+      wrong: "Usar la primera versión de la tabla recibida sin verificar actualizaciones."
+      correct: "Antes de redactar, confirmar que los datos de la tabla son la versión final validada por Taimi."
+    applies_to: ["orchestrator", "evidence_auditor_agent"]
+
+  - id: RULE-012
+    category: clasificacion
+    severity: obligatorio
+    section: "global"
+    description: >
+      Toda tabla mensual detectada durante la ingesta DEBE clasificarse y mapearse
+      contra una sección histórica del informe. Si una tabla no puede clasificarse
+      con suficiente confianza, debe marcarse explícitamente como
+      "tabla no clasificada - requiere revisión" y aparecer en el log de advertencias.
+      Ninguna tabla puede ignorarse silenciosamente.
+    source: "regla global — inferida del principio de trazabilidad del sistema"
+    comment: "Regla global de trazabilidad: ninguna tabla se pierde."
+    examples:
+      wrong: "El sistema extrae 15 tablas, clasifica 12 y descarta las 3 restantes sin informar."
+      correct: >
+        "El sistema extrae 15 tablas, clasifica 12 con categoría conocida y registra
+        3 como 'tabla no clasificada - requiere revisión' en
+        data/processed/ingestion_warnings_YYYYMM.json."
+    applies_to: ["orchestrator", "table_classifier", "evidence_auditor_agent"]
+
+metadata:
+  source_documents:
+    - "informe_202412_draft.docx"
+    - "informe_202501_draft.docx"
+  reviewer: "revisora de la dirección"
+  generated: "2026-05-14"
+  total_rules: 12
+  severity_counts:
+    error: 4
+    obligatorio: 5
+    advertencia: 3

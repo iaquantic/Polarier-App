@@ -3,18 +3,24 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowDownToLine, ChevronLeft, ChevronRight, CircleCheck, CircleX, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
-import { getSignedDocumentUrl } from "@/services/storage";
 import FileDownloadCard from "@/components/FileDownloadCard";
 import { fechaCorta, getAutomatizacion, revisarArchivo } from "@/lib/automatizaciones";
 import type { ArchivoRespuesta } from "@/lib/n8nRespuesta";
 import {
+  archivoDeEjecucion,
   ejecutarAutomatizacion,
   getEjecucion,
   getEjecuciones,
   type EjecucionAutomatizacion,
 } from "@/services/automatizaciones";
 
-type Fase = "reposo" | "confirmar" | "trabajando" | "listo" | "error";
+// "en_cola": una asíncrona aceptada por n8n, que terminará por su cuenta.
+type Fase = "reposo" | "confirmar" | "trabajando" | "en_cola" | "listo" | "error";
+
+/** Cada cuánto se consulta una ejecución asíncrona en marcha. */
+const CONSULTA_MS = 15_000;
+/** A partir de aquí, una asíncrona en marcha probablemente murió sin cerrar su fila. */
+const ATASCADA_MS = 2 * 60 * 60 * 1000;
 
 const formatoTamano = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
@@ -41,6 +47,8 @@ const AutomationRun = () => {
   const [verEjecucion, setVerEjecucion] = useState<EjecucionAutomatizacion | null>(null);
   const [archivoVisto, setArchivoVisto] = useState<ArchivoRespuesta | null>(null);
   const [buscandoArchivo, setBuscandoArchivo] = useState(false);
+  // La asíncrona recién lanzada, mientras la rama trabaja.
+  const [enCola, setEnCola] = useState<EjecucionAutomatizacion | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [params, setParams] = useSearchParams();
 
@@ -57,22 +65,10 @@ const AutomationRun = () => {
     setParams(e.id === params.get("run") ? params : { run: e.id }, { replace: true });
     if (!e.resultado_path) return;
     setBuscandoArchivo(true);
-    try {
-      const url = await getSignedDocumentUrl(e.resultado_path);
-      const nombre = e.resultado_nombre || "archivo";
-      setArchivoVisto({
-        nombre,
-        file_path: e.resultado_path,
-        url,
-        ext: nombre.includes(".") ? nombre.split(".").pop()! : "file",
-        mime: "",
-      });
-    } catch {
-      // El fichero pudo borrarse (la limpieza de documentos antiguos): se
-      // enseña el resumen igual, sin descarga.
-    } finally {
-      setBuscandoArchivo(false);
-    }
+    // Si el fichero ya se borró (la limpieza de documentos antiguos), se
+    // enseña el resumen igual, sin descarga.
+    setArchivoVisto(await archivoDeEjecucion(e));
+    setBuscandoArchivo(false);
   }, [params, setParams]);
 
   const cerrarEjecucion = () => {
@@ -91,8 +87,51 @@ const AutomationRun = () => {
     setFallo(null);
     setVerEjecucion(null);
     setArchivoVisto(null);
+    setEnCola(null);
     refrescarHistorial();
   }, [slug, refrescarHistorial]);
+
+  // Asíncronas: la rama cierra la fila por su cuenta, así que se consulta la
+  // que se está esperando, sea la recién lanzada o una abierta del historial.
+  const siguiendo =
+    fase === "en_cola" && enCola ? enCola.id
+    : auto?.asincrona && verEjecucion?.estado === "en_curso" ? verEjecucion.id
+    : null;
+
+  // Lo que hay que hacer al terminar depende de qué se está mirando en ese
+  // momento; el intervalo no debe reiniciarse por eso, así que va por ref.
+  const alTerminar = useRef<(e: EjecucionAutomatizacion) => void>(() => {});
+  alTerminar.current = async (e) => {
+    refrescarHistorial();
+    if (verEjecucion?.id === e.id) {
+      abrirEjecucion(e);
+      return;
+    }
+    setEnCola(null);
+    if (e.estado === "completada") {
+      setTexto(e.respuesta);
+      setResultado(await archivoDeEjecucion(e));
+      setFase("listo");
+      toast.success(`${auto?.nombre ?? "La automatización"}: terminado`);
+    } else {
+      setFallo(e.error || "Terminó con error, sin detalle.");
+      setFase("error");
+      toast.error(`${auto?.nombre ?? "La automatización"}: no se pudo terminar`);
+    }
+  };
+
+  useEffect(() => {
+    if (!siguiendo) return;
+    let vivo = true;
+    const intervalo = window.setInterval(async () => {
+      const e = await getEjecucion(siguiendo).catch(() => null);
+      if (vivo && e && e.estado !== "en_curso") alTerminar.current(e);
+    }, CONSULTA_MS);
+    return () => {
+      vivo = false;
+      window.clearInterval(intervalo);
+    };
+  }, [siguiendo]);
 
   // Entrada por enlace (?run=<id>), que es como llega desde el índice.
   const runParam = params.get("run");
@@ -139,6 +178,11 @@ const AutomationRun = () => {
         email: user.email || undefined,
       });
       setTexto(res.texto);
+      if (res.enCurso) {
+        setEnCola(res.ejecucion);
+        setFase("en_cola");
+        return;
+      }
       setResultado(res.archivo);
       setFase("listo");
     } catch (e) {
@@ -242,6 +286,7 @@ const AutomationRun = () => {
                     >
                       {verEjecucion.estado === "completada" ? "Resultado"
                         : verEjecucion.estado === "error" ? "No se pudo procesar"
+                        : auto.asincrona ? "En marcha"
                         : "Quedó en curso"}
                     </span>
                   </div>
@@ -262,6 +307,10 @@ const AutomationRun = () => {
                   <p className="neo-text text-[13px] font-medium leading-relaxed whitespace-pre-wrap">
                     {verEjecucion.estado === "error"
                       ? verEjecucion.error || "Sin detalle del error."
+                      : verEjecucion.estado === "en_curso" && auto.asincrona
+                        ? Date.now() - new Date(verEjecucion.created_at).getTime() > ATASCADA_MS
+                          ? "Lleva más de dos horas en marcha y lo normal es que ya hubiera terminado. Puede que la rama fallara sin cerrar la ejecución: revísala en n8n."
+                          : `${auto.duracion ?? ""} Esta pantalla se actualiza sola cuando termine.`.trim()
                       : verEjecucion.respuesta
                         || (verEjecucion.estado === "en_curso"
                           ? "Se lanzó y la app no llegó a recibir la respuesta. Puede que n8n terminara igualmente: míralo en sus ejecuciones."
@@ -346,6 +395,26 @@ const AutomationRun = () => {
                 </div>
                 <p className="neo-text-2 text-[12.5px] font-medium leading-relaxed">
                   Puede tardar unos minutos. No cierres la pestaña: si se corta la espera, la ejecución queda en el historial y n8n puede seguir trabajando.
+                </p>
+              </div>
+            )}
+
+            {fase === "en_cola" && enCola && (
+              <div className="neo-inset rounded-[18px] p-5 flex flex-col gap-4">
+                <p className="neo-text text-[13.5px] font-extrabold truncate">
+                  {enCola.archivo_nombre}
+                  {archivo && <span className="neo-text-2 font-semibold"> · {formatoTamano(archivo.size)}</span>}
+                </p>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="w-[18px] h-[18px] rounded-full border-[2.5px] border-[var(--neo-well)] animate-spin shrink-0"
+                    style={{ borderTopColor: "var(--neo-accent)" }}
+                  />
+                  <span className="neo-accent text-[13.5px] font-extrabold">En marcha</span>
+                </div>
+                {texto && <p className="neo-text text-[13px] font-medium leading-relaxed whitespace-pre-wrap">{texto}</p>}
+                <p className="neo-text-2 text-[12.5px] font-medium leading-relaxed">
+                  {auto.duracion} Puedes cerrar esta página: el resultado quedará en «Últimas ejecuciones». Mientras la tengas abierta, se actualiza sola.
                 </p>
               </div>
             )}

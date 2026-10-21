@@ -61,3 +61,32 @@ describe("revisarArchivo", () => {
     expect(revisarArchivo(tablaCa, "caibarien.xlsx").aviso).toBeTruthy();
   });
 });
+
+describe("revisarArchivo · Informe Consejo de Dirección", () => {
+  const consejo = getAutomatizacion("informe-consejo")!;
+
+  it("es asíncrona: la rama cierra la ejecución por su cuenta", () => {
+    expect(consejo.asincrona).toBe(true);
+  });
+
+  it("acepta los nombres de los que generate_report.py saca el período", () => {
+    for (const nombre of [
+      "Informe JULIO tablas.docx",
+      "Informe junio tablas.docx",
+      "Informe II Trimestre 2026 tablas.docx",
+      "Informe I Trimestre 2026 -tablas.docx",
+      "Informe 1er trimestre 2026.docx",
+    ]) {
+      expect(revisarArchivo(consejo, nombre).aviso, nombre).toBeUndefined();
+    }
+  });
+
+  it("avisa si el nombre no dice de qué mes o trimestre es", () => {
+    expect(revisarArchivo(consejo, "tablas consejo.docx").aviso).toBeTruthy();
+    expect(revisarArchivo(consejo, "Informe Trimestre 2026.docx").aviso).toBeTruthy();
+  });
+
+  it("rechaza un PDF", () => {
+    expect(revisarArchivo(consejo, "Informe JULIO tablas.pdf").error).toBeTruthy();
+  });
+});

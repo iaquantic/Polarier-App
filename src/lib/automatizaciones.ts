@@ -11,7 +11,7 @@
 //
 // Ver vault/Automatizaciones.md y vault/Generacion-Documentos.md.
 
-import { FileSpreadsheet, FileStack, Hotel, type LucideIcon } from 'lucide-react';
+import { FileSpreadsheet, FileStack, Hotel, ScrollText, type LucideIcon } from 'lucide-react';
 
 export interface Automatizacion {
   slug: string;
@@ -34,6 +34,14 @@ export interface Automatizacion {
    * Si no casa, se avisa pero se deja enviar: la rama manda, no la app.
    */
   patron?: RegExp;
+  /**
+   * Tarda más de lo que aguanta una petición HTTP. El webhook solo acusa
+   * recibo y la rama cierra la fila de `automation_runs` al terminar; la
+   * página la va consultando. Ver src/services/automatizaciones.ts.
+   */
+  asincrona?: boolean;
+  /** Cuánto suele tardar, en una frase. Solo se enseña en las asíncronas. */
+  duracion?: string;
 }
 
 export const AUTOMATIZACIONES: Automatizacion[] = [
@@ -74,6 +82,22 @@ export const AUTOMATIZACIONES: Automatizacion[] = [
     queRecibe: 'La hoja de ocupación actualizada, con las provincias ya traducidas a polo.',
     ejemplos: ['Integral octubre.xls'],
     patron: /integral/i,
+  },
+  {
+    slug: 'informe-consejo',
+    nombre: 'Informe Consejo de Dirección',
+    descripcion: 'Redacta el informe mensual o trimestral para el Consejo',
+    icono: ScrollText,
+    webhookPath: 'acb55dbd-290c-4c7b-a5d2-6858ce77649b',
+    extensiones: ['.docx'],
+    queSube: 'El DOCX con todas las tablas del período y sus precisiones: «Informe MES tablas.docx».',
+    queRecibe: 'El informe del Consejo en Word, con los análisis redactados sobre la plantilla aprobada.',
+    ejemplos: ['Informe JULIO tablas.docx', 'Informe III Trimestre 2026 tablas.docx'],
+    // El período sale del nombre (consejo-direccion/scripts/generate_report.py):
+    // tiene que llevar el mes en español o el trimestre.
+    patron: /^(?=.*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|(^|[^a-z])(i{1,3}|iv|1er|2do|3er|4to|primer|segundo|tercer|cuarto)\s+trimestre)).*\.docx$/i,
+    asincrona: true,
+    duracion: 'Redactar todos los análisis lleva unos minutos.',
   },
 ];
 

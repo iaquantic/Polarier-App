@@ -1,0 +1,463 @@
+# marker_mapping.yaml
+# Mapa completo de marcadores del DOCX maestro → agente responsable + tipo de contenido.
+#
+# Jerarquía de marcadores:
+#   1. {TABLA_*}    — marcador granular para una tabla específica (PRIORIDAD ALTA)
+#   2. {ANALISIS_*} — marcador granular para el texto de análisis de un indicador (PRIORIDAD ALTA)
+#   3. {SECCION_*}  — marcador de sección completa, usado como FALLBACK si no hay granulares
+#
+# El orquestador intenta primero los marcadores granulares. Solo usa {SECCION_*}
+# si ningún marcador granular de esa sección existe en la plantilla maestra.
+#
+# Campos por entrada:
+#   marker:      Marcador exacto tal como aparece en la plantilla DOCX.
+#   type:        "tabla" | "analisis" | "seccion" | "metadata"
+#   agent:       ID del agente responsable de generar el contenido.
+#   section:     ID de la sección a la que pertenece (para agrupar y ordenar).
+#   table_key:   Clave de clasificación de tabla (solo para tipo "tabla").
+#   description: Descripción legible del contenido esperado.
+#   fallback:    Mensaje a insertar si no hay datos disponibles.
+#   priority:    Orden de reemplazo dentro de la sección (1 = primero).
+
+metadata:
+  version: "1.1"
+  last_updated: "2026-05-19"
+  strategy: >
+    Prioridad: marcadores granulares ({TABLA_*}, {ANALISIS_*}) sobre marcadores de sección
+    ({SECCION_*}). El orquestador detecta qué marcadores existen en la plantilla maestra
+    y aplica solo los que están presentes. Nunca falla si un marcador no existe en la plantilla.
+  ingestion_mode: "single_docx"
+  ingestion_note: >
+    El sistema recibe un único DOCX mensual que contiene todas las tablas en orden,
+    junto con títulos, precisiones, especificaciones y notas operativas. El campo
+    optional_context: true indica que el marcador de análisis puede recibir
+    context_notes del DOCX mensual para enriquecer el análisis.
+
+# ─────────────────────────────────────────────────────────────────
+# MARCADORES DE METADATOS (siempre presentes)
+# ─────────────────────────────────────────────────────────────────
+metadata_markers:
+  - marker: "{MES}"
+    type: metadata
+    description: "Nombre del mes en mayúsculas (ENERO, FEBRERO, ...)"
+
+  - marker: "{AÑO}"
+    type: metadata
+    description: "Año de cuatro dígitos (2026, ...)"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 1 — ECONOMÍA
+# ─────────────────────────────────────────────────────────────────
+economia:
+  section_fallback: "{SECCION_ECONOMIA}"
+  agent: "agent_economia"
+
+  markers:
+    - marker: "{TABLA_INGRESOS}"
+      type: tabla
+      table_key: "ingresos"
+      priority: 1
+      description: "Cumplimiento del plan de Ingresos por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_INGRESOS]"
+
+    - marker: "{ANALISIS_INGRESOS}"
+      type: analisis
+      optional_context: true
+      priority: 2
+      description: "Análisis del comportamiento de los ingresos"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_INGRESOS]"
+
+    - marker: "{TABLA_INGRESOS_OCUPACION}"
+      type: tabla
+      table_key: "ingresos_ocupacion"
+      priority: 3
+      description: "Relación ingresos / ocupación"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_INGRESOS_OCUPACION]"
+
+    - marker: "{ANALISIS_INGRESOS_OCUPACION}"
+      type: analisis
+      optional_context: true
+      priority: 4
+      description: "Análisis de la relación ingresos/ocupación"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_INGRESOS_OCUPACION]"
+
+    - marker: "{TABLA_PRESUPUESTO_GASTOS}"
+      type: tabla
+      table_key: "presupuesto_gastos"
+      priority: 5
+      description: "Presupuesto de gastos y flujo de caja"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_PRESUPUESTO_GASTOS]"
+
+    - marker: "{TABLA_PARTIDAS_SOBREGIRADAS}"
+      type: tabla
+      table_key: "partidas_sobregiradas"
+      priority: 6
+      description: "Análisis de partidas sobregiradas y subejecuciones"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_PARTIDAS_SOBREGIRADAS]"
+
+    - marker: "{ANALISIS_PARTIDAS_SOBREGIRADAS}"
+      type: analisis
+      optional_context: true
+      priority: 7
+      description: "Análisis de partidas sobregiradas"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_PARTIDAS_SOBREGIRADAS]"
+
+    - marker: "{TABLA_COSTOS}"
+      type: tabla
+      table_key: "costos"
+      priority: 8
+      description: "Costos — ejecución vs plan por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_COSTOS]"
+
+    - marker: "{TABLA_GASTOS}"
+      type: tabla
+      table_key: "gastos"
+      priority: 9
+      description: "Gastos — ejecución vs plan por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_GASTOS]"
+
+    - marker: "{TABLA_GASTOS_OCUPACION}"
+      type: tabla
+      table_key: "gastos_ocupacion"
+      priority: 10
+      description: "Relación gastos / ocupación"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_GASTOS_OCUPACION]"
+
+    - marker: "{TABLA_UTILIDADES}"
+      type: tabla
+      table_key: "utilidades"
+      priority: 11
+      description: "Utilidades — resultado del período"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_UTILIDADES]"
+
+    - marker: "{ANALISIS_UTILIDADES}"
+      type: analisis
+      optional_context: true
+      priority: 12
+      description: "Análisis de utilidades"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_UTILIDADES]"
+
+    - marker: "{TABLA_COSTO_GASTO_PESO}"
+      type: tabla
+      table_key: "costo_gasto_peso"
+      priority: 13
+      description: "Costo y gasto por peso de ingreso"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_COSTO_GASTO_PESO]"
+
+    - marker: "{TABLA_INGRESOS_TURISTA_DIA}"
+      type: tabla
+      table_key: "ingresos_turista_dia"
+      priority: 14
+      description: "Ingresos por turista día"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_INGRESOS_TURISTA_DIA]"
+
+    - marker: "{TABLA_PRECIO_KG_LAVADO}"
+      type: tabla
+      table_key: "precio_kg_lavado"
+      priority: 15
+      description: "Precio de venta del kg lavado por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_PRECIO_KG_LAVADO]"
+
+    - marker: "{TABLA_CUENTAS_COBRAR}"
+      type: tabla
+      table_key: "cuentas_cobrar"
+      priority: 16
+      description: "Cuentas por Cobrar"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_CUENTAS_COBRAR]"
+
+    - marker: "{TABLA_CUENTAS_PAGAR}"
+      type: tabla
+      table_key: "cuentas_pagar"
+      priority: 17
+      description: "Cuentas por Pagar"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_CUENTAS_PAGAR]"
+
+    - marker: "{ANALISIS_ECONOMIA}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo general de la sección Economía"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_ECONOMIA]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 2 — PRODUCCIÓN
+# ─────────────────────────────────────────────────────────────────
+produccion:
+  section_fallback: "{SECCION_PRODUCCION}"
+  agent: "agent_produccion"
+
+  markers:
+    - marker: "{TABLA_KG_LAVADOS}"
+      type: tabla
+      table_key: "kg_lavados"
+      priority: 1
+      description: "Kilogramos lavados y kg por turista día por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_KG_LAVADOS]"
+
+    - marker: "{ANALISIS_KG_LAVADOS}"
+      type: analisis
+      optional_context: true
+      priority: 2
+      description: "Análisis de kilogramos lavados"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_KG_LAVADOS]"
+
+    - marker: "{TABLA_PRODUCTOS_QUIMICOS}"
+      type: tabla
+      table_key: "productos_quimicos"
+      priority: 3
+      description: "Consumo de productos químicos"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_PRODUCTOS_QUIMICOS]"
+
+    - marker: "{ANALISIS_PRODUCCION}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo general de la sección Producción"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_PRODUCCION]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 3 — LENCERÍA
+# ─────────────────────────────────────────────────────────────────
+lenceria:
+  section_fallback: "{SECCION_LENCERIA}"
+  agent: "agent_lenceria"
+
+  markers:
+    - marker: "{TABLA_ARRIBOS}"
+      type: tabla
+      table_key: "arribos_lenceria"
+      priority: 1
+      description: "Arribos de lencería"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_ARRIBOS]"
+
+    - marker: "{ANALISIS_ARRIBOS}"
+      type: analisis
+      optional_context: true
+      priority: 2
+      description: "Análisis de arribos de lencería"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_ARRIBOS]"
+
+    - marker: "{TABLA_MONTAS_LENCERIA}"
+      type: tabla
+      table_key: "montas_lenceria"
+      priority: 3
+      description: "Completamiento de montas de lencería por habitación y cliente"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_MONTAS_LENCERIA]"
+
+    - marker: "{TABLA_INVENTARIO_USO}"
+      type: tabla
+      table_key: "inventario_lenceria_uso"
+      priority: 5
+      description: "Inventario de lencería en uso"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_INVENTARIO_USO]"
+
+    - marker: "{TABLA_INVENTARIO_NUEVA}"
+      type: tabla
+      table_key: "inventario_lenceria_nueva"
+      priority: 6
+      description: "Inventario de lencería nueva"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_INVENTARIO_NUEVA]"
+
+    - marker: "{TABLA_RECHAZOS_LENCERIA}"
+      type: tabla
+      table_key: "rechazos_lenceria"
+      priority: 7
+      description: "Rechazos de lencería en el proceso productivo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_RECHAZOS_LENCERIA]"
+
+    - marker: "{TABLA_MAL_USO}"
+      type: tabla
+      table_key: "mal_uso_lenceria"
+      priority: 8
+      description: "Detección de mal uso de lencería"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_MAL_USO]"
+
+    - marker: "{ANALISIS_LENCERIA}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo general de la sección Lencería"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_LENCERIA]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 4 — SERVICIOS TÉCNICOS
+# ─────────────────────────────────────────────────────────────────
+servicios_tecnicos:
+  section_fallback: "{SECCION_SERVICIOS_TECNICOS}"
+  agent: "agent_servicios_tecnicos"
+
+  markers:
+    - marker: "{TABLA_CDT_CDO}"
+      type: tabla
+      table_key: "cdt_cdo"
+      priority: 1
+      description: "CDT y CDO por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_CDT_CDO]"
+
+    - marker: "{ANALISIS_CDT_CDO}"
+      type: analisis
+      optional_context: true
+      priority: 2
+      description: "Análisis de CDT/CDO"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_CDT_CDO]"
+
+    - marker: "{TABLA_ENERGIA}"
+      type: tabla
+      table_key: "energia_portadores"
+      priority: 3
+      description: "Consumo de energía y portadores energéticos"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_ENERGIA]"
+
+    - marker: "{ANALISIS_SERVICIOS_TECNICOS}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo general de Servicios Técnicos"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_SERVICIOS_TECNICOS]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 5 — TRANSPORTE
+# ─────────────────────────────────────────────────────────────────
+transporte:
+  section_fallback: "{SECCION_TRANSPORTE}"
+  agent: "agent_transporte"
+
+  markers:
+    - marker: "{TABLA_TRANSPORTE}"
+      type: tabla
+      table_key: "transporte"
+      priority: 1
+      description: "Estadísticas de transporte por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_TRANSPORTE]"
+
+    - marker: "{ANALISIS_TRANSPORTE}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo de Transporte"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_TRANSPORTE]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 6 — CALIDAD
+# ─────────────────────────────────────────────────────────────────
+calidad:
+  section_fallback: "{SECCION_CALIDAD}"
+  agent: "agent_calidad"
+
+  markers:
+    - marker: "{TABLA_CALIDAD}"
+      type: tabla
+      table_key: "calidad"
+      priority: 1
+      description: "Indicadores de calidad por polo"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_CALIDAD]"
+
+    - marker: "{ANALISIS_CALIDAD}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo de Calidad"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_CALIDAD]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 7 — RECURSOS HUMANOS
+# ─────────────────────────────────────────────────────────────────
+rrhh:
+  section_fallback: "{SECCION_RRHH}"
+  agent: "agent_rrhh"
+
+  markers:
+    - marker: "{TABLA_PLANTILLA}"
+      type: tabla
+      table_key: "plantilla_rrhh"
+      priority: 1
+      description: "Plantilla de personal — real vs plantilla aprobada"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_PLANTILLA]"
+
+    - marker: "{ANALISIS_PLANTILLA}"
+      type: analisis
+      optional_context: true
+      priority: 2
+      description: "Análisis de dotación de personal"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_PLANTILLA]"
+
+    - marker: "{TABLA_VACANTES}"
+      type: tabla
+      table_key: "vacantes_rrhh"
+      priority: 3
+      description: "Vacantes por polo y categoría"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_VACANTES]"
+
+    - marker: "{TABLA_MANDO_EXTRANJERO}"
+      type: tabla
+      table_key: "mando_extranjero"
+      priority: 5
+      optional: true
+      description: "Personal de mando extranjero (subsección opcional)"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_MANDO_EXTRANJERO]"
+
+    - marker: "{ANALISIS_RRHH}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo general de RRHH"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_RRHH]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 8 — VALORACIÓN DE LA ADMINISTRACIÓN
+# ─────────────────────────────────────────────────────────────────
+valoracion:
+  section_fallback: "{SECCION_VALORACION}"
+  agent: "agent_valoracion"
+
+  markers:
+    - marker: "{TABLA_VALORACION}"
+      type: tabla
+      table_key: "valoracion_administracion"
+      priority: 1
+      description: "Tabla de valoración de la administración (matriz semáforo)"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_VALORACION]"
+
+    - marker: "{ANALISIS_VALORACION}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Texto de valoración de la administración"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_VALORACION]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 9 — RIESGOS
+# ─────────────────────────────────────────────────────────────────
+riesgos:
+  section_fallback: "{SECCION_RIESGOS}"
+  agent: "agent_riesgos"
+
+  markers:
+    - marker: "{TABLA_RIESGOS}"
+      type: tabla
+      table_key: "riesgos"
+      priority: 1
+      description: "Matriz de riesgos (probabilidad × impacto)"
+      fallback: "[tabla no disponible — requiere revisión: TABLA_RIESGOS]"
+
+    - marker: "{ANALISIS_RIESGOS}"
+      type: analisis
+      optional_context: true
+      priority: 99
+      description: "Análisis narrativo de riesgos y medidas"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_RIESGOS]"
+
+# ─────────────────────────────────────────────────────────────────
+# SECCIÓN 10 — CONCLUSIONES
+# ─────────────────────────────────────────────────────────────────
+conclusiones:
+  section_fallback: "{SECCION_CONCLUSIONES}"
+  agent: "agent_valoracion"
+
+  markers:
+    - marker: "{ANALISIS_CONCLUSIONES}"
+      type: analisis
+      optional_context: true
+      priority: 1
+      description: "Conclusiones del período"
+      fallback: "[análisis no disponible — requiere revisión: ANALISIS_CONCLUSIONES]"

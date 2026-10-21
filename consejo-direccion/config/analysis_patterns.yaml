@@ -1,0 +1,205 @@
+# analysis_patterns.yaml
+# Patrones de análisis detectados en los PDF finales aprobados
+# (informe_202412_final.pdf y informe_202501_final.pdf)
+# Generado: 2026-05-14
+
+patterns:
+  - id: PATTERN-001
+    name: "Comparación plan vs real con causa y polo"
+    description: >
+      Presenta el valor planificado, el valor real y la desviación absoluta y porcentual
+      para cada polo operacional, seguido de identificación del polo con mayor impacto
+      y explicación de la causa principal.
+    structure:
+      - "Valor planificado del período"
+      - "Valor real alcanzado"
+      - "Desviación absoluta (unidad)"
+      - "Desviación porcentual (%)"
+      - "Polo con mayor incumplimiento o cumplimiento"
+      - "Causa principal de la desviación"
+    frequency: 2
+    sections:
+      - "section_001"
+      - "section_002"
+    example: >
+      "En el mes de enero los ingresos alcanzan X, con una desviación negativa de Y
+      respecto al plan previsto para el período. La principal afectación se concentra
+      en Caibarién, que presenta la mayor desviación..."
+
+  - id: PATTERN-002
+    name: "Análisis interanual con contexto de ocupación"
+    description: >
+      Compara el resultado del período con el mismo período del año anterior,
+      contextualizando la variación en función del comportamiento de la ocupación hotelera.
+      Identifica polos que mejoran y polos que retroceden interanualmente.
+    structure:
+      - "Resultado del año anterior (mismo período)"
+      - "Resultado del año actual"
+      - "Variación interanual (absoluta y %)"
+      - "Impacto de la ocupación hotelera"
+      - "Polos que mejoran vs polos que retroceden"
+    frequency: 2
+    sections:
+      - "section_001"
+      - "section_002"
+    example: >
+      "En comparación con enero de 2025, los ingresos muestran retrocesos interanuales.
+      Aunque los ingresos superan los del año anterior, esto se sustenta en los resultados
+      de Holguín..."
+
+  - id: PATTERN-003
+    name: "Análisis de partidas sobregiradas con numeración"
+    description: >
+      Lista las partidas contables que superaron el presupuesto, identificadas
+      por número de partida (ej. 76, 77, 195). Para cada partida sobregiradag
+      debe explicarse la causa.
+    structure:
+      - "Número de partida"
+      - "Descripción de la partida"
+      - "Monto planificado"
+      - "Monto ejecutado"
+      - "Sobregiro (absoluto y %)"
+      - "Causa del sobregiro"
+    frequency: 2
+    sections:
+      - "section_001"
+    example: >
+      "Análisis de las partidas sobregiradas: partidas 76 y 77 presentan sobregiro
+      sin explicación suficiente [ver RULE-002]."
+    rules_applied:
+      - "RULE-002"
+      - "RULE-003"
+      - "RULE-005"
+
+  - id: PATTERN-004
+    name: "Inventario de lencería con comparación de montas"
+    description: >
+      Analiza el estado del inventario de lencería comparando las montas actuales
+      con las estándares por tipo de habitación. Identifica déficits y superávits
+      por tipo de prenda y por polo/hotel.
+    structure:
+      - "Monta estándar requerida"
+      - "Inventario actual"
+      - "Completamiento (%)"
+      - "Tipos de prenda con mayor déficit"
+      - "Polos más afectados"
+    frequency: 2
+    sections:
+      - "section_003"
+    example: >
+      "Completamiento de las montas de lencería: el inventario en uso cubre el X%
+      de la monta estándar. Los mayores déficits se concentran en toallas de baño
+      y fundas en los polos de..."
+
+  - id: PATTERN-005
+    name: "Flujo de lencería: inyecciones, rechazos y retiro"
+    description: >
+      Analiza el ciclo de vida de la lencería: prendas que entran al sistema
+      (inyecciones/arribos), prendas que salen por deterioro (rechazos y retiro)
+      y prendas recuperadas. Verifica coherencia entre cifras.
+    structure:
+      - "Prendas inyectadas (por tipo)"
+      - "Tipo de prenda con mayor inyección"
+      - "Prendas rechazadas (por tipo y causa)"
+      - "Prendas retiradas (prendas y kg)"
+      - "Prendas recuperadas (desmanche)"
+      - "Balance neto del período"
+    frequency: 2
+    sections:
+      - "section_003"
+    rules_applied:
+      - "RULE-007"
+      - "RULE-008"
+      - "RULE-009"
+
+  - id: PATTERN-006
+    name: "Indicadores técnicos CDT/CDO con causa de paros"
+    description: >
+      Presenta el Coeficiente de Disponibilidad Técnica (CDT) y el Coeficiente
+      de Disponibilidad Operativa (CDO) del equipamiento productivo y la flota
+      de transporte. Identifica las causas principales de paros o averías.
+    structure:
+      - "CDT planificado vs real"
+      - "CDO planificado vs real"
+      - "Equipos o vehículos con menor disponibilidad"
+      - "Causa principal de paros"
+      - "Días o horas perdidos"
+    frequency: 2
+    sections:
+      - "section_004"
+      - "section_005"
+
+  - id: PATTERN-007
+    name: "Consumo de portadores energéticos por kg lavado"
+    description: >
+      Compara el consumo específico de portadores energéticos (diesel, electricidad,
+      agua) por kg de ropa lavada, contra el plan y contra el período anterior.
+      Identifica polos con mayor consumo y causas.
+    structure:
+      - "Indicador: portador / kg lavado"
+      - "Plan vs real"
+      - "Comparación con período anterior"
+      - "Polo con mayor consumo específico"
+      - "Causa de desviación"
+    frequency: 2
+    sections:
+      - "section_004"
+
+  - id: PATTERN-008
+    name: "Análisis de recursos humanos con vacantes"
+    description: >
+      Analiza salario medio, plantilla promedio y cobertura de cargos vacantes.
+      Identifica categorías ocupacionales con mayor déficit y su impacto operativo.
+    structure:
+      - "Salario medio real vs plan"
+      - "Promedio de trabajadores real vs plantilla aprobada"
+      - "Cargos vacantes por categoría"
+      - "Cobertura de plantilla (%)"
+      - "Categorías con mayor déficit"
+    frequency: 2
+    sections:
+      - "section_007"
+
+  - id: PATTERN-009
+    name: "Riesgos categorizados por nivel de impacto"
+    description: >
+      Presenta los riesgos identificados por la administración, clasificados en
+      tres niveles: críticos (impacto inmediato en operación), relevantes
+      (impacto moderado) y moderados (impacto controlable).
+    structure:
+      - "Riesgos críticos (con descripción e impacto)"
+      - "Riesgos relevantes (con descripción)"
+      - "Riesgos moderados (con descripción)"
+    frequency: 1
+    sections:
+      - "section_009"
+    notes: >
+      Estructura de tres niveles adoptada a partir de enero 2026.
+      En informes anteriores era lista plana — usar siempre la estructura de tres niveles.
+
+  - id: PATTERN-010
+    name: "Valoración ejecutiva síntesis contextualizada"
+    description: >
+      Párrafo(s) de valoración ejecutiva que sintetiza los resultados más relevantes
+      del período en tono formal, contextualizando las desviaciones con factores
+      externos (ocupación hotelera, situación del país) sin sustituir datos faltantes
+      con estimaciones.
+    structure:
+      - "Contexto del período (ocupación, temporada)"
+      - "Resultados más significativos (positivos y negativos)"
+      - "Capacidad de respuesta de la administración"
+      - "Perspectivas o acciones comprometidas"
+    frequency: 2
+    sections:
+      - "section_008"
+      - "section_010"
+    notes: >
+      Nunca usar 'aproximadamente', 'se estima' o 'podría'. Solo afirmaciones respaldadas
+      por datos reales del período.
+
+metadata:
+  source_documents:
+    - "informe_202412_final.pdf"
+    - "informe_202501_final.pdf"
+  generated: "2026-05-14"
+  total_patterns: 10
