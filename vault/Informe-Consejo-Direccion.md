@@ -70,6 +70,8 @@ Sigue pendiente: la maestra tiene `{TABLA_SOBREGIROS}`, `{TABLA_SUBEJECUCIONES}`
 
 **Hecho en la app (2026-10-21, en `main` con el PR #34):** apartado `informe-consejo` en [[Automatizaciones]], con webhook propio (`acb55dbd-…`) y en **modo asíncrono**: n8n solo acusa recibo y la rama cierra ella misma la fila de `automation_runs`. El contrato que tiene que cumplir el backend está en [[Automatizaciones]], sección «Automatizaciones asíncronas». **Con el cambio de enfoque, la subida del DOCX sobra.** El modo asíncrono sigue sirviendo; la pantalla pasará a selector de mes, comprobación de datos y «Generar informe».
 
+**Apartado por meses (2026-10-21):** el apartado ya enseña, mes a mes, qué datos hacen falta y si están, con «Generar informe» y «Descargar informe». Ver [[Informe-Consejo-Origen-Datos]], «Comprobación por mes»; migración 013 aplicada y primera carga de la TABLA CA 2026 hecha el 2026-10-21; n8n ya resincroniza tras cada Tabla CA; falta la rama que genera el informe.
+
 **Falta el backend.** Lo que hay que decidir:
 
 - **Cómo entran por mes los datos que hoy se teclean sin mes** (lencería, vacantes, cuentas por cobrar y pagar, plan de consumos) y las cuatro tablas que no están en ninguna fuente. Ver [[Informe-Consejo-Origen-Datos]].

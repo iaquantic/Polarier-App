@@ -23,6 +23,7 @@ import Chat from "./pages/Chat";
 import Documents from "./pages/Documents";
 import AutomationsHome from "./pages/automations/AutomationsHome";
 import AutomationRun from "./pages/automations/AutomationRun";
+import InformeConsejo from "./pages/automations/InformeConsejo";
 import History from "./pages/History";
 import SettingsPage from "./pages/SettingsPage";
 import AppLayout from "./components/AppLayout";
@@ -106,6 +107,8 @@ const App = () => (
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/chat/:chatId" element={<Chat />} />
                   <Route path="/automatizaciones" element={<AutomationsHome />} />
+                  {/* El informe del Consejo no sube ficheros: va por meses (modo «mensual» del catálogo). */}
+                  <Route path="/automatizaciones/informe-consejo" element={<InformeConsejo />} />
                   <Route path="/automatizaciones/:slug" element={<AutomationRun />} />
                   <Route path="/documents" element={<Documents />} />
                   <Route path="/history" element={<History />} />

@@ -42,6 +42,12 @@ export interface Automatizacion {
   asincrona?: boolean;
   /** Cuánto suele tardar, en una frase. Solo se enseña en las asíncronas. */
   duracion?: string;
+  /**
+   * `subida` (por defecto): se sube un fichero y la rama lo procesa.
+   * `mensual`: no se sube nada; el apartado enseña, mes a mes, si están los
+   * datos y deja generar (informe del Consejo, src/pages/automations/InformeConsejo.tsx).
+   */
+  modo?: 'subida' | 'mensual';
 }
 
 export const AUTOMATIZACIONES: Automatizacion[] = [
@@ -86,18 +92,17 @@ export const AUTOMATIZACIONES: Automatizacion[] = [
   {
     slug: 'informe-consejo',
     nombre: 'Informe Consejo de Dirección',
-    descripcion: 'Redacta el informe mensual o trimestral para el Consejo',
+    descripcion: 'Genera el informe mensual del Consejo con los datos del GLOBAL y la TABLA CA',
     icono: ScrollText,
     webhookPath: 'acb55dbd-290c-4c7b-a5d2-6858ce77649b',
-    extensiones: ['.docx'],
-    queSube: 'El DOCX con todas las tablas del período y sus precisiones: «Informe MES tablas.docx».',
+    // No se sube nada: los datos salen del GLOBAL y la TABLA CA (vault/Informe-Consejo-Origen-Datos.md).
+    extensiones: [],
+    queSube: 'Nada: elige el mes. Los datos salen del GLOBAL y de la TABLA CA.',
     queRecibe: 'El informe del Consejo en Word, con los análisis redactados sobre la plantilla aprobada.',
-    ejemplos: ['Informe JULIO tablas.docx', 'Informe III Trimestre 2026 tablas.docx'],
-    // El período sale del nombre (consejo-direccion/scripts/generate_report.py):
-    // tiene que llevar el mes en español o el trimestre.
-    patron: /^(?=.*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|(^|[^a-z])(i{1,3}|iv|1er|2do|3er|4to|primer|segundo|tercer|cuarto)\s+trimestre)).*\.docx$/i,
+    ejemplos: [],
     asincrona: true,
     duracion: 'Redactar todos los análisis lleva unos minutos.',
+    modo: 'mensual',
   },
 ];
 

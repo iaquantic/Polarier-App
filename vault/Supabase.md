@@ -16,6 +16,21 @@ Proyecto Supabase usado para **auth, base de datos y Storage**.
 | `profiles` | Perfil del usuario | `id`, `full_name`, `avatar_url` |
 | `documents` | Archivos subidos/generados | `id`, `user_id`, `chat_id`, `file_name`, `file_path`, `mime_type`, `size_bytes`, `status`, `role` |
 
+### Informe del Consejo de Dirección (migración 013, aplicada el 2026-10-21)
+
+| Tabla / función | Para qué | Acceso |
+|---|---|---|
+| `tabla_ca_meses` | Qué indicadores tiene la TABLA CA por año × mes × polo (solo presente/ausente, sin valores) | Sin políticas: service role |
+| `tabla_ca_sync_runs` | Cuándo se sincronizó cada año | Sin políticas |
+| `sync_tabla_ca_meses(payload)` | Reemplaza el año con la salida de `sync_tabla_ca.py` (aborta con menos de 100 filas) | Solo service role |
+| `consejo_informes` | Un informe por año y mes: estado (`pendiente`, `generando`, `listo`, `error`), fichero, error | Lo leen todos los autenticados; se escribe solo por funciones o con la service role |
+| `disponibilidad_informe_consejo(anio)` | Por mes, cada dato que hace falta y su estado (`ok`, `falta`, `sin_comprobar`). SECURITY DEFINER sobre `global_ai` y `tabla_ca_meses`, por eso **no devuelve importes** | Autenticados |
+| `fuentes_informe_consejo(anio)` | Cuándo se actualizó el GLOBAL y la TABLA CA | Autenticados |
+| `solicitar_informe_consejo(anio, mes)` | Vuelve a comprobar en el servidor que no falta nada y deja el informe en `pendiente` | Autenticados |
+| `anular_solicitud_informe_consejo(id, motivo)` | Marca `error` si el webhook no respondió | El que lo pidió |
+
+Reglas en [[Informe-Consejo-Origen-Datos]], sección «Comprobación por mes».
+
 - En `documents`, `role` distingue archivos del usuario (`user`) de los del asistente (`assistant`). "Mis Documentos" muestra solo los `assistant`.
 
 ### Módulo de auditoría
@@ -65,6 +80,7 @@ supabase functions deploy disparar-informe-mensual
 |--------|-----|-------|
 | `avatars` | Fotos de perfil | público, máx 2MB |
 | `documents` | Archivos de chat | **privado** (URLs firmadas), máx 50MB, sin restricción de MIME. **Ojo:** hasta el 2026-10-12 estaba en realidad **público** en Supabase, aunque aquí ponía privado. Se cerró ese día (ver [[Pendientes]]). El límite de 50MB solo lo aplica la app (`storage.ts`): el bucket no tiene `file_size_limit` |
+| `informes-consejo` | Informes del Consejo generados | **privado**, lo leen todos los autenticados; solo escribe la service role (migración 013) |
 | ~~`informes-mensuales`~~ | ~~PDF del informe mensual~~ | **Retirado** el 2026-10-19 (migración 011 aplicada y bucket borrado): el PDF se genera en el cliente. Nunca guardó nada. |
 
 - Los archivos privados se sirven con `createSignedUrl`. n8n los descarga con la credencial `supabaseApi` «Polarier» (service_role).

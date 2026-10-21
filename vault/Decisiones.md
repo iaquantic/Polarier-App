@@ -4,6 +4,15 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-21 — Informe del Consejo: apartado por meses
+
+- **Qué:** el apartado enseña, por mes, qué datos hacen falta y si están, con «Generar informe» habilitado solo si no falta nada y «Descargar informe» si el mes ya lo tiene.
+- **Acceso: todos los usuarios** (decisión de Leo). Cualquiera que entre en Automatizaciones ve la disponibilidad, genera y descarga.
+- **Lo tecleado sin mes no bloquea** (decisión de Leo): sale como «sin comprobar» hasta que se sepa su origen.
+- **La TABLA CA se lleva a Supabase como el GLOBAL** (`sync_tabla_ca.py` + `tabla_ca_meses`). Leo no tenía preferencia. Se eligió porque sin ella el botón dejaría generar julio sin sus CD.
+- **Los polos que cuentan cada mes salen del GLOBAL** (ventas de lavandería), para que los cerrados no salgan como «falta».
+- Detalle en [[Informe-Consejo-Origen-Datos]].
+
 ## 2026-10-21 — Informe del Consejo: los datos salen del GLOBAL y la TABLA CA, no de un DOCX subido
 
 - **Contexto:** el informe se alimentaba de un DOCX de tablas subido a mano. Al preparar su apartado en Automatizaciones, Leo decidió cambiarlo.

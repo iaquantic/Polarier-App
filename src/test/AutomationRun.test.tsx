@@ -34,7 +34,7 @@ const fallida: EjecucionAutomatizacion = {
 const enMarcha: EjecucionAutomatizacion = {
   ...completada,
   id: "run-3",
-  slug: "informe-consejo",
+  slug: "prueba-asincrona",
   estado: "en_curso",
   archivo_nombre: "Informe JULIO tablas.docx",
   respuesta: null,
@@ -53,6 +53,25 @@ const reiniciarFilas = () => {
 };
 reiniciarFilas();
 
+// Una automatización de subida asíncrona solo para estos tests: la del Consejo
+// dejó de subir ficheros (va por meses), y la pieza asíncrona sigue en uso general.
+vi.mock("@/lib/automatizaciones", async (importOriginal) => {
+  const real = await importOriginal<typeof import("@/lib/automatizaciones")>();
+  const prueba = {
+    ...real.getAutomatizacion("modelo-1")!,
+    slug: "prueba-asincrona",
+    nombre: "Prueba asíncrona",
+    extensiones: [".docx"],
+    ejemplos: ["Informe JULIO tablas.docx"],
+    patron: undefined,
+    asincrona: true,
+    duracion: "Tarda unos minutos.",
+  };
+  return {
+    ...real,
+    getAutomatizacion: (slug: string | undefined) => (slug === "prueba-asincrona" ? prueba : real.getAutomatizacion(slug)),
+  };
+});
 vi.mock("@/context/AuthContext", () => ({
   useAuth: () => ({ user: { id: "u1", email: "leslie@polarier.com" }, profile: { full_name: "Leslie" } }),
 }));
@@ -127,7 +146,7 @@ describe("AutomationRun · abrir una ejecución del historial", () => {
   });
 });
 
-describe("AutomationRun · automatización asíncrona (Informe Consejo de Dirección)", () => {
+describe("AutomationRun · automatización asíncrona (apartado de prueba)", () => {
   const subir = async (container: HTMLElement) => {
     const svc = await import("@/services/automatizaciones");
     vi.mocked(svc.ejecutarAutomatizacion).mockResolvedValue({
@@ -145,7 +164,7 @@ describe("AutomationRun · automatización asíncrona (Informe Consejo de Direcc
 
   it("tras subir el fichero queda en marcha, con el acuse de n8n", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    const { container } = await pintar("/automatizaciones/informe-consejo");
+    const { container } = await pintar("/automatizaciones/prueba-asincrona");
     await screen.findByRole("button", { name: "Elegir fichero" });
 
     await subir(container);
@@ -157,7 +176,7 @@ describe("AutomationRun · automatización asíncrona (Informe Consejo de Direcc
 
   it("cuando la rama cierra la fila, enseña el resultado y el informe para descargar", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    const { container } = await pintar("/automatizaciones/informe-consejo");
+    const { container } = await pintar("/automatizaciones/prueba-asincrona");
     await screen.findByRole("button", { name: "Elegir fichero" });
     await subir(container);
     await screen.findByText("En marcha");
@@ -178,7 +197,7 @@ describe("AutomationRun · automatización asíncrona (Informe Consejo de Direcc
 
   it("si la rama la cierra con error, enseña el motivo", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    const { container } = await pintar("/automatizaciones/informe-consejo");
+    const { container } = await pintar("/automatizaciones/prueba-asincrona");
     await screen.findByRole("button", { name: "Elegir fichero" });
     await subir(container);
     await screen.findByText("En marcha");
@@ -192,7 +211,7 @@ describe("AutomationRun · automatización asíncrona (Informe Consejo de Direcc
 
   it("una ejecución en marcha abierta del historial se actualiza sola al terminar", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    await pintar("/automatizaciones/informe-consejo?run=run-3");
+    await pintar("/automatizaciones/prueba-asincrona?run=run-3");
 
     expect(await screen.findByText(/Esta pantalla se actualiza sola/)).toBeInTheDocument();
 
