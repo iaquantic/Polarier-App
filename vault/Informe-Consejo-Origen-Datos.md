@@ -52,7 +52,9 @@ Hojas auxiliares, **tecleadas a mano y sin mes** (guardan solo un período):
 
 ## ¿Viene lo tecleado en el CD? Solo una parte
 
-El CD que manda cada polo cada mes tiene hojas de lencería, transporte y RRHH que el Agente TABLA CA no lee. Sus títulos prometían casi todo lo que se teclea en las hojas auxiliares. **Comprobado con valores el 2026-10-21, no es así:** solo las montas, el rechazo y las inyecciones salen del CD. El resto del informe trae cifras que no están en el CD, o que alguien ajusta después.
+> **Decisión del 2026-10-22 (Leo):** del CD solo se rellena la **tabla principal** de la TABLA CA, la hoja de cada polo («TABLAS PARA RESUMEN DE INDICADORES…»). Las hojas auxiliares no se cargan desde el CD, aunque parte de sus datos esté en él. Esta sección queda como referencia de origen, no como plan de carga. Ver [[Decisiones]].
+
+El CD que manda cada polo cada mes tiene hojas de lencería, transporte y RRHH que el Agente TABLA CA no lee. Sus títulos prometían casi todo lo que se teclea en las hojas auxiliares, y con las cifras se confirma solo una parte. **Comprobado con valores el 2026-10-21 y corregido el 2026-10-22:** del CD salen las montas, el rechazo, las inyecciones, el desmanche y el retiro, y el mal uso del trimestral. El resto del informe trae cifras que no están en el CD, o que alguien ajusta después.
 
 **Cómo se comprobó:** se cruzaron los CD de mayo de 2026 de La Habana (`HACA2026 mayo.xlsx`), Varadero (`05. VACD - Mayo 2026.xlsx`) y Caibarién (`CACD202605.xlsx`) con la columna de cada polo de las tablas del informe de mayo de 2026. Las cifras se emparejan por **nombre de prenda**, no por posición, porque el CD tiene filas que el informe no lleva («Toalla Bidet»).
 
@@ -62,9 +64,9 @@ El CD que manda cada polo cada mes tiene hojas de lencería, transporte y RRHH q
 | Montas por cliente | 5.Lencería 1 | ✔ | ✘ | ✔ | Sale del CD, salvo cuando el polo no rellena los TD por hotel |
 | Rechazo | Lencería 2, «Resumen de los rechazos», columna SUMA | ✘ bloque vacío | ✔ | ✔ | **Sale del CD** cuando el polo lo rellena |
 | Inyecciones | Lencería 2, «Resumen de las inyecciones», columna SUMA | ✔ | (a cero) | (a cero) | **Sale del CD** |
-| Mal uso | Lencería 2, «Resumen del mal uso» | ✘ vacío | ✘ | ✘ (el total del CD casi triplica el del informe) | **No sale del CD** |
-| Desmanche | Lencería 2, «Recuperaciones» (producción, recuperado, %) | ✘ | ✘ | ✘ | **No sale del CD**: otra escala |
-| Retiro | Lencería 2, «Descartes» | ✘ vacío | ✘ | (a cero) | **No sale del CD** |
+| Mal uso | Lencería 2, «Resumen del mal uso», columna SUMA | ✘ vacío | ✘ en el mensual · ✔ en el trimestral | ✘ en el mensual (el CD casi triplica el informe de mayo) · ✔ en el trimestral | **Sale del CD en el trimestral**; el mensual de mayo trae otras cifras (ver abajo) |
+| Desmanche | Lencería 2, «Recuperaciones»: producción = tratadas, y % de recuperación | ✘ vacío | ✔ 8/8 | ✔ 7/7 y total | **Sale del CD** (corregido el 2026-10-22; antes decía «otra escala») |
+| Retiro | Lencería 2, «Descartes», columna rotulada «Descarte generado 2025» | ✘ vacío | ✔ 8/8 | ✔ (a cero) | **Sale del CD** (corregido el 2026-10-22). Ojo al rótulo de la columna: dice 2025, pero trae el mes |
 | Faltantes | Lencería 2, resultados de inventarios por hotel (inicial, real, diferencia) | ✘ | — | ✘ | **No sale directo**: va por hotel y no se ve la regla |
 | Lencería en uso | — | ✘ | ✘ | ✘ | **No está en el CD** |
 | Lencería nueva | — | ✘ | ✘ | ✘ | **No está en el CD** |
@@ -79,7 +81,42 @@ Otras cosas que se vieron:
 
 **Preguntas abiertas (2026-10-21):** hay 31 preguntas numeradas (P1–P31) para quien monta la TABLA CA en el documento [Preguntas sobre la TABLA CA](https://claude.ai/artifact/4nqPFuQhTLTVLPXyZxt62C), con una columna para la respuesta. Es privado: hay que compartirlo. Cuando lleguen las respuestas, se resumen aquí por número.
 
-**Conclusión:** cargar estas hojas del CD por mes resuelve **4 de las 15 tablas tecleadas**: montas por habitación, montas por cliente, rechazo e inyecciones. Las otras 11 (mal uso, desmanche, retiro, inventarios, faltantes, lencería en uso, lencería nueva, vehículos, vacantes y cuentas por cobrar y por pagar), más el plan de los consumos, **salen de otra fuente**, que no se ha visto, o los ajusta quien prepara la TABLA CA.
+**El trimestral es la suma de los tres meses, y así se ve de dónde sale cada uno (2026-10-22).** Leo preguntó si el «casi triplica» no sería comparar un mes con un trimestral. No lo era: se comparó el CD de mayo con el informe mensual de mayo. Pero al cruzar con el II Trimestre salió esto:
+
+- **Mal uso, Varadero y Caibarién, 8/8 prendas cada uno:** II Trimestre = bloque «MAL USO» de la TABLA CA 2026 (fila 3, que por tanto es **abril**) + **CD de mayo** + informe de junio. En Caibarién entra solo la columna de un hotel del CD; la otra columna con datos se quedó fuera.
+- **El informe mensual de mayo no usó el CD para el mal uso**, ni las cifras que el trimestral sumó para mayo. De dónde salen esas cifras sigue sin saberse.
+- **El bloque de la fila 42 de «Rechazo e inyecciones»**, titulado «MAL USO DE LENCERÍA SEGUNDO TRIMESTRE 2025», trae el II Trimestre **de 2026** en La Habana y Caibarién. Los títulos de los bloques no son fiables.
+- La Habana no cuadra con esa suma, y su CD de mayo trae el mal uso vacío.
+
+**Conclusión (solo de origen; no se van a cargar, ver la decisión de arriba):** las hojas del CD contienen **6 de las 15 tablas tecleadas**: montas por habitación, montas por cliente, rechazo, inyecciones, desmanche y retiro, más el mal uso tal como lo suma el trimestral. **Salen de otra fuente**, que no se ha visto, o los ajusta quien prepara la TABLA CA:
+- el mal uso del mensual;
+- inventarios, faltantes, lencería en uso y lencería nueva;
+- vehículos, vacantes y cuentas por cobrar y por pagar;
+- el plan de los consumos;
+- en La Habana, lo que su CD deja vacío.
+
+## Los informes que tributan al CD (revisados el 2026-10-22)
+
+A Leo le pasaron ocho Excel con la idea de que «ahí está el resto de los datos». Se revisaron uno a uno y se cruzaron con la TABLA CA 2025 y 2026 y con los informes de enero de 2025, mayo, junio y el II Trimestre de 2026. Seis son de Caibarién (prefijo `CA`); los otros dos son consolidados de los seis polos.
+
+| Fichero (patrón) | Qué es | Tabla del informe que alimenta | Comprobado |
+|---|---|---|---|
+| `CACM<aaaammdd>` | **Cuadro de mando operativo** diario, una hoja por día y un RESUMEN que suma los días del mes | **Plan de los consumos** (bloque «Portadores energéticos»: plan de consumo e índice plan de diésel, electricidad y agua) | ✔ **por valores**: los tres índices plan de Caibarién son los de la hoja «Energía» de la TABLA CA 2025 (3/3) |
+| | | **Desmanche** (desmanchadas, recuperadas, % recuperado) | Misma estructura que la tabla, y el RESUMEN es la suma de los días (8/8 prendas). No hay informe ni bloque de la TABLA CA del mismo mes para cruzar valores |
+| | | Rechazo por causa, vehículos operativos (chapa y estado), plantilla por área | Rechazo ya sale del CD. Vehículos: como con el CD, coinciden los que funcionan, no el total. La plantilla no da la necesidad ni los cubiertos de la tabla de vacantes |
+| `CO ROPA NUEVA <mes>` | Ropa nueva por polo (los seis) y por cadena hotelera | **Lencería nueva** | ✔ **parcial por valores**: las cifras de Cayo Coco y Cayo Cruz del fichero están igual en la TABLA CA 2025 y en el informe de enero de 2025. Habana, Varadero y Caibarién vienen a cero en esta copia, y Holguín no casa |
+| `INVENTARIOS_GLOBALES` | Inventarios por polo y mes: meta anual, planificados, realizados, conciliados | **Inventarios realizados** | Estructura idéntica (meta anual por polo y total). La copia solo trae enero de 2026, y no hay informe de ese mes |
+| `CAMU<aaaamm>` | **Mal uso** semanal por hotel y un acumulado del mes, separado en detectado en la lavandería y por el hotel | **Mal uso** (columna del polo) | Estructura sí. Es de abril de 2026 y solo tiene un hotel relleno; no hay informe de abril |
+| `CAAH<aaaammdd>` | Análisis diario por hotel: inventario, pendientes, stock real, montas, envíos, necesidad | **Lencería en uso** (stock real en hotel, total del polo) y montas | Mismo orden de magnitud que la lencería en uso de Caibarién, pero la fecha (septiembre de 2025) no coincide con ningún informe |
+| `CAIL<aaaammdd>` | Informe mensual de logística: entregas, montas «solo arrendamiento», recogidas y entregas, ratios de cambio | Montas | ✘ Sus montas de enero de 2025 **no** son las del informe de enero de 2025 (las del informe salen del CD) |
+| `CAER<aaaammdd>` | Entrega y recogida diaria por hotel | — | No alimenta ninguna tabla |
+| `CATP` | Cálculo de la productividad mensual (plantilla de 2022) | Productividad | Ya sale de la TABLA CA (fila 53) |
+
+**Sigue sin fuente** después de revisarlos: faltantes, cuentas por cobrar y por pagar, vacantes y mando extranjero. El retiro no viene en estos informes, pero sí en el CD (ver «¿Viene lo tecleado en el CD?»).
+
+**Corrección: los arribos sí están en la TABLA CA.** La de 2026 tiene un bloque «Arribos» en «Rechazo e inyecciones» (columnas BY–CF, seis polos), tecleado y sin mes. Sus totales por prenda coinciden con los de la tabla ARRIBOS del informe de enero de 2025 (7/7); el reparto por polo, no.
+
+**Lo que falta para dar por buena la fuente:** los ficheros de un mismo mes que tenga informe (por ejemplo mayo o junio de 2026), y de los tres polos del informe, no solo de Caibarién.
 
 ## Mapa tabla a tabla
 
@@ -120,24 +157,24 @@ Columnas de las tablas: «año anterior» es el mismo mes del año anterior. %, 
 
 | # | Tabla | Origen hoy | Origen real | Estado |
 |---|---|---|---|---|
-| 16 | Arribos (`TABLA_ARRIBOS`) | — (en junio: «No hubo arribos») | Probablemente compras o almacén central | 🔴 |
+| 16 | Arribos (`TABLA_ARRIBOS`) | «Rechazo e inyecciones», bloque «Arribos», columnas BY–CF (en junio: «No hubo arribos») | Probablemente compras o almacén central; no viene en los informes que tributan al CD | 🟡 (antes 🔴; corregido el 2026-10-22) |
 | 17 | Montas por habitación (`TABLA_MONTAS_HABITACION`) | Hoja «Montas», filas 21–28 (junio de 2026: 8/8 filas) | **CD, 5.Lencería 1** (comprobado: 3/3 polos) | 🟡 |
 | 18 | Montas por cliente (`TABLA_MONTAS_CLIENTE`) | Hoja «Montas» (junio de 2026: 32/32 celdas) | **CD, 5.Lencería 1** (comprobado: 2/3 polos) | 🟡 |
-| 19 | Lencería en uso (`TABLA_LENCERIA_USO`) | «Rechazo e inyecciones», columna CI, filas 3–11 (junio de 2026: 9/9 filas) | **No está en el CD** (0/3). Fuente desconocida | 🟡 |
-| 20 | Lencería nueva (`TABLA_LENCERIA_NUEVA`) | En 2025, bloque «Ropa nueva» de «Rechazo e inyecciones». **En la de 2026 no están los valores de junio** | **No está en el CD** (0/3). Fuente desconocida | 🟡 |
+| 19 | Lencería en uso (`TABLA_LENCERIA_USO`) | «Rechazo e inyecciones», columna CI, filas 3–11 (junio de 2026: 9/9 filas) | **No está en el CD** (0/3). Probablemente el stock real en hotel del análisis diario `CAAH` (sin comprobar por fecha) | 🟡 |
+| 20 | Lencería nueva (`TABLA_LENCERIA_NUEVA`) | En 2025, bloque «Ropa nueva» de «Rechazo e inyecciones». **En la de 2026 no están los valores de junio** | **No está en el CD** (0/3). **Informe `CO ROPA NUEVA`** (comprobado en parte por valores) | 🟡 |
 | 21 | Rechazo (`TABLA_RECHAZO`) | «Rechazo e inyecciones», filas 28–38 (junio de 2026: 11/11 filas) | **CD, Lencería 2** (comprobado: 2/3 polos; La Habana no lo rellenó) | 🟡 |
-| 22 | Mal uso (`TABLA_MAL_USO`) | «Rechazo e inyecciones». Los valores de junio ya no están | **No sale del CD** (0/3) | 🟡 |
-| 23 | Tratamientos de desmanche (`TABLA_DESMANCHE`) | «Rechazo e inyecciones». Los valores de junio ya no están | **No sale del CD** (0/3: el CD trae producción y recuperado, en otra escala) | 🟡 |
-| 24 | Retiro generado (`TABLA_RETIRO`) | «Rechazo e inyecciones». Los valores de junio ya no están | **No sale del CD** (0/3) | 🟡 |
+| 22 | Mal uso (`TABLA_MAL_USO`) | «Rechazo e inyecciones». Los valores de junio ya no están | **CD, Lencería 2, en el trimestral** (Varadero y Caibarién, 8/8). El mensual de mayo no casa con el CD; candidato: informe semanal `CAMU` (estructura) | 🟡 |
+| 23 | Tratamientos de desmanche (`TABLA_DESMANCHE`) | «Rechazo e inyecciones». Los valores de junio ya no están | **CD, Lencería 2, «Recuperaciones»** (comprobado en mayo: Varadero y Caibarién; La Habana vacío). El cuadro de mando `CACM` lo trae por días | 🟡 |
+| 24 | Retiro generado (`TABLA_RETIRO`) | «Rechazo e inyecciones». Los valores de junio ya no están | **CD, Lencería 2, «Descartes»** (comprobado en mayo: Varadero 8/8, Caibarién a cero; La Habana vacío) | 🟡 |
 | 25 | Inyecciones (`TABLA_INYECCIONES`) | «Rechazo e inyecciones». Junio estaba a cero: no se puede verificar | **CD, Lencería 2** (comprobado con La Habana en mayo) | 🟡 |
-| 26 | Inventarios realizados (`TABLA_INVENTARIOS`) | «Rechazo e inyecciones» y «Datos económicos» (cantidad y plan) | Por confirmar (el CD trae los resultados por hotel) | 🟡 |
+| 26 | Inventarios realizados (`TABLA_INVENTARIOS`) | «Rechazo e inyecciones» y «Datos económicos» (cantidad y plan) | **Informe `INVENTARIOS_GLOBALES`** (estructura idéntica; el CD trae los resultados por hotel) | 🟡 |
 | 27 | Faltantes detectados (`TABLA_FALTANTES`) | Hoja «Montas», columna AD (con los de 2025). Junio estaba a cero: no se puede verificar | **No sale directo del CD** (diferencias por hotel; no se ve la regla) | 🟡 |
 
 ### Servicios técnicos
 
 | # | Tabla | Origen | Cálculo | Estado |
 |---|---|---|---|---|
-| 28 | Diésel por kg lavado (`TABLA_DIESEL`) | Real: fila 57 (fila 36 / fila 9). Año anterior: fila 112. **Plan: hoja «Energía»** (índice plan, tecleado) | Ratio | 🟢 real · 🟡 plan. Junio de 2026: 7/7 filas |
+| 28 | Diésel por kg lavado (`TABLA_DIESEL`) | Real: fila 57 (fila 36 / fila 9). Año anterior: fila 112. **Plan: hoja «Energía»** (índice plan, tecleado; lo trae el cuadro de mando `CACM`, comprobado por valores con Caibarién en 2025) | Ratio | 🟢 real · 🟡 plan. Junio de 2026: 7/7 filas |
 | 29 | Electricidad por kg (`TABLA_ELECTRICIDAD`) | Filas 58 / 113 + «Energía» | Ídem | 🟢 · 🟡 plan. Junio de 2026: 7/7 |
 | 30 | Agua por kg (`TABLA_AGUA`) | Filas 59 / 114 + «Energía» | Ídem | 🟢 · 🟡 plan. Junio de 2026: 7/7 |
 | 31 | CDT de equipos (`TABLA_CDT`) | Fila 34; año anterior fila 89 | Media de los polos con actividad | 🟢. Junio de 2026: 3/3 filas |
@@ -158,8 +195,9 @@ Columnas de las tablas: «año anterior» es el mismo mes del año anterior. %, 
 ### Recuento
 
 - 🟢 **22 tablas** salen ya por mes: toda la economía salvo las cuentas, toda la producción, consumos (salvo su plan), CDT, CDO, presupuesto de transporte, satisfacción, salario y trabajadores.
-- 🟡 **15 tablas** están en la TABLA CA tecleadas sin mes: toda la lencería (con faltantes), cuentas por cobrar y pagar, disponibilidad de vehículos y vacantes, más el plan de los consumos. **Solo 4 salen del CD** (montas ×2, rechazo e inyecciones); ver «¿Viene lo tecleado en el CD?».
-- 🔴 **2 tablas** no están en ninguna de las dos fuentes: arribos y mando extranjero. Las dos son condicionales: en junio no hubo arribos, y el mando extranjero es una subsección opcional.
+- 🟡 **16 tablas** están en la TABLA CA tecleadas sin mes: toda la lencería (con faltantes y, desde el 2026-10-22, arribos), cuentas por cobrar y pagar, disponibilidad de vehículos y vacantes, más el plan de los consumos. **6 salen del CD** (montas ×2, rechazo, inyecciones, desmanche y retiro), más el mal uso del trimestral; ver «¿Viene lo tecleado en el CD?».
+- 🔴 **1 tabla** no está en ninguna de las dos fuentes: el mando extranjero, que es una subsección opcional. Los arribos estaban aquí hasta el 2026-10-22, cuando apareció su bloque en la TABLA CA 2026.
+- De las tecleadas, los informes que tributan al CD explican el plan de los consumos (por valores), la lencería nueva (en parte, por valores), y el desmanche, el mal uso y los inventarios (por estructura). Ver «Los informes que tributan al CD».
 
 Corregido el 2026-10-21 con los ficheros de 2026: la disponibilidad de vehículos y los faltantes sí están en la TABLA CA. Antes figuraban como 🔴.
 

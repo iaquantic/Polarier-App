@@ -74,7 +74,7 @@ Sigue pendiente: la maestra tiene `{TABLA_SOBREGIROS}`, `{TABLA_SUBEJECUCIONES}`
 
 **Falta el backend.** Lo que hay que decidir:
 
-- **Cómo entran por mes los datos que hoy se teclean sin mes** (lencería, vacantes, cuentas por cobrar y pagar, plan de consumos) y las cuatro tablas que no están en ninguna fuente. Ver [[Informe-Consejo-Origen-Datos]].
+- ~~Cómo entran por mes los datos que hoy se teclean sin mes~~ — decidido el 2026-10-22: no entran por nosotros. Del CD solo se rellena la tabla principal de la TABLA CA; las hojas auxiliares siguen tecleadas y salen como «sin comprobar». Lo que sigue es el estudio de origen, como referencia: **Cómo entran por mes los datos que hoy se teclean sin mes** (lencería, vacantes, cuentas por cobrar y pagar, plan de consumos) y el mando extranjero, que no está en ninguna fuente. Los informes que tributan al CD (revisados el 2026-10-22) explican el plan de los consumos, la lencería nueva, el desmanche, el mal uso y los inventarios, pero no los faltantes, las cuentas ni las vacantes. El mismo día se vio que el desmanche, el retiro y el mal uso del trimestral sí salen del CD. Ver [[Informe-Consejo-Origen-Datos]].
 - **Dónde se comprueba la TABLA CA**, que solo existe como xlsx en el VPS: o se sincroniza a Supabase como `global_ai`, o se le pregunta a n8n.
 
 - **Dónde corre el paso de redacción.** Es el único que necesita un modelo: hoy es Claude Code leyendo el repo. No es el pythonrunner del VPS ([[Generacion-Documentos]]), que solo ejecuta Python; y las ramas de n8n actuales no escriben JSON de análisis. O agente de n8n, o routine en la nube como en [[Routine-Informe-Mensual]], o Claude Code en una máquina.
