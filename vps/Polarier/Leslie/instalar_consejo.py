@@ -21,7 +21,9 @@ import urllib.request
 from pathlib import Path
 
 REPO = "iaquantic/Polarier-App"
-BASE = Path(__file__).resolve().parent / "Consejo"
+_AQUI = Path(__file__).resolve().parent
+# Va en Leslie/; si n8n no pudo dejarlo ahí y lo dejó en Leslie/CD/, instala igual en Leslie/Consejo/
+BASE = (_AQUI.parent if _AQUI.name == "CD" else _AQUI) / "Consejo"
 
 FICHEROS = [
     "src/excel_eval.py",
