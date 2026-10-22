@@ -48,6 +48,10 @@ from table_markers import classify_tables, describe_tables, load_rules, template
 from tablas_informe import Fuentes, Periodo, celdas, filas, texto_celda  # noqa: E402
 
 EJEMPLOS = RAIZ / "ejemplos" / "entrada"
+ANALISIS_EJEMPLO = RAIZ / "ejemplos" / "analisis"
+MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+            "septiembre", "octubre", "noviembre", "diciembre"]
+ROMANOS = ["i", "ii", "iii", "iv"]
 TRABAJO = RAIZ / "trabajo"
 MASTER = RAIZ / "templates" / "master" / "consejo_direccion_master.docx"
 ESTILOS_TITULO = re.compile(r"^(heading|t[ií]tulo)", re.I)
@@ -83,6 +87,33 @@ def elegir_ejemplo(per: Periodo, forzado: str | None) -> Path:
         raise FileNotFoundError(f"no hay DOCX de tablas de ejemplo {'trimestral' if per.es_trimestre else 'mensual'} "
                                 f"en {EJEMPLOS} (nombre esperado: tablas_AAAA_MM.docx o tablas_AAAA_Tn.docx)")
     return max(candidatos)[1]
+
+
+def analisis_de_ejemplo(per: Periodo):
+    """
+    El último análisis aprobado del mismo tipo (mensual o trimestral), anterior al
+    período, para que quien redacta vea el tono y la extensión. Nombres:
+    analisis_<mes>_<año>.json o analisis_<romano>_trimestre_<año>.json.
+    """
+    candidatos = []
+    for f in ANALISIS_EJEMPLO.glob("analisis_*.json"):
+        n = f.stem.lower()
+        m = re.fullmatch(r"analisis_(i|ii|iii|iv)_trimestre_(20\d\d)", n)
+        if m and per.es_trimestre:
+            orden = (int(m.group(2)), ROMANOS.index(m.group(1)) + 1)
+        else:
+            m = re.fullmatch(r"analisis_([a-z]+)_(20\d\d)", n)
+            if not m or per.es_trimestre or m.group(1) not in MESES_ES:
+                continue
+            orden = (int(m.group(2)), MESES_ES.index(m.group(1)) + 1)
+        actual = (per.anio, per.trimestre if per.es_trimestre else per.mes)
+        if orden < actual:
+            candidatos.append((orden, f))
+    if not candidatos:
+        return None
+    f = max(candidatos)[1]
+    datos = json.loads(f.read_text(encoding="utf-8"))
+    return {"archivo": f.name, "sections": datos.get("sections", datos)}
 
 
 def texto_tabla(tbl) -> list:
@@ -226,6 +257,7 @@ def main() -> None:
         "tablas": salida_tablas,
         "sin_fuente": sin_fuente,
         "textos": textos,
+        "ejemplo_analisis": analisis_de_ejemplo(per),
     })
 
 
