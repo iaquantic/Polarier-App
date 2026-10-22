@@ -20,7 +20,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-REPO = "leonardojcddev/Polarier-App"
+REPO = "iaquantic/Polarier-App"
 BASE = Path(__file__).resolve().parent / "Consejo"
 
 FICHEROS = [
