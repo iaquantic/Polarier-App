@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   aniosDisponibles,
   construirMeses,
+  construirTrimestres,
   estadoMes,
   estaAtascado,
   mesesVisibles,
+  nombreArchivoInforme,
   puedeDescargar,
   puedeGenerar,
   type FilaDisponibilidad,
@@ -120,5 +122,35 @@ describe("qué se puede hacer con un mes", () => {
     const mes = completo(informe(5, { estado: "error", archivo_path: null, error: "n8n respondió 500" }));
     expect(estadoMes(mes, HOY)).toEqual({ texto: "Falló la generación", tono: "error" });
     expect(puedeGenerar(mes, HOY)).toBe(true);
+  });
+});
+
+describe("trimestres", () => {
+  const filas = [1, 2, 3, 4, 5, 6].map((m) => fila(m, m === 5 ? { estado: "falta" } : {}));
+  const meses = construirMeses(2026, mesesVisibles(2026, HOY), filas, []);
+
+  it("salen los que ya tienen su último mes en pantalla, el más reciente primero", () => {
+    expect(construirTrimestres(2026, meses, []).map((t) => t.trimestre)).toEqual([2, 1]);
+  });
+
+  it("lo que falta en cualquiera de sus meses cuenta para el trimestre", () => {
+    const [segundo, primero] = construirTrimestres(2026, meses, []);
+    expect(segundo.faltan).toBe(1);
+    expect(puedeGenerar(segundo, HOY)).toBe(false);
+    expect(puedeGenerar(primero, HOY)).toBe(true);
+  });
+
+  it("el informe de un trimestre no se confunde con el de un mes", () => {
+    const delTrimestre = informe(0, { id: "t1", mes: null, trimestre: 1 });
+    const [, primero] = construirTrimestres(2026, meses, [delTrimestre, informe(3)]);
+    expect(primero.informe?.id).toBe("t1");
+    const [marzo] = construirMeses(2026, [3], filas, [delTrimestre, informe(3)]);
+    expect(marzo.informe?.id).toBe("inf-3");
+  });
+
+  it("nombre del fichero por defecto", () => {
+    expect(nombreArchivoInforme(informe(0, { mes: null, trimestre: 2, archivo_nombre: null })))
+      .toBe("consejo_direccion_II_TRIMESTRE_2026.docx");
+    expect(nombreArchivoInforme(informe(6, { archivo_nombre: null }))).toBe("consejo_direccion_JUNIO_2026.docx");
   });
 });

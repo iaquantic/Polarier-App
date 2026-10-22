@@ -23,7 +23,7 @@ def run_script(req: RunRequest):
         [sys.executable, script_path, *req.args],
         capture_output=True,
         text=True,
-        timeout=120
+        timeout=300  # el informe del Consejo recalcula la TABLA CA y el GLOBAL
     )
 
     if result.returncode != 0:

@@ -79,7 +79,16 @@ Otras cosas que se vieron:
 - **No todos los polos rellenan todos los bloques** (La Habana dejó vacíos rechazo, mal uso y descarte en mayo). El cargador tendría que distinguir «no rellenado» de «cero».
 - En los seis CA de abril de 2025 y los tres CD de mayo de 2026, las hojas de lencería, transporte y RRHH existen siempre, con la misma estructura.
 
-**Preguntas abiertas (2026-10-21):** hay 31 preguntas numeradas (P1–P31) para quien monta la TABLA CA en el documento [Preguntas sobre la TABLA CA](https://claude.ai/artifact/4nqPFuQhTLTVLPXyZxt62C), con una columna para la respuesta. Es privado: hay que compartirlo. Cuando lleguen las respuestas, se resumen aquí por número.
+**Preguntas abiertas:** el documento [Preguntas sobre la TABLA CA](https://claude.ai/artifact/4nqPFuQhTLTVLPXyZxt62C) es para quien monta la TABLA CA y tiene una columna para la respuesta. Es privado: hay que compartirlo. Cuando lleguen las respuestas, se resumen aquí por número.
+- **2026-10-21:** nació con 31 preguntas (P1–P31).
+- **2026-10-22:** se redujo a las **5 que siguen abiertas**, con la decisión de cargar desde el CD solo la tabla principal:
+  - **P22:** fecha de corte de las cuentas.
+  - **P27:** quién rellena las hojas auxiliares y cuándo.
+  - **P28:** si el dato de cada mes se guarda o se sobrescribe.
+  - **P29:** correcciones a mano en la hoja del polo.
+  - **P31:** polos cerrados.
+
+  El documento anota también las ya respondidas al cruzar datos (P1–P2 en parte, P4–P6, P8–P9, P14–P15, P23 y P30 en parte) y las que ya no hacen falta. Se conservan los números originales.
 
 **El trimestral es la suma de los tres meses, y así se ve de dónde sale cada uno (2026-10-22).** Leo preguntó si el «casi triplica» no sería comparar un mes con un trimestral. No lo era: se comparó el CD de mayo con el informe mensual de mayo. Pero al cruzar con el II Trimestre salió esto:
 

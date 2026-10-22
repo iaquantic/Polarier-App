@@ -41,8 +41,9 @@ vi.mock("@/services/informeConsejo", () => {
     }),
     getInformes: vi.fn(async () => [MAYO]),
     getFuentes: vi.fn(async () => ({ global: "2026-07-14T08:00:00Z", tabla_ca: "2026-07-10T08:00:00Z" })),
-    generarInforme: vi.fn(async (anio: number, mes: number) => ({
-      ...MAYO, id: `inf-${mes}`, mes, estado: "pendiente", archivo_path: null, generado_at: null, solicitado_at: new Date().toISOString(),
+    generarInforme: vi.fn(async (anio: number, periodo: { mes?: number; trimestre?: number }) => ({
+      ...MAYO, id: `inf-${periodo.mes ?? `t${periodo.trimestre}`}`, mes: periodo.mes ?? null, trimestre: periodo.trimestre ?? null,
+      estado: "pendiente", archivo_path: null, generado_at: null, solicitado_at: new Date().toISOString(),
     })),
     urlDescarga: vi.fn(async () => "https://supabase.test/descarga"),
   };
@@ -69,11 +70,14 @@ afterEach(() => {
 });
 
 describe("InformeConsejo · un mes por tarjeta", () => {
-  it("enseña los meses del año hasta el actual, el más reciente primero", async () => {
+  it("enseña los meses del año hasta el actual, el más reciente primero, y cada trimestre sobre su último mes", async () => {
     await pintar();
     await screen.findByText("Julio 2026");
     const titulos = screen.getAllByRole("article").map((a) => within(a).getByText(/2026$/).textContent);
-    expect(titulos).toEqual(["Julio 2026", "Junio 2026", "Mayo 2026", "Abril 2026", "Marzo 2026", "Febrero 2026", "Enero 2026"]);
+    expect(titulos).toEqual([
+      "Julio 2026", "II Trimestre 2026", "Junio 2026", "Mayo 2026", "Abril 2026",
+      "I Trimestre 2026", "Marzo 2026", "Febrero 2026", "Enero 2026",
+    ]);
   });
 
   it("si falta algo, «Generar informe» queda deshabilitado y dice qué falta", async () => {
@@ -94,7 +98,7 @@ describe("InformeConsejo · un mes por tarjeta", () => {
 
     fireEvent.click(boton);
     const svc = await import("@/services/informeConsejo");
-    expect(svc.generarInforme).toHaveBeenCalledWith(2026, 4, expect.objectContaining({ id: "u1" }));
+    expect(svc.generarInforme).toHaveBeenCalledWith(2026, { mes: 4 }, expect.objectContaining({ id: "u1" }));
     expect(await within(abril).findByText("Generando…")).toBeInTheDocument();
   });
 
@@ -113,6 +117,20 @@ describe("InformeConsejo · un mes por tarjeta", () => {
     expect(await within(junio).findByText(/La Habana: Falta: evaluación de calidad/)).toBeInTheDocument();
     expect(within(junio).getByText(/Tecleado en la TABLA CA · sin comprobar/)).toBeInTheDocument();
     expect(within(junio).getByText("Cargos vacantes")).toBeInTheDocument();
+  });
+
+  it("un trimestre se puede generar si a sus tres meses no les falta nada", async () => {
+    await pintar();
+    const segundo = await tarjeta("II Trimestre 2026");
+    expect(within(segundo).getByText("Falta 1 dato")).toBeInTheDocument(); // a junio le falta la calidad
+    expect(within(segundo).getByRole("button", { name: /Generar informe/ })).toBeDisabled();
+
+    const primero = await tarjeta("I Trimestre 2026");
+    expect(within(primero).getByText("Listo para generar")).toBeInTheDocument();
+    fireEvent.click(within(primero).getByRole("button", { name: /Generar informe/ }));
+    const svc = await import("@/services/informeConsejo");
+    expect(svc.generarInforme).toHaveBeenCalledWith(2026, { trimestre: 1 }, expect.objectContaining({ id: "u1" }));
+    expect(await within(primero).findByText("Generando…")).toBeInTheDocument();
   });
 
   it("sin la migración 013 lo dice en vez de fallar", async () => {

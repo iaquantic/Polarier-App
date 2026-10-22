@@ -1,16 +1,19 @@
-// Informe del Consejo de Dirección: datos del apartado por meses.
+// Informe del Consejo de Dirección: datos del apartado por meses y trimestres.
 //
-// Todo pasa por las funciones de la migración 013: la app nunca lee el GLOBAL
-// ni la TABLA CA, solo si cada dato está o falta. Para generar, el servidor
-// vuelve a comprobar que no falta nada (`solicitar_informe_consejo`), deja el
-// informe en `pendiente` y la app avisa a n8n con su id; la rama lo pasa a
-// `generando` y lo cierra con el fichero (o el error) con la service role.
+// Todo pasa por las funciones de las migraciones 013 y 014: la app nunca lee el
+// GLOBAL ni la TABLA CA, solo si cada dato está o falta. Para generar, el servidor
+// vuelve a comprobar que no falta nada (`solicitar_informe_consejo` o
+// `solicitar_informe_consejo_trimestre`), deja el informe en `pendiente` y la app
+// avisa a n8n con su id; la rama lo pasa a `generando` y lo cierra con el fichero
+// (o el error) con la service role.
 
 import { supabase } from '@/lib/supabaseClient';
 import { getAutomationWebhookUrl } from '@/lib/n8nMode';
 import { getAutomatizacion } from '@/lib/automatizaciones';
 import {
+  nombreArchivoInforme,
   nombreArchivoPorDefecto,
+  nombreArchivoTrimestre,
   type FilaDisponibilidad,
   type InformeConsejo,
 } from '@/lib/informeConsejo';
@@ -51,16 +54,21 @@ export const getInformes = async (anio: number): Promise<InformeConsejo[]> => {
   return (data ?? []) as InformeConsejo[];
 };
 
+/** De qué es el informe: un mes (1-12) o un trimestre (1-4). */
+export type PeriodoInforme = { mes: number; trimestre?: undefined } | { trimestre: number; mes?: undefined };
+
 /**
- * Pide el informe de un mes y avisa a n8n. Lanza con un mensaje legible si
- * falta algún dato, si ya hay uno en marcha o si n8n no responde.
+ * Pide el informe de un mes o de un trimestre y avisa a n8n. Lanza con un mensaje
+ * legible si falta algún dato, si ya hay uno en marcha o si n8n no responde.
  */
 export const generarInforme = async (
   anio: number,
-  mes: number,
+  periodo: PeriodoInforme,
   usuario: { id: string; nombre?: string; email?: string }
 ): Promise<InformeConsejo> => {
-  const { data, error } = await supabase.rpc('solicitar_informe_consejo', { p_anio: anio, p_mes: mes });
+  const { data, error } = periodo.trimestre
+    ? await supabase.rpc('solicitar_informe_consejo_trimestre', { p_anio: anio, p_trimestre: periodo.trimestre })
+    : await supabase.rpc('solicitar_informe_consejo', { p_anio: anio, p_mes: periodo.mes });
   if (sinMigracion(error)) throw new MigracionPendiente();
   if (error) throw new Error(error.message);
   const informe = data as InformeConsejo;
@@ -79,8 +87,11 @@ export const generarInforme = async (
         automatizacion: 'informe-consejo',
         informe_id: informe.id,
         anio,
-        mes,
-        archivo_nombre: nombreArchivoPorDefecto(anio, mes),
+        mes: periodo.mes ?? null,
+        trimestre: periodo.trimestre ?? null,
+        archivo_nombre: periodo.trimestre
+          ? nombreArchivoTrimestre(anio, periodo.trimestre)
+          : nombreArchivoPorDefecto(anio, periodo.mes!),
         user_id: usuario.id,
         user_name: usuario.nombre ?? null,
         user_email: usuario.email ?? null,
@@ -103,7 +114,7 @@ export const generarInforme = async (
 
 /** URL firmada (5 minutos) que descarga el informe con su nombre. */
 export const urlDescarga = async (informe: InformeConsejo): Promise<string> => {
-  const nombre = informe.archivo_nombre || nombreArchivoPorDefecto(informe.anio, informe.mes);
+  const nombre = nombreArchivoInforme(informe);
   const { data, error } = await supabase.storage
     .from(BUCKET_INFORMES_CONSEJO)
     .createSignedUrl(informe.archivo_path!, 300, { download: nombre });

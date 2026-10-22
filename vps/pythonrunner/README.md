@@ -20,3 +20,4 @@ GET  http://polarierauto_pythonrunner:8000/health
 - `libarchive-tools` (`bsdtar`), para que el Agente Modelo 1 abra los RAR.
 - `pypdf==6.10.2` en `requirements.txt`. Con esto, el wheel suelto de `Leslie/` deja de hacer falta, aunque no estorba.
 - Versiones fijadas a las que tenía instaladas el contenedor: antes `pandas`, `requests`, `openpyxl`, `numpy` y `Pillow` iban sin versión, así que cualquier redespliegue traía las últimas.
+- `python-docx`, `lxml` y `PyYAML` (2026-10-22), para el informe del Consejo (`Leslie/Consejo/scripts/`), y el tiempo máximo de un script sube de 120 s a 300 s: preparar las tablas recalcula las fórmulas de la TABLA CA y el GLOBAL.

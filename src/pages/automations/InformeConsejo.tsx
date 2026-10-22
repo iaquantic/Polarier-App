@@ -5,8 +5,11 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { fechaCorta, getAutomatizacion } from "@/lib/automatizaciones";
 import {
+  NOMBRES_MES,
+  NOMBRES_TRIMESTRE,
   aniosDisponibles,
   construirMeses,
+  construirTrimestres,
   enCurso,
   estadoMes,
   estaAtascado,
@@ -17,6 +20,7 @@ import {
   type FilaDisponibilidad,
   type InformeConsejo as Informe,
   type MesConsejo,
+  type TrimestreConsejo,
 } from "@/lib/informeConsejo";
 import {
   MigracionPendiente,
@@ -52,6 +56,12 @@ const etiqueta = (requisito: string) => {
   return sin.charAt(0).toUpperCase() + sin.slice(1);
 };
 
+/** Un mes o un trimestre en la lista, con su clave de estado de pantalla («m6», «t2»). */
+type Tarjeta = { tipo: "mes"; clave: string; p: MesConsejo } | { tipo: "trimestre"; clave: string; p: TrimestreConsejo };
+
+const nombreDe = (i: Informe) =>
+  `${i.trimestre ? NOMBRES_TRIMESTRE[i.trimestre - 1] : NOMBRES_MES[(i.mes ?? 1) - 1]} ${i.anio}`;
+
 const InformeConsejo = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
@@ -64,9 +74,9 @@ const InformeConsejo = () => {
   const [fuentes, setFuentes] = useState<{ global: string | null; tabla_ca: string | null }>({ global: null, tabla_ca: null });
   const [cargando, setCargando] = useState(true);
   const [fallo, setFallo] = useState<string | null>(null);
-  const [abierto, setAbierto] = useState<number | null>(null);
-  const [pidiendo, setPidiendo] = useState<number | null>(null);
-  const [descargando, setDescargando] = useState<number | null>(null);
+  const [abierto, setAbierto] = useState<string | null>(null);
+  const [pidiendo, setPidiendo] = useState<string | null>(null);
+  const [descargando, setDescargando] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -97,10 +107,22 @@ const InformeConsejo = () => {
     () => construirMeses(anio, mesesVisibles(anio, hoy), filas, informes),
     [anio, hoy, filas, informes]
   );
+  const trimestres = useMemo(() => construirTrimestres(anio, meses, informes), [anio, meses, informes]);
+
+  // Del más reciente al más antiguo; cada trimestre, justo encima de su último mes.
+  const tarjetas = useMemo<Tarjeta[]>(() => {
+    const out: Tarjeta[] = [];
+    meses.forEach((m) => {
+      const t = m.mes % 3 === 0 ? trimestres.find((x) => x.trimestre === m.mes / 3) : undefined;
+      if (t) out.push({ tipo: "trimestre", clave: `t${t.trimestre}`, p: t });
+      out.push({ tipo: "mes", clave: `m${m.mes}`, p: m });
+    });
+    return out;
+  }, [meses, trimestres]);
 
   // El mes más reciente, desplegado de entrada.
   useEffect(() => {
-    if (abierto === null && meses.length > 0 && !cargando) setAbierto(meses[0].mes);
+    if (abierto === null && meses.length > 0 && !cargando) setAbierto(`m${meses[0].mes}`);
   }, [meses, abierto, cargando]);
 
   // Mientras haya un informe generándose, se consulta su fila; al cerrarse se avisa.
@@ -110,12 +132,11 @@ const InformeConsejo = () => {
     previos.current.forEach((antes) => {
       const ahora = informes.find((i) => i.id === antes.id);
       if (!ahora || !enCurso(antes) || enCurso(ahora)) return;
-      const nombre = `${meses.find((m) => m.mes === ahora.mes)?.nombre ?? ""} ${ahora.anio}`;
-      if (ahora.estado === "listo") toast.success(`El informe de ${nombre} está listo para descargar`);
-      if (ahora.estado === "error") toast.error(`No se pudo generar el informe de ${nombre}`);
+      if (ahora.estado === "listo") toast.success(`El informe de ${nombreDe(ahora)} está listo para descargar`);
+      if (ahora.estado === "error") toast.error(`No se pudo generar el informe de ${nombreDe(ahora)}`);
     });
     previos.current = informes;
-  }, [informes, meses]);
+  }, [informes]);
 
   useEffect(() => {
     if (!hayEnCurso) return;
@@ -125,17 +146,20 @@ const InformeConsejo = () => {
     return () => window.clearInterval(id);
   }, [hayEnCurso, anio]);
 
-  const generar = async (m: MesConsejo) => {
+  const generar = async (t: Tarjeta) => {
     if (!user) return;
-    setPidiendo(m.mes);
+    setPidiendo(t.clave);
     try {
-      const informe = await generarInforme(anio, m.mes, {
+      const periodo = t.tipo === "trimestre" ? { trimestre: t.p.trimestre } : { mes: t.p.mes };
+      const informe = await generarInforme(anio, periodo, {
         id: user.id,
         nombre: profile?.full_name || user.user_metadata?.full_name || undefined,
         email: user.email || undefined,
       });
-      setInformes((prev) => [...prev.filter((i) => !(i.anio === anio && i.mes === m.mes)), informe]);
-      toast.success(`Generando el informe de ${m.nombre} ${anio}`);
+      const mismo = (i: Informe) =>
+        i.anio === anio && (t.tipo === "trimestre" ? i.trimestre === t.p.trimestre : i.mes === t.p.mes && !i.trimestre);
+      setInformes((prev) => [...prev.filter((i) => !mismo(i)), informe]);
+      toast.success(`Generando el informe de ${t.p.nombre} ${anio}`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo pedir el informe.");
       getInformes(anio).then(setInformes).catch(() => {});
@@ -144,11 +168,11 @@ const InformeConsejo = () => {
     }
   };
 
-  const descargar = async (m: MesConsejo) => {
-    if (!m.informe) return;
-    setDescargando(m.mes);
+  const descargar = async (t: Tarjeta) => {
+    if (!t.p.informe) return;
+    setDescargando(t.clave);
     try {
-      window.location.assign(await urlDescarga(m.informe));
+      window.location.assign(await urlDescarga(t.p.informe));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo descargar el informe.");
     } finally {
@@ -208,7 +232,7 @@ const InformeConsejo = () => {
           </section>
 
           <p className="neo-strip neo-text-2 text-[13px] font-medium leading-relaxed px-1 rounded-lg">
-            Cada mes enseña los datos que necesita el informe. «Generar informe» se habilita cuando no falta ninguno. {auto.duracion}
+            Cada mes enseña los datos que necesita el informe. «Generar informe» se habilita cuando no falta ninguno; el de un trimestre, cuando no falta nada en sus tres meses. {auto.duracion}
           </p>
 
           {cargando && (
@@ -239,20 +263,25 @@ const InformeConsejo = () => {
             <p className="neo-text-2 text-[13px] font-medium">No hay meses que enseñar para {anio}.</p>
           )}
 
-          {!cargando && !fallo && meses.map((m) => {
+          {!cargando && !fallo && tarjetas.map((t) => {
+            const m = t.p;
             const estado = estadoMes(m, ahora);
             const generable = puedeGenerar(m, ahora);
             const descargable = puedeDescargar(m);
-            const abiertoEste = abierto === m.mes;
+            const abiertoEste = abierto === t.clave;
             const motivo = m.faltan > 0
               ? `Faltan ${m.faltan} datos de ${m.nombre}`
               : enCurso(m.informe) ? "Ya se está generando" : undefined;
             return (
-              <article key={m.mes} className="neo-raised rounded-[22px] p-4 sm:p-5 flex flex-col gap-4">
+              <article
+                key={t.clave}
+                className={`neo-raised rounded-[22px] p-4 sm:p-5 flex flex-col gap-4 ${t.tipo === "trimestre" ? "border-l-4" : ""}`}
+                style={t.tipo === "trimestre" ? { borderLeftColor: "var(--neo-accent)" } : undefined}
+              >
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => setAbierto(abiertoEste ? -1 : m.mes)}
+                    onClick={() => setAbierto(abiertoEste ? "" : t.clave)}
                     aria-expanded={abiertoEste}
                     className="flex items-center gap-3 flex-1 min-w-[200px] text-left"
                   >
@@ -272,25 +301,25 @@ const InformeConsejo = () => {
                     {descargable && (
                       <button
                         type="button"
-                        onClick={() => descargar(m)}
-                        disabled={descargando === m.mes}
+                        onClick={() => descargar(t)}
+                        disabled={descargando === t.clave}
                         className="neo-primary neo-press inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-extrabold disabled:opacity-60"
                       >
                         <ArrowDownToLine size={15} />
-                        {descargando === m.mes ? "Preparando…" : "Descargar informe"}
+                        {descargando === t.clave ? "Preparando…" : "Descargar informe"}
                       </button>
                     )}
                     <button
                       type="button"
-                      onClick={() => generar(m)}
-                      disabled={!generable || pidiendo === m.mes}
+                      onClick={() => generar(t)}
+                      disabled={!generable || pidiendo === t.clave}
                       title={generable ? undefined : motivo}
                       className={`neo-press inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-extrabold disabled:opacity-45 disabled:cursor-not-allowed ${
                         descargable ? "neo-white-btn neo-accent" : "neo-primary"
                       }`}
                     >
                       <FileText size={15} />
-                      {pidiendo === m.mes ? "Pidiendo…" : descargable ? "Regenerar" : "Generar informe"}
+                      {pidiendo === t.clave ? "Pidiendo…" : descargable ? "Regenerar" : "Generar informe"}
                     </button>
                   </div>
                 </div>
@@ -309,9 +338,31 @@ const InformeConsejo = () => {
                   <p className="neo-text-2 text-[12px] font-medium">Generado {fechaCorta(m.informe.generado_at)}</p>
                 )}
 
-                {abiertoEste && (
+                {abiertoEste && t.tipo === "trimestre" && (
+                  <div className="neo-inset rounded-[18px] p-4 sm:p-5 flex flex-col gap-3">
+                    <p className="neo-text-2 text-[12.5px] font-medium leading-relaxed">
+                      El trimestre usa los datos de sus tres meses. El detalle de lo que falta está en cada mes.
+                    </p>
+                    <ul className="flex flex-col gap-2">
+                      {t.p.meses.map((mm) => (
+                        <li key={mm.mes} className="flex items-start gap-2">
+                          <IconoEstado estado={mm.faltan > 0 ? "falta" : "ok"} />
+                          <span className="neo-text text-[13.5px] font-bold leading-snug">
+                            {mm.nombre}
+                            <span className="neo-text-2 font-medium">
+                              {" · "}
+                              {mm.faltan === 0 ? "completo" : mm.faltan === 1 ? "falta 1 dato" : `faltan ${mm.faltan} datos`}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {abiertoEste && t.tipo === "mes" && (
                   <div className="neo-inset rounded-[18px] p-4 sm:p-5 flex flex-col gap-5">
-                    {m.grupos.map((g) => (
+                    {t.p.grupos.map((g) => (
                       <section key={g.grupo} className="flex flex-col gap-2.5">
                         <h2 className="neo-text-2 text-[11px] font-extrabold uppercase tracking-[0.12em]">
                           {g.titulo}
