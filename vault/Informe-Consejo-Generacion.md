@@ -90,7 +90,7 @@ Los ejemplos son informes reales: **no están en el repositorio** (`consejo-dire
 
 Para añadir un ejemplo nuevo (p. ej. el último informe aprobado), mismo nombre de patrón en la carpeta que toque. Para actualizar el código: commit, push e instalar con el sha nuevo.
 
-**pythonrunner redesplegado el 2026-10-23** (14:31 UTC, build del commit `3e627b8`): `python-docx` 1.2.0, `lxml` 6.1.0, `PyYAML` 6.0.3 y `timeout=300`. El día anterior la imagen seguía siendo la del 2026-10-14 y `preparar_consejo.py` fallaba con `ModuleNotFoundError: No module named 'docx'` (ejecución 564). Para desplegar sin la interfaz, la fuente del servicio pasó de Upload a GitHub (rama `informe-consejo/generacion`, sin auto-deploy): **tras el merge hay que cambiarla a `main`**. Detalle en `vps/pythonrunner/README.md`. Ese build trajo `python-dateutil` 3.0.0 sin fijar (pandas la pide sin versión). Se fijó la 2.9.0.post0 y se volvió a desplegar a las 14:37 UTC (commit `da28a68`). La primera generación real confirmó `python-docx` dentro del contenedor.
+**pythonrunner redesplegado el 2026-10-23** (14:31 UTC, build del commit `3e627b8`): `python-docx` 1.2.0, `lxml` 6.1.0, `PyYAML` 6.0.3 y `timeout=300`. El día anterior la imagen seguía siendo la del 2026-10-14 y `preparar_consejo.py` fallaba con `ModuleNotFoundError: No module named 'docx'` (ejecución 564). Para desplegar sin la interfaz, la fuente del servicio pasó de Upload a GitHub, sin auto-deploy. Primero apuntó a la rama `informe-consejo/generacion` y, tras el merge de la PR 38, a `main` (2026-10-23, 15:38 UTC). Detalle en `vps/pythonrunner/README.md`. Ese build trajo `python-dateutil` 3.0.0 sin fijar (pandas la pide sin versión). Se fijó la 2.9.0.post0 y se volvió a desplegar a las 14:37 UTC (commit `da28a68`). La primera generación real confirmó `python-docx` dentro del contenedor.
 
 ## La rama de n8n (`CON -`)
 
@@ -132,6 +132,12 @@ Un nodo Code de n8n recorta el mensaje de error en los dos puntos. Por eso `CON 
   - El DOCX (186 KB) está en `informes-consejo/2026/05/consejo_direccion_MAYO_2026.docx`.
 
 Con esto quedan probadas las credenciales de los nodos HTTP de Supabase y de la routine. La espera máxima de una hora deja margen de sobra.
+
+**En producción desde el 2026-10-23.** La PR 38 se fusionó y la app (`polarierapp`) se desplegó a las 15:39 UTC con la sección. El JS publicado lleva el RPC del trimestre y el webhook de `CON -`.
+
+Sin probar todavía:
+- «Generar informe» desde la app con una sesión real. Hace falta iniciar sesión, así que lo prueba Leo; mayo ya está en «listo» para probar la descarga.
+- **Ningún trimestre de 2026 se puede generar todavía.** Al I le falta un dato de febrero y al II, dos de junio. El RPC rechaza el trimestre mientras alguno de sus tres meses tenga algo en «falta», y no se ha forzado.
 
 ## Lo que queda abierto
 

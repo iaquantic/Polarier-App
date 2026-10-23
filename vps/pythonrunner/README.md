@@ -7,13 +7,13 @@ POST http://polarierauto_pythonrunner:8000/run   {"script": "Leslie/x.py", "args
 GET  http://polarierauto_pythonrunner:8000/health
 ```
 
-**Cómo se despliega (desde el 2026-10-23):** la fuente del servicio es **GitHub**: repo `iaquantic/Polarier-App`, rama `informe-consejo/generacion`, ruta `/vps/pythonrunner`, construido con su `Dockerfile` y **sin auto-deploy**. Hasta esa fecha era **Source → Upload** (un ZIP con los tres ficheros), pero el API de Easypanel no deja subir un ZIP, así que se cambió para poder desplegar sin la interfaz. Para cambiar algo:
+**Cómo se despliega (desde el 2026-10-23):** la fuente del servicio es **GitHub**: repo `iaquantic/Polarier-App`, rama `main`, ruta `/vps/pythonrunner`, construido con su `Dockerfile` y **sin auto-deploy**. Hasta esa fecha era **Source → Upload** (un ZIP con los tres ficheros), pero el API de Easypanel no deja subir un ZIP, así que se cambió para poder desplegar sin la interfaz. Para cambiar algo:
 
 1. Edita aquí `Dockerfile`, `requirements.txt` o `main.py`, commitea y haz push a la rama del servicio.
 2. En Easypanel → `polarierauto` → `pythonrunner` → **Deploy** (o `deploy_service` por el MCP `easypanel`). Construye la punta de la rama en ese momento: Easypanel no acepta un sha. El runner se reinicia unos segundos: mientras tanto falla todo lo que usa Python (Modelo 1, CD y la sincronización de `global_ai`).
 3. Comprueba que arrancó en la pestaña **Console** del servicio (`bsdtar --version`, `python -c "import pypdf"`) o con `Leslie/agente_modelo1.py version`.
 
-**Cuando `informe-consejo/generacion` se fusione a `main`:** cambia la rama del servicio a `main` y despliega. Si la rama se borra antes, el siguiente despliegue falla al descargar el código.
+Del 23 de octubre por la mañana hasta el merge de la PR 38 apuntó a la rama `informe-consejo/generacion`. Desde las 15:38 UTC de ese día apunta a `main`.
 
 `pythonrunner-upload.zip` queda solo como alternativa, por si hubiera que volver a Source → Upload desde la interfaz: rehazlo con los tres ficheros en la raíz.
 
