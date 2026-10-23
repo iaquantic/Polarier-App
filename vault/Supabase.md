@@ -31,6 +31,19 @@ Proyecto Supabase usado para **auth, base de datos y Storage**.
 
 Reglas en [[Informe-Consejo-Origen-Datos]], sección «Comprobación por mes».
 
+**Migración 014 (aplicada el 2026-10-22):** generación automática e informes trimestrales.
+
+| Cambio | Para qué |
+|---|---|
+| `consejo_informes.trimestre` | Una fila lleva `mes` o `trimestre`, nunca los dos (check `consejo_informes_mes_o_trimestre`). El `unique (anio, mes)` pasa a dos índices parciales, uno por mes y otro por trimestre |
+| `consejo_informes.datos` | Tablas del período en texto, que escribe n8n (salida de `preparar_consejo.py`) |
+| `consejo_informes.analisis` | `{"sections": {...}}`: los textos que escribe la routine por el conector de Supabase |
+| `consejo_informes.redactado_at` | Cuándo terminó la routine; n8n lo espera para montar el DOCX |
+| `solicitar_informe_consejo(anio, mes)` | La misma de la 013, con el índice parcial y vaciando `datos`/`analisis` al regenerar |
+| `solicitar_informe_consejo_trimestre(anio, trimestre)` | Como la del mes: comprueba que a los tres meses no les falta nada | 
+
+Flujo completo en [[Informe-Consejo-Generacion]].
+
 - En `documents`, `role` distingue archivos del usuario (`user`) de los del asistente (`assistant`). "Mis Documentos" muestra solo los `assistant`.
 
 ### Módulo de auditoría

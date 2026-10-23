@@ -18,7 +18,7 @@ Any work inside n8n (creating, changing, debugging or auditing a flow, reading e
 
 | Workflow | ID | Folder | What it does |
 |---|---|---|---|
-| Polarier Auto App | `BQoya6xrMaF1UAkU` | Polarier | Chat webhook (`sendToN8n`), one webhook per document branch for the «Automatizaciones» section, and the document branches themselves (Modelo 1, TABLA CA, Carla, Integral…). ~140 nodes. |
+| Polarier Auto App | `BQoya6xrMaF1UAkU` | Polarier | Chat webhook (`sendToN8n`), one webhook per document branch for the «Automatizaciones» section, and the document branches themselves (Modelo 1, TABLA CA, Carla, Integral…), plus the async Consejo de Dirección branch `CON -` (see `vault/Informe-Consejo-Generacion.md`). ~130 nodes. |
 | Emails | `TIwrYY0MIntv5GLj` | Polarier | Sends the audit report by Gmail with the PDF in base64 (`src/services/informeCorreo.ts`). Replaces the old n8n cloud flow `Komb1YycRFKXTvkX`. |
 
 `HwhQ5VLp9QpoAAP6` is an inactive copy of "Polarier Auto App" (2026-10-15) with no use: do not work on it by mistake.

@@ -13,8 +13,9 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Automatizaciones]] — **Sección «Automatizaciones»**: un apartado por proceso y un trigger propio por rama en n8n.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).
 - [[Routine-Informe-Mensual]] — Informe mensual: capa de datos plana para la IA, cola y routine de Claude en la nube.
-- [[Informe-Consejo-Direccion]] — **Informe del Consejo de Dirección**: DOCX de tablas → análisis de la IA → plantilla maestra. Aún fuera de la app.
+- [[Informe-Consejo-Direccion]] — **Informe del Consejo de Dirección**: tablas → análisis de la IA → plantilla maestra. Desde el 2026-10-22 se genera desde la app ([[Informe-Consejo-Generacion]]).
 - [[Informe-Consejo-Origen-Datos]] — De dónde sale cada tabla del informe en el GLOBAL y la TABLA CA (estudio del 2026-10-21).
+- [[Informe-Consejo-Generacion]] — Cómo se genera el informe del Consejo desde la app: tablas desde la TABLA CA y el GLOBAL, routine que redacta, n8n que monta (2026-10-22).
 - [[Diseno-Neoformista]] — Diseño del lobby, chat y login: fondos, colores, botones y nota de voz.
 - [[Generacion-Documentos]] — **Reglas de generación de documentos**: qué fichero dispara qué, maestros, códigos de polo, formatos, año.
 - [[Referencias-Formularios]] — Mapeo Excel original ↔ módulo de la app.

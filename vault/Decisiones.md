@@ -4,6 +4,17 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-22 — Informe del Consejo: generación automática
+
+- **Redacción con una routine de Claude** (Leo), con Opus 5.5 (Leo). n8n la despierta y espera a que deje los textos en `consejo_informes`.
+- **Plantilla maestra e informes de ejemplo en el VPS** (Leo), en `/data/Polarier/Leslie/Consejo/`. Los ejemplos no van al repositorio (es público).
+- **Mensual y trimestral** (Leo). El trimestre se pide cuando a sus tres meses no les falta nada.
+- **Sin notas del mes por ahora** (Leo): el texto compara y sitúa, pero no explica causas que las tablas no muestran.
+- **Hojas auxiliares sin mes: pendiente de analizar** (Leo). De momento se toman tal como estén al generar.
+- **Cada tabla se rellena sobre la del último informe de ejemplo**, que pone formato y forma; las cifras salen recalculadas de la TABLA CA y el GLOBAL. Cuando dos informes aprobados siguen reglas distintas para un mismo consolidado, se sigue la del que cuadra entero.
+- Cada paso en producción (migración, push, VPS, routine, n8n) con el OK de Leo, uno a uno.
+- Detalle en [[Informe-Consejo-Generacion]].
+
 ## 2026-10-22 — Informe del Consejo: del CD solo se rellena la tabla principal
 
 - **Decisión (Leo):** en la TABLA CA solo se rellena desde el CD la **tabla principal**: la hoja de cada polo, titulada «TABLAS PARA RESUMEN DE INDICADORES PARA LOS CHEQUEOS DE ADMINISTRACIÓN…». **El resto no.** Las hojas auxiliares («Montas», «Rechazo e inyecciones», «Datos económicos», «Energía») siguen tecleadas a mano por quien prepara la TABLA CA.
