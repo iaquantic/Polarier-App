@@ -264,7 +264,7 @@ Sección nueva en la app con un apartado por proceso y un trigger propio por ram
 - [x] **Informe del Consejo:** primera generación real (mayo de 2026), hecha el 2026-10-23 tras corregir el token de la routine y guardar los textos en base64. Ver [[Informe-Consejo-Generacion]].
 - [ ] **Informe del Consejo:** probar «Generar informe» y «Descargar» desde la app, ya desplegada el 2026-10-23. Probar un trimestre cuando alguno tenga sus tres meses completos: hoy ninguno de 2026 los tiene.
 - [x] **pythonrunner:** fuente GitHub cambiada a `main` y desplegado tras el merge de la PR 38 (2026-10-23).
-- [ ] **Easypanel, `polarierapp`:** la fuente sigue apuntando a `leonardojcddev/Polarier-App`. Funciona porque GitHub redirige al repo movido a `iaquantic`, pero conviene cambiarla. El pythonrunner ya usa `iaquantic`.
+- [x] **Easypanel, `polarierapp`:** fuente cambiada de `leonardojcddev/Polarier-App` a `iaquantic/Polarier-App` y desplegada sin problemas (2026-10-23).
 
 ## Ideas / futuro
 

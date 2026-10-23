@@ -38,7 +38,7 @@ Frontend **Vite** servido como estáticos. El `Dockerfile` (multi-stage) compila
 - Panel: `https://1tn4v0.easypanel.host` (pide usuario y contraseña).
 - Proyecto `polarierauto`, servicio del frontend: **`polarierapp`** (tipo App). Los demás (`n8n`, `n8n-db`, `n8n-runner`, `evolution-api`, `evolution-api-db`, `evolution-api-redis`, `pythonrunner`) no son la web.
 - En el servicio: botón verde **Deploy** arriba; pestaña **Deployments** para ver el historial y los logs. Un build tarda ~40 s.
-- Fuente configurada: GitHub `leonardojcddev/Polarier-App`, rama `main`, build path `/`. Sigue con el dueño antiguo y funciona por la redirección (comprobado el 2026-10-23); ver [[Pendientes]].
+- Fuente configurada: GitHub `iaquantic/Polarier-App`, rama `main`, build path `/`, sin auto-deploy. Hasta el 2026-10-23 apuntaba a `leonardojcddev/Polarier-App` y funcionaba por la redirección de GitHub. Se cambió ese día y el primer build desde `iaquantic` salió bien (commit `107dfcb`).
 - También se despliega por el MCP `easypanel` (`deploy_service`), sin entrar al panel.
 
 ## Dominio y HTTPS
