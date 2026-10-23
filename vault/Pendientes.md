@@ -262,8 +262,9 @@ Sección nueva en la app con un apartado por proceso y un trigger propio por ram
 - [ ] **Probar de punta a punta las tres ramas con un fichero real.** El camino del chat ya está comprobado (avisa y no ejecuta nada, ejecuciones 532–534); del trigger propio está comprobado hasta la descarga (ejecución 524). Falta la vuelta completa: lo primero que hay que mirar es que `* - Entrada` entregue `body` y el binario.
 - [ ] Decidir si la rama `Informe` (base de conocimiento) merece también su apartado. Hoy solo entra por el chat.
 - [x] **Informe del Consejo:** primera generación real (mayo de 2026), hecha el 2026-10-23 tras corregir el token de la routine y guardar los textos en base64. Ver [[Informe-Consejo-Generacion]].
-- [ ] **Informe del Consejo:** probar «Generar informe» desde la app (la sección aún no está desplegada) y un trimestre.
-- [ ] **pythonrunner:** cuando `informe-consejo/generacion` se fusione a `main`, cambiar la rama de la fuente GitHub del servicio a `main` y desplegar (`vps/pythonrunner/README.md`).
+- [ ] **Informe del Consejo:** probar «Generar informe» y «Descargar» desde la app, ya desplegada el 2026-10-23. Probar un trimestre cuando alguno tenga sus tres meses completos: hoy ninguno de 2026 los tiene.
+- [x] **pythonrunner:** fuente GitHub cambiada a `main` y desplegado tras el merge de la PR 38 (2026-10-23).
+- [ ] **Easypanel, `polarierapp`:** la fuente sigue apuntando a `leonardojcddev/Polarier-App`. Funciona porque GitHub redirige al repo movido a `iaquantic`, pero conviene cambiarla. El pythonrunner ya usa `iaquantic`.
 
 ## Ideas / futuro
 
