@@ -4,6 +4,24 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-22 — Informe del Consejo: generación automática
+
+- **Redacción con una routine de Claude** (Leo), con Opus 5.5 (Leo). n8n la despierta y espera a que deje los textos en `consejo_informes`.
+- **Plantilla maestra e informes de ejemplo en el VPS** (Leo), en `/data/Polarier/Leslie/Consejo/`. Los ejemplos no van al repositorio (es público).
+- **Mensual y trimestral** (Leo). El trimestre se pide cuando a sus tres meses no les falta nada.
+- **Sin notas del mes por ahora** (Leo): el texto compara y sitúa, pero no explica causas que las tablas no muestran.
+- **Hojas auxiliares sin mes: pendiente de analizar** (Leo). De momento se toman tal como estén al generar.
+- **Cada tabla se rellena sobre la del último informe de ejemplo**, que pone formato y forma; las cifras salen recalculadas de la TABLA CA y el GLOBAL. Cuando dos informes aprobados siguen reglas distintas para un mismo consolidado, se sigue la del que cuadra entero.
+- Cada paso en producción (migración, push, VPS, routine, n8n) con el OK de Leo, uno a uno.
+- Detalle en [[Informe-Consejo-Generacion]].
+
+## 2026-10-22 — Informe del Consejo: del CD solo se rellena la tabla principal
+
+- **Decisión (Leo):** en la TABLA CA solo se rellena desde el CD la **tabla principal**: la hoja de cada polo, titulada «TABLAS PARA RESUMEN DE INDICADORES PARA LOS CHEQUEOS DE ADMINISTRACIÓN…». **El resto no.** Las hojas auxiliares («Montas», «Rechazo e inyecciones», «Datos económicos», «Energía») siguen tecleadas a mano por quien prepara la TABLA CA.
+- **Anula** lo del 2026-10-21 de «cargar desde el CD, por mes, lo que hoy se teclea». Aunque el desmanche, el retiro, el rechazo, las inyecciones y las montas estén en las hojas de lencería del CD, no se cargan.
+- **El agente ya lo cumple:** `agente_ca.py escribir` solo escribe en la hoja del polo, en la columna del mes y en las filas de su lista de claves.
+- **Consecuencia para el informe:** las tablas que salen de las hojas auxiliares siguen como «sin comprobar» en el apartado por meses (decisión del 2026-10-21), y el informe usará lo que haya tecleado. El estudio de su origen en [[Informe-Consejo-Origen-Datos]] queda como referencia, no como trabajo pendiente.
+
 ## 2026-10-21 — Informe del Consejo: apartado por meses
 
 - **Qué:** el apartado enseña, por mes, qué datos hacen falta y si están, con «Generar informe» habilitado solo si no falta nada y «Descargar informe» si el mes ya lo tiene.
@@ -18,7 +36,7 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 - **Contexto:** el informe se alimentaba de un DOCX de tablas subido a mano. Al preparar su apartado en Automatizaciones, Leo decidió cambiarlo.
 - **Decisión (Leo):** los datos se sacan directamente del **GLOBAL** y la **TABLA CA**. En la app, el apartado será solo «Generar informe», el historial y, para el mes elegido, la comprobación de si están todos los datos, con la lista de lo que falta.
 - **Primer paso:** el estudio de dónde sale cada tabla, en [[Informe-Consejo-Origen-Datos]]. Encontró que el DOCX se monta hoy copiando y pegando desde la TABLA CA. Verificado con los ficheros de 2026 del VPS: 22 tablas salen ya por mes, 15 están tecleadas sin mes y 2 no están en ninguna fuente (arribos y mando extranjero, las dos condicionales).
-- **Leo eligió cargar desde el CD, por mes, lo que hoy se teclea.** Antes de tocar el agente se comprobó con los CD de mayo de 2026 de tres polos: **solo 4 de las 15 tablas salen del CD** (montas por habitación y por cliente, rechazo e inyecciones). Las otras 11 tienen otro origen o se ajustan a mano. Detalle en [[Informe-Consejo-Origen-Datos]].
+- **Leo eligió cargar desde el CD, por mes, lo que hoy se teclea** (anulado el 2026-10-22: del CD solo se rellena la tabla principal). Antes de tocar el agente se comprobó con los CD de mayo de 2026 de tres polos: **solo 4 de las 15 tablas salen del CD** (montas por habitación y por cliente, rechazo e inyecciones). Las otras 11 tienen otro origen o se ajustan a mano. Detalle en [[Informe-Consejo-Origen-Datos]].
 - **La economía se leerá del GLOBAL**, no de la TABLA CA: en la TABLA CA esas filas son vínculos externos que solo se refrescan al abrirla en Excel.
 - **Pendiente de decidir:** cómo entran por mes las 15 sin mes y de dónde salen las 2 que faltan.
 

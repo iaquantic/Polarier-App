@@ -21,11 +21,12 @@ export interface FilaDisponibilidad {
   detalle: string | null;
 }
 
-/** Una fila de `consejo_informes`. */
+/** Una fila de `consejo_informes`: de un mes o de un trimestre (migración 014). */
 export interface InformeConsejo {
   id: string;
   anio: number;
-  mes: number;
+  mes: number | null;
+  trimestre?: number | null;
   estado: EstadoInforme;
   solicitado_por: string | null;
   solicitado_at: string;
@@ -56,20 +57,35 @@ export interface GrupoMes {
   faltan: number;
 }
 
-export interface MesConsejo {
+/** Lo que comparten un mes y un trimestre para decidir qué se puede hacer. */
+export interface PeriodoConInforme {
+  /** Datos comprobables que faltan (lo tecleado no cuenta). */
+  faltan: number;
+  informe: InformeConsejo | null;
+}
+
+export interface MesConsejo extends PeriodoConInforme {
   anio: number;
   mes: number;
   nombre: string;
   grupos: GrupoMes[];
-  /** Datos comprobables que faltan (lo tecleado no cuenta). */
-  faltan: number;
-  informe: InformeConsejo | null;
+}
+
+/** Un trimestre: se puede generar cuando a ninguno de sus tres meses le falta nada. */
+export interface TrimestreConsejo extends PeriodoConInforme {
+  anio: number;
+  trimestre: number;
+  nombre: string;
+  /** Sus meses, del primero al último, con lo que le falta a cada uno. */
+  meses: MesConsejo[];
 }
 
 export const NOMBRES_MES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ];
+
+export const NOMBRES_TRIMESTRE = ['I Trimestre', 'II Trimestre', 'III Trimestre', 'IV Trimestre'];
 
 export const TITULO_GRUPO: Record<GrupoRequisito, string> = {
   global: 'GLOBAL',
@@ -107,11 +123,11 @@ export const estaAtascado = (informe: InformeConsejo | null, ahora: Date): boole
   enCurso(informe) && ahora.getTime() - new Date(informe!.solicitado_at).getTime() > ATASCADO_MS;
 
 /** Se puede pedir el informe: no falta nada comprobable y no hay otro en marcha. */
-export const puedeGenerar = (mes: MesConsejo, ahora: Date): boolean =>
-  mes.faltan === 0 && (!enCurso(mes.informe) || estaAtascado(mes.informe, ahora));
+export const puedeGenerar = (p: PeriodoConInforme, ahora: Date): boolean =>
+  p.faltan === 0 && (!enCurso(p.informe) || estaAtascado(p.informe, ahora));
 
 /** Hay un fichero que descargar (aunque se esté regenerando otro encima). */
-export const puedeDescargar = (mes: MesConsejo): boolean => !!mes.informe?.archivo_path;
+export const puedeDescargar = (p: PeriodoConInforme): boolean => !!p.informe?.archivo_path;
 
 /**
  * Agrupa la disponibilidad de un año por mes, con el informe de cada mes.
@@ -153,22 +169,56 @@ export const construirMeses = (
       nombre: NOMBRES_MES[mes - 1],
       grupos,
       faltan: grupos.reduce((n, g) => n + g.faltan, 0),
-      informe: informes.find((i) => i.anio === anio && i.mes === mes) ?? null,
+      informe: informes.find((i) => i.anio === anio && i.mes === mes && !i.trimestre) ?? null,
     };
   });
 
-/** Lo que dice la etiqueta de estado de un mes, y su tono. */
+/**
+ * Trimestres de un año cuyo último mes ya se enseña (el trimestre en curso no sale
+ * hasta su último mes), el más reciente primero. Necesita los doce meses construidos
+ * o, al menos, los de los trimestres que salen.
+ */
+export const construirTrimestres = (
+  anio: number,
+  meses: MesConsejo[],
+  informes: InformeConsejo[]
+): TrimestreConsejo[] => {
+  const out: TrimestreConsejo[] = [];
+  for (let t = 4; t >= 1; t--) {
+    const suyos = [3 * t - 2, 3 * t - 1, 3 * t].map((n) => meses.find((m) => m.mes === n));
+    if (suyos.some((m) => !m)) continue;
+    out.push({
+      anio,
+      trimestre: t,
+      nombre: NOMBRES_TRIMESTRE[t - 1],
+      meses: suyos as MesConsejo[],
+      faltan: (suyos as MesConsejo[]).reduce((n, m) => n + m.faltan, 0),
+      informe: informes.find((i) => i.anio === anio && i.trimestre === t) ?? null,
+    });
+  }
+  return out;
+};
+
+/** Lo que dice la etiqueta de estado de un mes o un trimestre, y su tono. */
 export const estadoMes = (
-  mes: MesConsejo,
+  p: PeriodoConInforme,
   ahora: Date
 ): { texto: string; tono: 'ok' | 'falta' | 'curso' | 'error' | 'listo' } => {
-  if (enCurso(mes.informe) && !estaAtascado(mes.informe, ahora)) return { texto: 'Generando…', tono: 'curso' };
-  if (mes.informe?.estado === 'error' && !mes.informe.archivo_path) return { texto: 'Falló la generación', tono: 'error' };
-  if (puedeDescargar(mes)) return { texto: 'Informe generado', tono: 'listo' };
-  if (mes.faltan > 0) return { texto: mes.faltan === 1 ? 'Falta 1 dato' : `Faltan ${mes.faltan} datos`, tono: 'falta' };
+  if (enCurso(p.informe) && !estaAtascado(p.informe, ahora)) return { texto: 'Generando…', tono: 'curso' };
+  if (p.informe?.estado === 'error' && !p.informe.archivo_path) return { texto: 'Falló la generación', tono: 'error' };
+  if (puedeDescargar(p)) return { texto: 'Informe generado', tono: 'listo' };
+  if (p.faltan > 0) return { texto: p.faltan === 1 ? 'Falta 1 dato' : `Faltan ${p.faltan} datos`, tono: 'falta' };
   return { texto: 'Listo para generar', tono: 'ok' };
 };
 
 /** Nombre del fichero si la rama no lo manda. */
 export const nombreArchivoPorDefecto = (anio: number, mes: number): string =>
   `consejo_direccion_${NOMBRES_MES[mes - 1].toUpperCase()}_${anio}.docx`;
+
+export const nombreArchivoTrimestre = (anio: number, trimestre: number): string =>
+  `consejo_direccion_${NOMBRES_TRIMESTRE[trimestre - 1].toUpperCase().replace(' ', '_')}_${anio}.docx`;
+
+/** Nombre del fichero de un informe, sea de mes o de trimestre. */
+export const nombreArchivoInforme = (i: InformeConsejo): string =>
+  i.archivo_nombre ||
+  (i.trimestre ? nombreArchivoTrimestre(i.anio, i.trimestre) : nombreArchivoPorDefecto(i.anio, i.mes ?? 1));

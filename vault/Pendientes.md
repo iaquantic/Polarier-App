@@ -261,6 +261,9 @@ Sección nueva en la app con un apartado por proceso y un trigger propio por ram
 - [ ] **Easypanel:** añadir `VITE_N8N_WEBHOOK_BASE` y `VITE_N8N_WEBHOOK_BASE_TEST` y hacer Rebuild.
 - [ ] **Probar de punta a punta las tres ramas con un fichero real.** El camino del chat ya está comprobado (avisa y no ejecuta nada, ejecuciones 532–534); del trigger propio está comprobado hasta la descarga (ejecución 524). Falta la vuelta completa: lo primero que hay que mirar es que `* - Entrada` entregue `body` y el binario.
 - [ ] Decidir si la rama `Informe` (base de conocimiento) merece también su apartado. Hoy solo entra por el chat.
+- [x] **Informe del Consejo:** primera generación real (mayo de 2026), hecha el 2026-10-23 tras corregir el token de la routine y guardar los textos en base64. Ver [[Informe-Consejo-Generacion]].
+- [ ] **Informe del Consejo:** probar «Generar informe» desde la app (la sección aún no está desplegada) y un trimestre.
+- [ ] **pythonrunner:** cuando `informe-consejo/generacion` se fusione a `main`, cambiar la rama de la fuente GitHub del servicio a `main` y desplegar (`vps/pythonrunner/README.md`).
 
 ## Ideas / futuro
 

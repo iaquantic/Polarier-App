@@ -13,7 +13,7 @@ Sección nueva (2026-10-20) que **saca del chat el disparo de los documentos**. 
 | Modelo 1 | `modelo-1` | PDF «Ingresos y Gastos», o ZIP/RAR con varios | `M1 - *` (Agente Modelo 1) | `d872f8b4-5994-45e8-96d9-cf5c3a82f5b1` |
 | Tabla CA | `tabla-ca` | el **CD**: `<POLO>CD<AAAAMM>.xlsx` (el patrón acepta también `CA`) | `CD - *` (Agente TABLA CA) | `375ae1e4-ffc2-4862-a5a2-cb8c6bb18614` |
 | Ocupación | `ocupacion` | fichero `Integral…` | `Extract from File1 → …` | `023e33ed-e085-43a1-b444-40960b4d10de` |
-| Informe Consejo de Dirección | `informe-consejo` | Nada: va **por meses** (modo `mensual`), ver abajo | **por montar** — asíncrona | `acb55dbd-290c-4c7b-a5d2-6858ce77649b` |
+| Informe Consejo de Dirección | `informe-consejo` | Nada: va **por meses o trimestres** (modo `mensual`), ver abajo | `CON - *` — asíncrona | `acb55dbd-290c-4c7b-a5d2-6858ce77649b` |
 
 El detalle de qué hace cada rama está en [[Generacion-Documentos]] (D1, D2, D4). Fuera quedan, a propósito, la rama **Carla / COMU** (rota por decisión) y la **base de conocimiento** (`Informe`), que sigue solo por el chat.
 
@@ -81,7 +81,9 @@ El apartado `informe-consejo` no sube ningún fichero (`modo: 'mensual'` en el c
 - Si el mes ya tiene informe, sale **Descargar informe** (URL firmada del bucket `informes-consejo`) y **Regenerar**.
 - Mientras uno se genera, la página consulta `consejo_informes` cada 15 s y avisa al terminar.
 
-**Contrato con la rama de n8n (por montar):** al recibir el webhook, pasa el informe a `generando`. Al terminar, sube el DOCX a `informes-consejo/<año>/<mes>/<nombre>` y deja `estado='listo'`, `archivo_path`, `archivo_nombre` y `generado_at`. Si falla, deja `estado='error'` y `error`. Todo con la service role. Mientras esa rama no exista, el botón acaba en error: la app marca la fila con el motivo.
+**Contrato con la rama de n8n (montada el 2026-10-22, rama `CON -` de «Polarier Auto App»):** al recibir el webhook, pasa el informe a `generando`. Al terminar, sube el DOCX a `informes-consejo/<año>/<mes>/<nombre>` (o `<año>/T<n>/<nombre>` si es trimestral) y deja `estado='listo'`, `archivo_path`, `archivo_nombre` y `generado_at`. Si falla, deja `estado='error'` y `error`. Todo con la service role. El payload lleva `mes` o `trimestre` (el otro a `null`). Cómo genera, en [[Informe-Consejo-Generacion]].
+
+**Trimestres (2026-10-22):** cada trimestre tiene su tarjeta encima de su último mes; se puede generar cuando a sus tres meses no les falta nada (`solicitar_informe_consejo_trimestre`, migración 014).
 
 Datos, reglas y migración en [[Informe-Consejo-Origen-Datos]] y [[Supabase]].
 

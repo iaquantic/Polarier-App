@@ -72,9 +72,14 @@ Sigue pendiente: la maestra tiene `{TABLA_SOBREGIROS}`, `{TABLA_SUBEJECUCIONES}`
 
 **Apartado por meses (2026-10-21):** el apartado ya enseña, mes a mes, qué datos hacen falta y si están, con «Generar informe» y «Descargar informe». Ver [[Informe-Consejo-Origen-Datos]], «Comprobación por mes»; migración 013 aplicada y primera carga de la TABLA CA 2026 hecha el 2026-10-21; n8n ya resincroniza tras cada Tabla CA; falta la rama que genera el informe.
 
-**Falta el backend.** Lo que hay que decidir:
+**Generación automática (2026-10-22):** montada y probada de punta a punta con mayo de 2026 el 2026-10-23. Las tablas salen de la TABLA CA y el GLOBAL del VPS, los textos los redacta una routine de Claude y n8n monta y sube el DOCX; también trimestral. Todo en [[Informe-Consejo-Generacion]]. Lo que sigue es la lista de decisiones que había antes; quedan resueltas así:
+- la TABLA CA se comprueba en Supabase (`tabla_ca_meses`) y se lee entera en el VPS;
+- la redacción corre en una routine en la nube;
+- la plantilla maestra y los históricos viven en `/data/Polarier/Leslie/Consejo/`.
 
-- **Cómo entran por mes los datos que hoy se teclean sin mes** (lencería, vacantes, cuentas por cobrar y pagar, plan de consumos) y las cuatro tablas que no están en ninguna fuente. Ver [[Informe-Consejo-Origen-Datos]].
+Las decisiones anteriores:
+
+- ~~Cómo entran por mes los datos que hoy se teclean sin mes~~ — decidido el 2026-10-22: no entran por nosotros. Del CD solo se rellena la tabla principal de la TABLA CA; las hojas auxiliares siguen tecleadas y salen como «sin comprobar». Lo que sigue es el estudio de origen, como referencia: **Cómo entran por mes los datos que hoy se teclean sin mes** (lencería, vacantes, cuentas por cobrar y pagar, plan de consumos) y el mando extranjero, que no está en ninguna fuente. Los informes que tributan al CD (revisados el 2026-10-22) explican el plan de los consumos, la lencería nueva, el desmanche, el mal uso y los inventarios, pero no los faltantes, las cuentas ni las vacantes. El mismo día se vio que el desmanche, el retiro y el mal uso del trimestral sí salen del CD. Ver [[Informe-Consejo-Origen-Datos]].
 - **Dónde se comprueba la TABLA CA**, que solo existe como xlsx en el VPS: o se sincroniza a Supabase como `global_ai`, o se le pregunta a n8n.
 
 - **Dónde corre el paso de redacción.** Es el único que necesita un modelo: hoy es Claude Code leyendo el repo. No es el pythonrunner del VPS ([[Generacion-Documentos]]), que solo ejecuta Python; y las ramas de n8n actuales no escriben JSON de análisis. O agente de n8n, o routine en la nube como en [[Routine-Informe-Mensual]], o Claude Code en una máquina.

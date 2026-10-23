@@ -12,3 +12,8 @@ scripts/_tmp_*.py
 data/**
 !data/**/
 !data/**/.gitkeep
+
+# Ejemplos (informes reales) y ficheros de trabajo del montaje automático.
+# Viven en el VPS (/data/Polarier/Leslie/Consejo/); en local solo para probar.
+ejemplos/
+trabajo/
