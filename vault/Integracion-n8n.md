@@ -128,6 +128,8 @@ Como los renombrados se ejecutan **antes**, arreglar solo el nodo de ejecución 
 
 `Switch4` y `Switch5` (y en general los `switch` de este workflow) tienen `options: {}`, sin `allMatchingOutputs`, así que **gana la primera regla que casa**. Consecuencia práctica: una regla con un `contains` corto en posición temprana **deja inalcanzables** todas las salidas posteriores que compartan esa subcadena. No duplica rutas, las anula.
 
+> **Histórico (2026-10-23):** `Switch4` ya no existe. La rama Modelo 1 se rediseñó (agente + `agente_modelo1.py` sobre el GLOBAL en disco y `global_ai` en Supabase) y ya no usa Google Sheets. El borrador `53dec2de` está **descartado** y además la retención del historial lo borró: no se puede publicar ni restaurar. `Switch5` sí tiene en producción los valores `CA`/`CC`. Ver «Auditoría 2026-10-23» al final de esta nota.
+
 Corregido como borrador el 2026-10-05 (sin publicar):
 
 | Nodo | Salida | Antes | Ahora | Efecto del bug |
@@ -172,4 +174,27 @@ Conviene saber qué cambia y qué no:
 
 Su valor es preparatorio: deja el enrutado correcto para cuando se retome la rama, y evita que el fichero general `COMU ABRIL GENERAL.xlsx` sea capturado por la regla `'C'` y renombrado como si fuera de Caibarién.
 
-**Borrador final: `53dec2de-7a48-4c13-8bed-db505eeccd86`**, sin publicar. Diff reverificado contra producción (`e2fa038a-20c8-46d8-a65f-d470a834c029`): mismos 142 nodos, mismas conexiones, y como únicas diferencias los cuatro valores de comparación de `Switch4` y `Switch5`. `Execute Command` idéntico al de producción.
+**Borrador final: `53dec2de-7a48-4c13-8bed-db505eeccd86`** — **DESCARTADO (2026-10-23)**: no publicar ni restaurar; ya no existe en el historial de versiones. Diff reverificado contra producción (`e2fa038a-20c8-46d8-a65f-d470a834c029`): mismos 142 nodos, mismas conexiones, y como únicas diferencias los cuatro valores de comparación de `Switch4` y `Switch5`. `Execute Command` idéntico al de producción.
+
+---
+
+## Auditoría 2026-10-23 (solo lectura)
+
+Versión activa `635d49df-9f3e-4202-bce8-d3f8dc00187d` (= `versionId`), publicada el 2026-10-23 con la rama `CON -`. 130 nodos, 5 triggers. Del historial solo queda esa versión: la retención borró las anteriores, `53dec2de` incluida. Informe completo en `C:\Trabajo\Hostinger Manager\n8n-baseline-2026-10-05.md`, sección «Auditoría 2026-10-23».
+
+- **Borrador `53dec2de` descartado.** El arreglo de `Switch5` (`CA`/`CC`) sí está en producción. `Switch4`, los `Delete rows…` (INT32) y `Update file1` (404 GLOBAL-CP26) ya no existen.
+- **Rama Ocupación rota por sintaxis:** en `Code in JavaScript3` la `ñ` quedó como `?` (`let a?o = …`), un *SyntaxError*. Le pasa lo mismo a `Caibari?n` y a la columna `DIA EN EL A?O ANTERIOR` de `Append row in sheet`. Es la única rama que sigue escribiendo en Google Sheets (hoja «Prueba»). **Corregido y publicado el 2026-10-23 como `c863623d-dd27-46b4-9056-af58c6a34138`** (OK de Leo): `let anio`, `Caibarién`, `DIA EN EL AÑO ANTERIOR`, `$input.all()`, y en `Append row in sheet` la columna real ` DIA EN EL AÑO ANTERIOR`. Solo cambian esos 2 nodos. Pendiente confirmar con el primer `Integral…` real.
+- **Los 5 webhooks no tienen autenticación**, y sus rutas van en el bundle de la app. **Descartado por Leo (2026-10-23):** la app tiene autenticación propia.
+- **`HTTP Request8` y `OC - Descargar` no tienen salida de error.** Si el fichero no está, la app recibe un 200 vacío (ejecuciones 529–531).
+- **No hay Error Workflow.** Los nodos de sincronización con Supabase que corren después de responder pueden fallar sin que nadie se entere.
+- **La rama Carla sigue igual de rota**, por decisión.
+
+### Cambios publicados el 2026-10-23 (`714ae296-da7c-47f5-8c6b-7840260d9673`)
+
+Con el OK de Leo. Activa = guardada, 4 triggers (`WH Ocupacion` desactivado), 130 nodos.
+
+- **Ramas Ocupación y Carla desactivadas** (8 y 13 nodos). `Switch3`[Carla] responde con el nodo nuevo `Aviso Carla`; `Aviso Ocupacion` avisa de que está desactivada. El arreglo de sintaxis de `Code in JavaScript3` (`c863623d`) queda dentro, listo para reactivar.
+- **`HTTP Request8`** con salida de error → `Descarga - Error` → `Responder aviso`.
+- **Error Workflow** «Polarier · Avisos de error» (`hklSpbbHKf38PaJq`): correo por «Gmail Quantic» a Leo y un segundo responsable (direcciones en el propio nodo Gmail); asunto especial si falla un nodo de sincronización con Supabase.
+- **Limpieza:** fuera `Transcribe a recording1` y la nota vacía; `Text Classifier` con `fallback = other` → `Respond to Webhook3`; `error5` con el detalle del fallo.
+- **Webhooks sin autenticación (los de este flujo y el de correo):** descartado por Leo, la app tiene autenticación propia.
