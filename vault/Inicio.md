@@ -9,6 +9,7 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Arquitectura]] — Cómo está montada la app (routing, auth, layout).
 - [[Stack-y-Convenciones]] — Tecnologías, comandos, reglas del proyecto.
 - [[Supabase]] — Tablas, buckets de Storage, RLS.
+- [[Rotacion-Claves-Supabase]] — Paso a las claves publishable/secret, consumidores y orden seguro para desactivar las legacy.
 - [[Integracion-n8n]] — Webhooks, modos prod/test, formato de respuestas.
 - [[Automatizaciones]] — **Sección «Automatizaciones»**: un apartado por proceso y un trigger propio por rama en n8n.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).

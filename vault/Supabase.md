@@ -3,7 +3,7 @@
 Proyecto Supabase usado para **auth, base de datos y Storage**.
 
 - Cliente: `src/lib/supabaseClient.ts` (flujo PKCE, `persistSession`).
-- URL y anon key vía variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`. Ver [[Deploy-Easypanel]].
+- URL y clave publishable vía variables `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (el nombre es histórico). Rotación y consumidores de cada clave: [[Rotacion-Claves-Supabase]]. Ver [[Deploy-Easypanel]].
 - La `anon key` es **pública** (va en el navegador). La seguridad real depende de las **RLS policies**.
 
 ## Tablas

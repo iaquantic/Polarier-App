@@ -24,8 +24,14 @@
 //   ROUTINE_ID     trig_…                 id de la routine
 //   ROUTINE_TOKEN  sk-ant-oat01-…         token del trigger de API
 //
+// Claves de Supabase: usa la publishable `default` (SUPABASE_PUBLISHABLE_KEYS) y
+// solo cae a la anon legacy si no existe, para seguir funcionando cuando se
+// desactiven las claves legacy. El JWT del usuario se comprueba aquí mismo
+// (auth.getUser), así que la función se despliega con verify_jwt = false: la
+// comprobación de la plataforma no entiende los JWT de las signing keys nuevas.
+//
 // Despliegue:
-//   supabase functions deploy disparar-informe-mensual
+//   supabase functions deploy disparar-informe-mensual --no-verify-jwt
 // -----------------------------------------------------------------------------
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
@@ -55,7 +61,24 @@ Deno.serve(async (req) => {
   }
 
   const authHeader = req.headers.get('Authorization');
-  if (!authHeader) return json({ error: 'Falta la cabecera Authorization' }, 401);
+  const jwt = authHeader?.replace(/^Bearer\s+/i, '');
+  if (!jwt) return json({ error: 'Falta la cabecera Authorization' }, 401);
+
+  const publishable: string | undefined =
+    JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS') ?? '{}')['default'] ??
+    Deno.env.get('SUPABASE_ANON_KEY');
+
+  // Cliente actuando COMO el usuario que llama: la RLS de monthly_reports hace
+  // de comprobación de permisos. Si la fila no vuelve, o no la ha creado él o no
+  // tiene acceso a ese hotel; en ambos casos no hay nada que disparar.
+  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, publishable!, {
+    global: { headers: { Authorization: `Bearer ${jwt}` } },
+    auth: { persistSession: false },
+  });
+
+  // Sustituye a verify_jwt: solo pasa una sesión real de Supabase Auth.
+  const { data: usuario, error: authError } = await supabase.auth.getUser(jwt);
+  if (authError || !usuario?.user) return json({ error: 'Sesión no válida' }, 401);
 
   let hotel_id: string, anio: number, mes: number;
   try {
@@ -66,15 +89,6 @@ Deno.serve(async (req) => {
   if (!hotel_id || !anio || !mes) {
     return json({ error: 'Faltan hotel_id, anio o mes' }, 400);
   }
-
-  // Cliente actuando COMO el usuario que llama: la RLS de monthly_reports hace
-  // de comprobación de permisos. Si la fila no vuelve, o no la ha creado él o no
-  // tiene acceso a ese hotel; en ambos casos no hay nada que disparar.
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: authHeader } } }
-  );
 
   const { data: fila, error } = await supabase
     .from('monthly_reports')

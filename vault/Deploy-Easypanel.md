@@ -17,7 +17,7 @@ Frontend **Vite** servido como estáticos. El `Dockerfile` (multi-stage) compila
 | Variable | Qué es |
 |----------|--------|
 | `VITE_SUPABASE_URL` | URL del proyecto Supabase. Ver [[Supabase]]. |
-| `VITE_SUPABASE_ANON_KEY` | Anon key (pública). |
+| `VITE_SUPABASE_ANON_KEY` | Clave **publishable** (`sb_publishable_…`, pública). Antes la anon legacy; ver [[Rotacion-Claves-Supabase]]. |
 | `VITE_N8N_WEBHOOK_URL` | Webhook n8n de producción. Ver [[Integracion-n8n]]. |
 | `VITE_N8N_WEBHOOK_URL_TEST` | Webhook n8n de test. |
 | `VITE_N8N_MODE` | `prod` o `test` — elige qué webhook usa la app. |

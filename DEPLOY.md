@@ -10,7 +10,7 @@ Este es un proyecto **Vite (frontend estático)**. Las variables `VITE_*` **NO s
 
 En Easypanel, al usar un servicio tipo **App** con build por Dockerfile, las variables definidas en la pestaña **Environment** se pasan también como build args a través de los `ARG` declarados en el `Dockerfile`. Con eso es suficiente.
 
-> Nota de seguridad: la `VITE_SUPABASE_ANON_KEY` es una clave **pública/anon** (pensada para el navegador). No es secreta, pero la seguridad real depende de tener bien configuradas las **RLS policies** en Supabase.
+> Nota de seguridad: la `VITE_SUPABASE_ANON_KEY` lleva la clave **publishable** (`sb_publishable_…`, pensada para el navegador; sustituye a la anon legacy, que se va a desactivar: ver `vault/Rotacion-Claves-Supabase.md`). No es secreta, pero la seguridad real depende de tener bien configuradas las **RLS policies** en Supabase.
 
 ---
 
@@ -20,7 +20,7 @@ En Easypanel → tu servicio → pestaña **Environment**, añade estas tres var
 
 ```
 VITE_SUPABASE_URL=https://zongaaygriklqsxzxfgl.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvbmdhYXlncmlrbHFzeHp4ZmdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNjU3NDIsImV4cCI6MjA5MDY0MTc0Mn0.d339dukdzDTULoEB3grjXC5NqrbCWEceNzGxSrOaa0A
+VITE_SUPABASE_ANON_KEY=sb_publishable_vU_VuGOTt6Jnc3iEsqURJA_DKDQCt7t
 VITE_N8N_WEBHOOK_URL=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook/cf778e0b-9af0-4f65-99f5-fc50634f2a90
 VITE_N8N_WEBHOOK_URL_TEST=https://polarierauto-n8n.1tn4v0.easypanel.host/webhook-test/cf778e0b-9af0-4f65-99f5-fc50634f2a90
 VITE_N8N_MODE=test
@@ -33,7 +33,7 @@ VITE_N8N_WEBHOOK_BASE_TEST=https://polarierauto-n8n.1tn4v0.easypanel.host/webhoo
 | Variable | Descripción |
 |----------|-------------|
 | `VITE_SUPABASE_URL` | URL del proyecto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Clave anónima (pública) de Supabase |
+| `VITE_SUPABASE_ANON_KEY` | Clave publishable (`sb_publishable_…`) de Supabase. El nombre se conserva de cuando era la anon legacy |
 | `VITE_N8N_WEBHOOK_URL` | Webhook n8n de **producción** |
 | `VITE_N8N_WEBHOOK_URL_TEST` | Webhook n8n de **test** (endpoint `/webhook-test/...` de n8n) |
 | `VITE_N8N_MODE` | `prod` o `test` — decide cuál de las dos URLs usa la app (aplica también al webhook de correo) |
