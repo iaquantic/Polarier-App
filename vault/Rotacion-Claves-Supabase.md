@@ -27,7 +27,7 @@ Las claves nuevas no son JWT: van en la cabecera `apikey`. En `Authorization: Be
 | `Postgres account` de n8n (memoria del chat) | contraseña de la base de datos | Nada: no depende de las claves JWT. | — |
 | Scripts del VPS (`vps/`), `consejo-direccion/` | ninguna | Nada (no leen claves de Supabase). | — |
 | `.env` local de Leo | anon legacy (probable) | Cambiar `VITE_SUPABASE_ANON_KEY` por la publishable. | Leo |
-| **Sin revisar:** workflows no legibles por el MCP (`chatbot multimensajes` `XtGbAdBxfI10sC3S`, `My workflow` `pxemOGf2sGwKSjch` y 5 más) y la credencial «Mr. Volant» (`mtppdy6KLo10esNf`) | ? | Mirar si alguno apunta a `zongaaygriklqsxzxfgl`. La memoria del proyecto dice que «Mr. Volant» es otro proyecto; no se ha vuelto a comprobar. | Leo |
+| **Sin revisar:** workflows no legibles por el MCP (`chatbot multimensajes` `XtGbAdBxfI10sC3S`, `My workflow` `pxemOGf2sGwKSjch` y 5 más) | ? | Mirar si alguno apunta a `zongaaygriklqsxzxfgl`: hay que activar «MCP access» en cada uno (tarjeta del workflow o Settings) o mirarlos en el editor. Los únicos activos son esos dos. La credencial «Mr. Volant» (`mtppdy6KLo10esNf`) **ya no es duda** (2026-10-26): no llega a ningún host («incorrect host»), así que no apunta a Polarier. | Leo |
 
 ## Cómo saber quién usa todavía las claves legacy
 
