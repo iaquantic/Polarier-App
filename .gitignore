@@ -10,6 +10,10 @@ dist-ssr/
 .env.local
 .env.*.local
 
+# Claude Code: permisos locales de cada equipo (pueden llevar comandos con
+# credenciales; ya pasó con una API key de n8n, ver 55c93b0)
+.claude/settings.local.json
+
 # Logs
 logs/
 *.log
