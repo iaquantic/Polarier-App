@@ -1,4 +1,5 @@
 import { MessageSquare, FolderOpen, Clock, Settings, LogOut, Sun, Moon, ClipboardCheck, Workflow, ChevronDown } from "lucide-react";
+import type { ReactNode } from "react";
 import PolarierLogo from "@/components/PolarierLogo";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -15,6 +16,21 @@ const navItems = [
   { label: "Configuración", icon: Settings, path: "/settings" },
 ];
 
+const auditItems = [
+  { label: "Dashboard", path: "/auditoria" },
+  { label: "Formularios de Control", path: "/auditoria/formularios" },
+  { label: "Histórico", path: "/auditoria/historico" },
+];
+
+// "Formularios de Control" queda marcado también al rellenar un parte
+// (`/auditoria/formulario/:defId`, en singular). Mismo criterio que AuditLayout.
+const auditItemActive = (path: string, pathname: string) =>
+  path === "/auditoria"
+    ? pathname === "/auditoria"
+    : path === "/auditoria/formularios"
+      ? pathname.startsWith("/auditoria/formulario")
+      : pathname.startsWith(path);
+
 interface AppSidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,16 +41,22 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { hasAuditAccess } = useRole();
+  const { hasAuditAccess, activeHotel } = useRole();
   const [chats, setChats] = useState<Chat[]>([]);
-  // El submenú se abre solo cuando estás dentro de la sección, y se puede
+  // Los submenús se abren solos cuando estás dentro de la sección, y se pueden
   // plegar a mano sin salir de ella.
   const enAutomatizaciones = location.pathname.startsWith("/automatizaciones");
   const [autosOpen, setAutosOpen] = useState(enAutomatizaciones);
+  const enAuditoria = location.pathname.startsWith("/auditoria");
+  const [auditOpen, setAuditOpen] = useState(enAuditoria);
 
   useEffect(() => {
     if (enAutomatizaciones) setAutosOpen(true);
   }, [enAutomatizaciones]);
+
+  useEffect(() => {
+    if (enAuditoria) setAuditOpen(true);
+  }, [enAuditoria]);
 
   const refreshChats = () => getChats().then(setChats).catch(() => {});
 
@@ -68,6 +90,23 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
       active ? "neo-inset-sm neo-accent font-extrabold" : "neo-text font-bold hover:bg-[var(--neo-well)]"
     }`;
 
+  const subItem = (key: string, label: ReactNode, path: string, active: boolean) => (
+    <button
+      key={key}
+      onClick={() => handleNav(path)}
+      aria-current={active ? "page" : undefined}
+      className={`text-left text-[13px] px-3 py-2 rounded-xl transition-colors ${
+        active
+          ? "neo-inset-sm neo-accent font-extrabold"
+          : "neo-text-2 font-semibold hover:bg-[var(--neo-well)]"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
+  const submenuClass = "flex flex-col gap-0.5 ml-[26px] pl-3 border-l-2 border-[var(--neo-well)]";
+
   return (
     <>
       {isOpen && (
@@ -88,14 +127,37 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
 
         <nav className="flex-1 flex flex-col gap-1.5 px-3 overflow-y-auto min-h-0">
           {/* Auditoría: solo para quien tiene algún rol en el módulo. Un auditor
-              puro nunca llega a este sidebar (vive en AuditLayout); esto es la
-              puerta de entrada de administradores y supervisores, que además
-              usan el chat y aterrizan en el lobby. */}
+              puro nunca llega a este sidebar (vive en AuditLayout); administradores
+              y supervisores, que además usan el chat, recorren el módulo desde
+              este desplegable sin cambiar de barra lateral. */}
           {hasAuditAccess && (
-            <button onClick={() => handleNav("/auditoria")} className={itemClass(false)}>
-              <ClipboardCheck size={18} className="neo-accent" />
-              <span>Auditoría</span>
-            </button>
+            <>
+              <button
+                onClick={() => setAuditOpen((v) => !v)}
+                aria-expanded={auditOpen}
+                className={itemClass(enAuditoria)}
+              >
+                <ClipboardCheck size={18} className="neo-accent" />
+                <span className="flex-1">Auditoría</span>
+                <ChevronDown
+                  size={15}
+                  className={`neo-accent transition-transform ${auditOpen ? "" : "-rotate-90"}`}
+                />
+              </button>
+
+              {auditOpen && (
+                <div className={submenuClass}>
+                  {activeHotel && (
+                    <p className="neo-text-2 text-[11px] font-bold truncate px-3 pt-1 pb-1.5" title={activeHotel.nombre}>
+                      {activeHotel.nombre}
+                    </p>
+                  )}
+                  {auditItems.map((item) =>
+                    subItem(item.path, item.label, item.path, auditItemActive(item.path, location.pathname)),
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {/* Automatizaciones: un apartado por rama de n8n. El chat sigue
@@ -114,23 +176,10 @@ const AppSidebar = ({ isOpen, onClose }: AppSidebarProps) => {
           </button>
 
           {autosOpen && (
-            <div className="flex flex-col gap-0.5 ml-[26px] pl-3 border-l-2 border-[var(--neo-well)]">
+            <div className={submenuClass}>
               {AUTOMATIZACIONES.map((auto) => {
-                const active = location.pathname === `/automatizaciones/${auto.slug}`;
-                return (
-                  <button
-                    key={auto.slug}
-                    onClick={() => handleNav(`/automatizaciones/${auto.slug}`)}
-                    aria-current={active ? "page" : undefined}
-                    className={`text-left text-[13px] px-3 py-2 rounded-xl transition-colors ${
-                      active
-                        ? "neo-inset-sm neo-accent font-extrabold"
-                        : "neo-text-2 font-semibold hover:bg-[var(--neo-well)]"
-                    }`}
-                  >
-                    {auto.nombre}
-                  </button>
-                );
+                const path = `/automatizaciones/${auto.slug}`;
+                return subItem(auto.slug, auto.nombre, path, location.pathname === path);
               })}
             </div>
           )}

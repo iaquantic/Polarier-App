@@ -25,9 +25,14 @@ Un usuario **auditor** entra en la app y ve **solo** su mundo (sin chat/document
 - `getSubmission()` filtra por `user_id` propio. No es una optimización: sin ese filtro, un admin con la RLS abierta recibiría varias filas (revienta el `maybeSingle`) o cargaría el parte de otra persona en el formulario de hoy. Para abrir uno concreto del histórico está `getSubmissionById()`, al que se llega con `?sub=<id>`.
 - `monthly_reports` **no** se tocó: la routine lee `audit_mes`/`audit_mes_dias`, que ya agregan el mes entero del hotel, así que el informe que genera un administrador cubre el trabajo de todos.
 
-## Navegación (layout propio)
+## Navegación
 
-`AuditLayout` con sidebar reducido: **Dashboard** (`/auditoria`), **Formularios de Control** (`/auditoria/formularios`) e **Histórico** (`/auditoria/historico`). Muestra el hotel activo.
+Tres páginas: **Dashboard** (`/auditoria`), **Formularios de Control** (`/auditoria/formularios`) e **Histórico** (`/auditoria/historico`), siempre con el hotel activo a la vista. El layout depende del rol (`AuditShell` en `App.tsx`, 2026-10-27):
+
+- **Auditor puro:** `AuditLayout`, una barra lateral reducida sin chat.
+- **Cualquier otro rol (admin, supervisor):** las mismas páginas dentro de `AppLayout`. «Auditoría» es un desplegable del sidebar normal, como «Automatizaciones», para que el módulo no parezca una aplicación aparte.
+
+`RoleContext` solo da los roles por cargados cuando son los del usuario de la sesión actual (`loadedFor`). Antes, al recargar una página `/auditoria…`, había un render con la sesión ya puesta y los roles vacíos, y `AuditorRoute` mandaba al lobby.
 
 **Pantalla de inicio:** `/auditoria` es el **dashboard**. Un auditor puro que inicia sesión cae en `/lobby`, y `NonAuditorGate` lo redirige a `/auditoria`, así que el dashboard es lo primero que ve. (Una cuenta con rol auditor *y además* otro rol sigue entrando por el lobby: tiene chat.)
 
@@ -76,7 +81,7 @@ src/services/audit.ts        ← catálogos, definiciones, submissions (CRUD)
 src/services/hotels.ts       ← hoteles y roles del usuario
 src/context/RoleContext.tsx  ← rol/hotel activo
 src/components/audit/
-  AuditLayout.tsx            ← layout del auditor (sidebar sin chat)
+  AuditLayout.tsx            ← layout del auditor puro (sidebar sin chat)
   LenceriaMatrix.tsx         ← matriz de lencería
   LineasTable.tsx            ← tabla de líneas por vale (producción/cuadrador)
   DashboardControl.tsx       ← dashboard por hotel y mes (recharts)

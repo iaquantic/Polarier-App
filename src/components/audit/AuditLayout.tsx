@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, ClipboardList, Clock, LayoutDashboard, LogOut, Sun, Moon, Home } from "lucide-react";
+import { Menu, ClipboardList, Clock, LayoutDashboard, LogOut, Sun, Moon } from "lucide-react";
 import PolarierLogo from "@/components/PolarierLogo";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -16,8 +16,8 @@ const navItems = [
  * Layout dedicado al auditor: navegación reducida (formularios + histórico),
  * sin chat ni documentos. Mismo diseño que el chat: mosaico Polarier de fondo,
  * barra lateral blanca en relieve y contenido en el ámbito .neo-audit
- * (vault/Diseno-Neoformista.md). Quien no es solo auditor (un admin que entra
- * desde el lobby) tiene además un acceso de vuelta al inicio.
+ * (vault/Diseno-Neoformista.md). Solo lo ve el auditor puro: quien además usa
+ * el chat recorre el módulo dentro de AppLayout (desplegable «Auditoría»).
  */
 const AuditLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,7 +25,7 @@ const AuditLayout = () => {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { activeHotel, isAuditorOnly } = useRole();
+  const { activeHotel } = useRole();
 
   const handleNav = (path: string) => {
     navigate(path);
@@ -75,12 +75,6 @@ const AuditLayout = () => {
         )}
 
         <nav className="flex-1 flex flex-col gap-1.5 px-3 overflow-y-auto min-h-0">
-          {!isAuditorOnly && (
-            <button onClick={() => handleNav("/lobby")} className={itemClass(false)}>
-              <Home size={18} className="neo-accent" />
-              <span>Volver al inicio</span>
-            </button>
-          )}
           {navItems.map((item) => {
             // "Formularios de Control" queda marcado también al rellenar un parte
             // (`/auditoria/formulario/:defId`, en singular).

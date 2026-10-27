@@ -11,6 +11,9 @@ const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const isChat = location.pathname.startsWith("/chat");
+  // Las páginas de auditoría usan su propio ámbito (.neo-audit), que además
+  // reescribe los tokens de shadcn de formularios, tablas y dashboard.
+  const scope = location.pathname.startsWith("/auditoria") ? "neo-audit" : "neo-ground";
 
   return (
     // El mosaico Polarier es el fondo de todas las pestañas del menú y la barra lateral
@@ -21,7 +24,7 @@ const AppLayout = () => {
       <div className="flex-1 flex flex-col h-screen-dvh overflow-hidden">
         {/* Mobile header — oculto en /chat porque Chat.tsx tiene su propio header con botón */}
         {!isChat && (
-          <div className="neo-ground lg:hidden flex items-center px-4 pt-3 safe-top">
+          <div className={`${scope} lg:hidden flex items-center px-4 pt-3 safe-top`}>
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Abrir menú"
@@ -31,7 +34,7 @@ const AppLayout = () => {
             </button>
           </div>
         )}
-        <main className={`flex-1 flex flex-col overflow-y-auto ${isChat ? "" : "neo-ground"}`}>
+        <main className={`flex-1 flex flex-col overflow-y-auto ${isChat ? "" : scope}`}>
           <Outlet context={{ openSidebar: () => setSidebarOpen(true) } satisfies LayoutContext} />
         </main>
       </div>

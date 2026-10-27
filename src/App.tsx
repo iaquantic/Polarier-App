@@ -68,6 +68,14 @@ const AuditorRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Un auditor puro trabaja en su layout reducido (sin chat). Quien además usa el
+// resto de la app ve el módulo dentro de AppLayout, como un desplegable más del
+// sidebar, para que no parezca una aplicación aparte.
+const AuditShell = () => {
+  const { isAuditorOnly } = useRole();
+  return isAuditorOnly ? <AuditLayout /> : <AppLayout />;
+};
+
 // Envuelve las rutas "normales": un auditor puro es redirigido a su módulo.
 const NonAuditorGate = ({ children }: { children: React.ReactNode }) => {
   const { isAuditorOnly, loading } = useRole();
@@ -92,8 +100,8 @@ const App = () => (
                 <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* Módulo de auditoría (solo auditores) */}
-                <Route element={<AuditorRoute><AuditLayout /></AuditorRoute>}>
+                {/* Módulo de auditoría (cualquier rol de auditoría) */}
+                <Route element={<AuditorRoute><AuditShell /></AuditorRoute>}>
                   <Route path="/auditoria" element={<AuditDashboard />} />
                   <Route path="/auditoria/formularios" element={<AuditHome />} />
                   <Route path="/auditoria/formulario/:defId" element={<AuditForm />} />

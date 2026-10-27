@@ -26,7 +26,7 @@ Las claves nuevas no son JWT: van en la cabecera `apikey`. En `Authorization: Be
 | Routines de Claude (informe mensual, informe del Consejo) | conector MCP de Supabase (OAuth) | Nada. | — |
 | `Postgres account` de n8n (memoria del chat) | contraseña de la base de datos | Nada: no depende de las claves JWT. | — |
 | Scripts del VPS (`vps/`), `consejo-direccion/` | ninguna | Nada (no leen claves de Supabase). | — |
-| `.env` local de Leo | anon legacy (probable) | Cambiar `VITE_SUPABASE_ANON_KEY` por la publishable. | Leo |
+| `.env` local de Leo | anon legacy | **Hecho el 2026-10-27:** `VITE_SUPABASE_ANON_KEY` ya es la publishable `default` (el login local daba error de clave legacy). Tras cambiar el `.env` hay que reiniciar `bun dev`. | — |
 | Workflows que el MCP no podía leer (`chatbot multimensajes` `XtGbAdBxfI10sC3S`, `My workflow` `pxemOGf2sGwKSjch` y 5 más) | — | **Revisados el 2026-10-26:** con «MCP access» activado, el chatbot solo usa las tablas `clientes` y `mensajes`, que no existen en Polarier; `My workflow` ya no está en la instancia; los otros 5 están inactivos. La credencial «Mr. Volant» (`mtppdy6KLo10esNf`) no apunta a Polarier («incorrect host»). En los logs, desde la desactivación, ninguna petición legacy salvo las pruebas con `curl`. | — |
 
 ## Cómo saber quién usa todavía las claves legacy

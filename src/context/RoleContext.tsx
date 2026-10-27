@@ -21,24 +21,33 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 export const RoleProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [roles, setRoles] = useState<HotelRole[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(true);
+  // Usuario cuyos roles están en `roles`. Sin esto, en el render en que aparece
+  // la sesión `loading` seguía en false con los roles vacíos (los de "sin
+  // usuario") y AuditorRoute mandaba al lobby al recargar /auditoria.
+  const [loadedFor, setLoadedFor] = useState<string | null | undefined>(undefined);
+  const userId = user?.id ?? null;
 
   const load = async () => {
     if (!user) {
       setRoles([]);
-      setLoading(false);
+      setLoadedFor(null);
+      setFetching(false);
       return;
     }
-    setLoading(true);
+    setFetching(true);
     try {
       const r = await getMyRoles();
       setRoles(r);
     } catch {
       setRoles([]);
     } finally {
-      setLoading(false);
+      setLoadedFor(user.id);
+      setFetching(false);
     }
   };
+
+  const loading = fetching || loadedFor !== userId;
 
   useEffect(() => {
     load();

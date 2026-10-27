@@ -36,8 +36,8 @@ Rediseño aprobado por Leo el 2026-10-16, sección a sección, sobre vistas prev
   - El amarillo o el azul solo en el fondo.
   - Superficies claras (crema vainilla / azul hielo), con azul marino en claro y amarillo/ocre en oscuro.
   - Barra lateral blanca en relieve, con el hotel en un recuadro hundido.
-  - Quien no es solo auditor tiene además «Volver al inicio».
-- **Ámbito `.neo-audit`** (en `AuditLayout`): fija las `--neo-*` y además reescribe los tokens de shadcn, porque formularios, tablas y dashboard siguen usando `bg-card`, `text-primary`, `border-border`… En oscuro:
+  - Esa barra propia solo la ve el auditor puro. Quien además usa el chat ve el módulo dentro de `AppLayout`, como el desplegable «Auditoría» del sidebar normal (2026-10-27).
+- **Ámbito `.neo-audit`** (en `AuditLayout`, y en `AppLayout` cuando la ruta es `/auditoria…`): fija las `--neo-*` y además reescribe los tokens de shadcn, porque formularios, tablas y dashboard siguen usando `bg-card`, `text-primary`, `border-border`… En oscuro:
   - `--primary` es ocre, porque también se usa como color de texto sobre blanco.
   - `--secondary` es amarillo: es el de los botones rellenos.
   - La cabecera de las tablas (`.tbl-head`) y los paneles del dashboard (`.polarier-head`) pasan a amarillo con texto oscuro.
