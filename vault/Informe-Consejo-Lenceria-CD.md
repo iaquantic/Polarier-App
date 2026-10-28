@@ -1,6 +1,6 @@
 # Informe del Consejo — lencería por mes desde el CD (diseño)
 
-> **Estado: en producción desde el 2026-10-28**, salvo la app (rama `informe-consejo/lenceria-cd`, sin fusionar). Leo aprobó el diseño con las tres propuestas de abajo, tras leer las respuestas del formulario ([[Informe-Consejo-Origen-Datos]], «Respuestas del 2026-10-28»).
+> **Estado: en producción desde el 2026-10-28.** La app, desde la PR 42 (merge `f1bd772`, `polarierapp` desplegada a las 17:46 UTC). Leo aprobó el diseño con las tres propuestas de abajo, tras leer las respuestas del formulario ([[Informe-Consejo-Origen-Datos]], «Respuestas del 2026-10-28»).
 >
 > **Puesto en producción el 2026-10-28:**
 > - **VPS:** el commit `3d6b90e`, instalado con `Leslie/instalar_consejo.py` (16 ficheros, más el extractor en `Leslie/CD/`).

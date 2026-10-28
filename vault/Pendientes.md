@@ -283,7 +283,7 @@ Sección nueva en la app con un apartado por proceso y un trigger propio por ram
 - [x] **Easypanel, `polarierapp`:** fuente cambiada de `leonardojcddev/Polarier-App` a `iaquantic/Polarier-App` y desplegada sin problemas (2026-10-23).
 - [ ] **Lencería del CD** ([[Informe-Consejo-Lenceria-CD]], en producción el 2026-10-28):
   - Reunir los CD de 2026 de los polos activos y cargar su lencería. Sin ellos, solo mayo se puede generar.
-  - Fusionar `informe-consejo/lenceria-cd` y desplegar `polarierapp` con el grupo «Lencería del CD».
+  - [x] Fusionar `informe-consejo/lenceria-cd` y desplegar `polarierapp` con el grupo «Lencería del CD» (PR 42, 2026-10-28).
   - Confirmar la regla de los faltantes con quien prepara la TABLA CA.
   - Pedir los adjuntos prometidos en el formulario: pesos por prenda y modelos de mal uso, inventarios y lencería nueva.
   - Comprobar la carga con el primer CD real que se suba desde la app.
