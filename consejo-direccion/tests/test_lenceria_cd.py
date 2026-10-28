@@ -36,8 +36,23 @@ def fila(anio, mes, polo, bloque, valores, estado="ok"):
             "valores": valores, "totales": {}}
 
 
-def fu(filas_cd):
-    return SimpleNamespace(lenceria=Lenceria(filas_cd))
+class TablaCA:
+    """Lo justo de excel_eval.Libro para leer «REAL PRODUCCIÓN» de la hoja de cada polo."""
+
+    def __init__(self, produccion):  # {"VARADERO": {mes: kg}}
+        self.produccion = produccion
+        self.f = {h: SimpleNamespace(cell=lambda r, c: SimpleNamespace(value="REAL PRODUCCIÓN" if r == 9 else None))
+                  for h in produccion}
+
+    def hoja(self, nombre):
+        return nombre if nombre in self.produccion else None
+
+    def valor(self, hoja, fila, col):
+        return self.produccion[hoja].get(col - 2) if fila == 9 else None
+
+
+def fu(filas_cd, produccion=None):
+    return SimpleNamespace(lenceria=Lenceria(filas_cd), ca=TablaCA(produccion) if produccion else None)
 
 
 def cant(**kw):
@@ -56,10 +71,22 @@ def test_rechazo_vacio_cerrado_y_total():
     assert t[2] == ["Sábana Personal", "—", "1,200", "-", "1,200", ""]
     assert t[3] == ["Sábana King", "—", "-", "-", "-", ""]  # en un bloque rellenado, el blanco es cero
     assert t[10] == ["TOTAL PRENDAS", "—", "1,230", "-", "1,230", ""]
-    assert t[11][1:] == ["", "", "", "", ""]  # kg: falta el peso de cada prenda
+    assert t[11] == ["TOTAL RECHAZO (kg)", "—", "905", "-", "905", ""]  # 1200 × 0,75 + 30 × 0,17
+    assert t[12] == ["RECHAZO/PROD. (%)", "—", "", "-", "", ""]  # sin la TABLA CA no hay kg lavados
     assert any("Habana" in a and "sin rellenar" in a for a in r.avisos)
-    assert any("peso de cada prenda" in a for a in r.avisos)
+    assert any("kg lavados" in a and "Varadero" in a for a in r.avisos)
     assert any("año anterior va en blanco" in a for a in r.avisos)
+
+
+def test_porcentaje_sobre_los_kg_lavados_de_la_tabla_ca():
+    datos = [fila(2030, 5, "varadero", "retiro", cant(sabana_king=500, toalla_bidet=9))]
+    tb = proto("RETIRO GENERADO MAYO", ["Lencería", "Varadero", "TOTAL", "TOTAL 2029"],
+               PRENDAS_PROTO + ["TOTAL", "TOTAL RETIRO (kg)", "RETIRO /PROD. (%)"])
+    [r] = CONSTRUCTORES_CD["TABLA_RETIRO"](fu(datos, {"VARADERO": {5: 25500}}), Periodo(2030, mes=5), [tb], 2030)
+    t = texto(r.xml)
+    assert t[11] == ["TOTAL RETIRO (kg)", "510", "510", ""]  # 500 × 1,02; la bidet no pesa
+    assert t[12] == ["RETIRO /PROD. (%)", "2%", "2%", ""]  # 510 / 25 500
+    assert any("bidet no tiene peso" in a for a in r.avisos)
 
 
 def test_trimestre_suma_y_anio_anterior():

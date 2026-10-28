@@ -99,7 +99,7 @@ n8n rama CON - → nuevo: CON - Leer lencería (Supabase) → preparar_consejo.p
 
 ## Lo que la fase 1 no puede rellenar todavía
 
-- **kg y % de rechazo, mal uso y retiro.** Se calculan con el peso de cada prenda, del informe logístico que prometieron (P3, P7), y los kg lavados del mes. Mientras no llegue, esas filas salen en blanco, con aviso.
+- ~~kg y % de rechazo, mal uso y retiro~~ **Resuelto el 2026-10-28.** Llegó la tabla de pesos por pieza (P3, P7), que está en `PESOS` de `consejo-direccion/src/lenceria_cd.py`. kg = cantidad × peso; % = kg / kg lavados del mes (fila «REAL PRODUCCIÓN» del polo en la TABLA CA). Con mayo de 2026 los % coinciden con el informe y los kg difieren hasta un 2 %; quizá la TABLA CA usa pesos con más decimales. La toalla bidet no tiene peso y no cuenta en los kg.
 - **Pérdida económica de los faltantes:** la calcula Economía con el sistema contable (P11). El CD trae un «Importe» por hotel. Hay que confirmar si es esa pérdida, y en qué moneda.
 - **Columna del año anterior** («TOTAL 2025»): saldría de los CD del mismo mes de 2025. Sin ellos, en blanco con aviso.
 

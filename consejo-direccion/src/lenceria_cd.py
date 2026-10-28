@@ -11,8 +11,9 @@ Reglas:
   - un polo sin filas en el período no lavó (P31): sus cantidades van a 0 («-»);
   - un bloque «vacio» o «no_encontrado» en el CD sale «—», con aviso;
   - trimestre: cantidades y desmanche se suman; las montas se promedian;
-  - las filas de kg y % sobre la producción quedan en blanco hasta tener el peso
-    de cada prenda (P3, P7), y la pérdida económica de los faltantes también (P11);
+  - kg = cantidad de cada prenda × su peso (PESOS, P3 y P7) y % = kg / kg lavados
+    del mes (fila «REAL PRODUCCIÓN» del polo en la TABLA CA); la pérdida económica
+    de los faltantes queda en blanco: la calcula Economía (P11);
   - la columna del año anterior sale del CD del mismo período del año anterior;
     si no está cargado, en blanco con aviso.
 """
@@ -34,7 +35,31 @@ CERRADO = "cerrado"
 FMT_ENTERO = '#,##0;-#,##0;"-"'
 FMT_INDICE = "0.00"
 FMT_PCT = "0%"
-AVISO_PESOS = "kg y % sobre la producción en blanco: falta el peso de cada prenda (P3, P7)"
+
+# Peso de cada pieza en kg, de la tabla de pesos enviada el 2026-10-28 en respuesta a
+# P3 y P7. Con los CD de mayo de 2026 reproduce los kg del informe de mayo con una
+# diferencia de hasta el 2 %. La toalla bidet no tiene peso: no cuenta en los kg.
+PESOS = {"sabana_personal": 0.75, "sabana_king": 1.02, "funda": 0.17, "toalla_alfombra": 0.25,
+         "toalla_bano": 0.61, "toalla_cara": 0.27, "toalla_facial": 0.06, "toalla_piscina": 0.94}
+HOJA_POLO = {"HA": "HABANA", "VA": "VARADERO", "CA": "CAIBARIEN", "CC": "CAYOCOCO", "CX": "CAYOCRUZ",
+             "HO": "HOLGUÍN"}
+
+
+def produccion(fu, per: Periodo, k: str) -> Optional[float]:
+    """kg lavados del polo en el período: fila «REAL PRODUCCIÓN» de su hoja en la TABLA CA."""
+    libro = getattr(fu, "ca", None)
+    if libro is None:
+        return None
+    h = libro.hoja(HOJA_POLO[k])
+    if h is None:
+        return None
+    ws = libro.f[h]
+    fila = next((r for r in range(1, 120) if re.match(r"^real produccion", norm(ws.cell(r, 1).value))), None)
+    if fila is None:
+        return None
+    vals = [libro.valor(h, fila, 2 + m) for m in per.meses]  # columna C = enero
+    nums = [v for v in vals if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    return sum(nums) or None
 
 
 def prenda_de(rotulo: str) -> Optional[str]:
@@ -170,8 +195,42 @@ def tabla_por_prendas(fu, per: Periodo, proto, anio_proto: int, bloque: str, med
             ant = agregar(vals) if vals else (0 if modo == "suma" else None)
         return fila + [_celda(total, fmt), _celda(total, fmt), "" if ant is None else _celda(ant, fmt)]
 
+    # kg por polo: cada prenda por su peso. CERRADO y None (sin rellenar) pasan tal cual.
+    kg = {}
+    for k, _, _ in POLOS:
+        d = actual.get(k)
+        kg[k] = d if d is CERRADO or d is None else sum((d.get(p) or 0) * w for p, w in PESOS.items())
+    if any(isinstance(d, dict) and d.get("toalla_bidet") for d in actual.values()):
+        avisos.append("la toalla bidet no tiene peso: no cuenta en los kg")
+
+    def fila_kg():
+        nums = [v for v in kg.values() if isinstance(v, (int, float))]
+        total = sum(nums)
+        return [_celda(kg[k], FMT_ENTERO) for k, _, _ in POLOS] + [_celda(total, FMT_ENTERO)] * 2 + [""]
+
+    def fila_pct():
+        fila, kg_t, prod_t, sin_prod = [], 0.0, 0.0, []
+        for k, _, nombre in POLOS:
+            v = kg[k]
+            if v is None:
+                fila.append(SIN_DATO)
+                continue
+            if v is CERRADO:
+                fila.append(formatear(0, FMT_ENTERO))
+                continue
+            prod = produccion(fu, per, k)
+            if not prod:
+                sin_prod.append(nombre)
+                fila.append("")
+                continue
+            fila.append(formatear(v / prod, FMT_PCT))
+            kg_t, prod_t = kg_t + v, prod_t + prod
+        if sin_prod:
+            avisos.append("sin los kg lavados de la TABLA CA para " + ", ".join(sin_prod) + ": su % va en blanco")
+        total = formatear(kg_t / prod_t, FMT_PCT) if prod_t else ""
+        return fila + [total, total, ""]
+
     filas_b = []
-    kg_vacio = False
     for tr in filas(proto)[filas_cabecera:]:
         tcs = celdas(tr)
         rot = texto_celda(tcs[0]) if tcs else ""
@@ -179,16 +238,15 @@ def tabla_por_prendas(fu, per: Periodo, proto, anio_proto: int, bloque: str, med
         p = prenda_de(rot)
         if p:
             filas_b.append([rot] + valores_fila([p]))
-        elif "(kg)" in t or "%" in t or "/prod" in t.replace(" ", ""):
-            filas_b.append([rot] + [""] * (len(POLOS) + 3))
-            kg_vacio = True
+        elif "(kg)" in t:
+            filas_b.append([rot] + fila_kg())
+        elif "%" in t or "/prod" in t.replace(" ", ""):
+            filas_b.append([rot] + fila_pct())
         elif t.startswith("total"):
             prendas_proto = [prenda_de(texto_celda(celdas(x)[0])) for x in filas(proto)[filas_cabecera:]]
             filas_b.append([rot] + valores_fila([x for x in prendas_proto if x]))
         else:
             filas_b.append([rot] + [""] * (len(POLOS) + 3))
-    if kg_vacio:
-        avisos.append(AVISO_PESOS)
     b = Bloque(f"CD › lencería › {bloque}", _cabecera(per), filas_b, avisos=avisos)
     return rellenar(proto, b, per, anio_proto, filas_cabecera=filas_cabecera)
 
