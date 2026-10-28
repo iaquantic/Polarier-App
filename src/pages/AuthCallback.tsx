@@ -5,9 +5,9 @@ import AuthCard from "@/components/AuthCard";
 import { useAuth } from "@/context/AuthContext";
 
 /**
- * Callback tras verificar email o recuperar contraseña.
+ * Callback tras verificar email, recuperar contraseña o entrar con Google.
  * - type=recovery → /reset-password
- * - resto (verificación de signup) → /lobby
+ * - resto (verificación de signup, OAuth) → /lobby
  */
 const AuthCallback = () => {
   const navigate = useNavigate();

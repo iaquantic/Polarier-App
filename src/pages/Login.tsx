@@ -2,16 +2,29 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import AuthCard from "@/components/AuthCard";
+import GoogleIcon from "@/components/GoogleIcon";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginGoogle } = useAuth();
   const [showPass, setShowPass] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Si va bien, la página sale hacia Google: solo se vuelve a habilitar el botón si falla.
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
+    try {
+      await loginGoogle();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo iniciar sesión con Google");
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -113,6 +126,23 @@ const Login = () => {
         >
           {loading ? "Iniciando..." : "Iniciar sesión"}
           {!loading && <ArrowRight size={18} />}
+        </button>
+
+        <div className="flex items-center gap-3" aria-hidden="true">
+          <div className="flex-1 h-px" style={{ background: "var(--neo-text-2)", opacity: 0.35 }} />
+          <span className="neo-text-2 text-xs font-bold">o</span>
+          <div className="flex-1 h-px" style={{ background: "var(--neo-text-2)", opacity: 0.35 }} />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogle}
+          disabled={googleLoading || loading}
+          className="neo-white-btn neo-press w-full flex items-center justify-center gap-2.5 py-3.5 rounded-[18px] text-[15px] font-bold"
+          style={{ color: "#0E1333" }}
+        >
+          <GoogleIcon />
+          {googleLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
         </button>
 
         <p className="neo-text-2 text-center text-[13px] font-medium">

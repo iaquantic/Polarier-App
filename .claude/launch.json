@@ -4,8 +4,21 @@
     {
       "name": "polarier-dev",
       "runtimeExecutable": "bun",
-      "runtimeArgs": ["dev"],
+      "runtimeArgs": [
+        "dev"
+      ],
       "port": 8080
+    },
+    {
+      "name": "polarier-dev-5180",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--port",
+        "5180"
+      ],
+      "port": 5180
     }
   ]
 }

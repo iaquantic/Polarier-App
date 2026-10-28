@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import AuthCard from "@/components/AuthCard";
+import GoogleIcon from "@/components/GoogleIcon";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 
 const Register = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, loginGoogle } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +16,23 @@ const Register = () => {
   const [showPass, setShowPass] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Con Google no hay correo de verificación: la cuenta queda creada al volver.
+  const handleGoogle = async () => {
+    if (!accepted) {
+      toast.error("Debes aceptar los términos y condiciones");
+      return;
+    }
+    setGoogleLoading(true);
+    try {
+      await loginGoogle();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo continuar con Google");
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -146,6 +163,22 @@ const Register = () => {
           className="w-full py-2.5 bg-secondary text-secondary-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm disabled:opacity-50"
         >
           {loading ? "Creando..." : "Crear cuenta"}
+        </button>
+
+        <div className="flex items-center gap-3" aria-hidden="true">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-xs text-muted-foreground">o</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogle}
+          disabled={googleLoading || loading}
+          className="w-full py-2.5 border border-border rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-muted transition-colors bg-card disabled:opacity-50"
+        >
+          <GoogleIcon size={16} />
+          {googleLoading ? "Redirigiendo a Google..." : "Continuar con Google"}
         </button>
 
         <p className="text-center text-sm text-muted-foreground mt-4">

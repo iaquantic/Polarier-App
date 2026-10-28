@@ -134,3 +134,27 @@ El borrado requiere policies `DELETE` para `auth.uid() = user_id` en `chats`, `c
 En **Authentication → URL Configuration** hay que registrar el dominio de producción:
 - **Site URL**: `https://tu-dominio`
 - **Redirect URLs**: `https://tu-dominio/**` (necesario para OAuth de Google y reset de contraseña).
+
+## Login con Google
+
+Vuelve desde el 2026-10-28 (se había quitado en `v1.3`). Botón «Continuar con Google» en
+`/login` y `/register`; `signInWithGoogle()` en `src/services/auth.ts`.
+
+- **Supabase:** el proveedor Google ya estaba activo, con un client ID de Google Cloud
+  (Authentication → Sign In / Providers → Google). El callback que Google tiene que
+  conocer es `https://zongaaygriklqsxzxfgl.supabase.co/auth/v1/callback`.
+- **Vuelta a la app:** `redirectTo` es `<origen>/auth/callback` en web y
+  `polarier://auth/callback` en Android. Las dos tienen que estar en **Redirect URLs**;
+  si no, Supabase manda a la Site URL y el canje PKCE falla (el verificador quedó en el
+  navegador de origen). Para probar en local hay que añadir también
+  `http://localhost:<puerto>/**`.
+- **Altas:** si la cuenta no existe, Google la crea al primer acceso (sin correo de
+  verificación); `handle_new_user` copia el `full_name` de Google a `profiles`. Entra sin
+  roles, igual que un alta por correo. En `/register` se exige aceptar los términos
+  antes de ir a Google. Ver [[Decisiones]].
+- **Android:** la WebView de Capacitor no hace el OAuth dentro (Google lo bloquea en
+  WebViews): la navegación a `accounts.google.com` sale al navegador del sistema y vuelve
+  por el deep link, que canjea el `?code=` en `src/main.tsx`.
+- **Puerto 8080 en el Windows de Leo:** está dentro de un rango reservado por Windows
+  (8015–8114) y `bun dev` falla con `EACCES`. En `.claude/launch.json` hay una
+  configuración `polarier-dev-5180` para arrancar en el 5180.
