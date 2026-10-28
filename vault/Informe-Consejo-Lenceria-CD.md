@@ -1,6 +1,21 @@
 # Informe del Consejo — lencería por mes desde el CD (diseño)
 
-> **Estado (2026-10-28):** Leo aprobó el diseño con las tres propuestas de abajo. Está construido en la rama `informe-consejo/lenceria-cd`, pero no está en producción: falta subir la rama, aplicar la migración 015, instalarlo en el VPS, tocar las ramas `CD -` y `CON -` de n8n y cargar los CD de los meses pasados. Lo pidió tras leer las respuestas del formulario ([[Informe-Consejo-Origen-Datos]], «Respuestas del 2026-10-28»).
+> **Estado: en producción desde el 2026-10-28**, salvo la app (rama `informe-consejo/lenceria-cd`, sin fusionar). Leo aprobó el diseño con las tres propuestas de abajo, tras leer las respuestas del formulario ([[Informe-Consejo-Origen-Datos]], «Respuestas del 2026-10-28»).
+>
+> **Puesto en producción el 2026-10-28:**
+> - **VPS:** el commit `3d6b90e`, instalado con `Leslie/instalar_consejo.py` (16 ficheros, más el extractor en `Leslie/CD/`).
+> - **Supabase:** migración 015 aplicada.
+> - **Lencería de mayo de 2026:** cargada a mano con los tres CD de mayo que había en local. Resultado: La Habana con 4 bloques vacíos y Caibarién sin retiro.
+> - **n8n «Polarier Auto App»:** versión `e89d2655`.
+>   - Rama `CD -`: `CD - Leer lencería`, `CD - Cargar lencería` y `CD - Lencería sin cargar`.
+>   - Rama `CON -`: `CON - Leer lencería` y `CON - Preparar lencería`, que pasan `--lenceria-b64` a `preparar`.
+>
+> **Prueba de punta a punta (mayo de 2026, 2026-10-28, de 17:20 a 17:33 UTC):** `listo`, con 37 tablas.
+> - Las ocho de lencería salen del CD (24 filas de `cd_lenceria`); siguen tecleadas solo las siete que no vienen en él.
+> - La routine escribió los 47 textos, sin ningún «[dato no disponible]».
+> - Los textos dicen qué polo no rellenó cada bloque, por ejemplo «el retiro solo está disponible para Varadero». No se inventan esos datos y avisan de que faltan los kg y el año anterior.
+>
+> **Desde la 015, un mes solo se genera si sus polos activos tienen la lencería cargada.** Hoy solo mayo de 2026 la tiene: hacen falta los CD de los demás meses.
 >
 > **Piezas:**
 > - `vps/Polarier/Leslie/CD/cd_lenceria.py`, con sus tests en `test_cd_lenceria.py`;
