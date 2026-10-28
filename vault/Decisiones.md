@@ -4,6 +4,13 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-10-28 — Vuelve el login con Google
+
+- **Decisión (Leo):** añadir y habilitar el acceso con Google.
+- **Google también da de alta:** si la cuenta no existe, se crea al volver de Google, como el registro por correo, que ya es abierto. Ya no se rechaza el primer acceso desde `/login`, como hacía la versión anterior a `v1.3` (se apoyaba en una marca en `localStorage` y en comparar fechas de alta, frágil).
+- En `/register` hay que aceptar los términos antes de ir a Google.
+- Detalle y configuración en [[Supabase]].
+
 ## 2026-10-22 — Informe del Consejo: generación automática
 
 - **Redacción con una routine de Claude** (Leo), con Opus 5.5 (Leo). n8n la despierta y espera a que deje los textos en `consejo_informes`.

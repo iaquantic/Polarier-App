@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Capacitor } from '@capacitor/core';
 
 /**
- * URL de redirect tras verificar email o recuperar contraseña.
+ * URL de redirect tras verificar email, recuperar contraseña o entrar con Google.
  * Debe estar registrada en Supabase → Authentication → URL Configuration → Redirect URLs.
  */
 const getAuthRedirectUrl = () => {
@@ -27,6 +27,23 @@ export const signInWithEmail = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data;
+};
+
+/**
+ * Login/alta con Google: si la cuenta no existe, Supabase la crea (el trigger
+ * handle_new_user copia a profiles el full_name que da Google). En Android la
+ * WebView abre el navegador del sistema (Google no deja hacer OAuth dentro de una
+ * WebView) y vuelve por el deep link polarier://auth/callback, que canjea main.tsx.
+ */
+export const signInWithGoogle = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: getAuthRedirectUrl(),
+      queryParams: { prompt: 'select_account' },
+    },
+  });
+  if (error) throw error;
 };
 
 export const signOut = async () => {

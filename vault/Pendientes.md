@@ -7,6 +7,9 @@ Tareas y cosas por revisar. Marca `[x]` al completar.
 - [x] **Actualizar variables de n8n en Easypanel** (la app desplegada) con las URLs self-hosted + `VITE_N8N_MODE`, y hacer **Rebuild**. Ver [[Deploy-Easypanel]].
 - [x] Para uso real: poner `VITE_N8N_MODE=prod` **y activar el workflow** en n8n (toggle *Active*), para no depender de "Listen for test event". Ver [[Integracion-n8n]].
 - [x] Confirmar que el dominio de producción está registrado en Supabase Auth (Site URL + Redirect URLs). Ver [[Supabase]].
+- [ ] **Login con Google (2026-10-28):** en Supabase → Authentication → URL Configuration, comprobar que **Redirect URLs** incluye el dominio de producción, `polarier://auth/callback` y, para probar en local, `http://localhost:5180/**`. Ver [[Supabase]].
+- [ ] **Login con Google:** probar de principio a fin con una cuenta real en local, en producción (tras desplegar) y en Android.
+- [ ] **Login con Google, Google Cloud:** la pantalla de Google muestra «Ir a zongaaygriklqsxzxfgl.supabase.co». Revisar en la pantalla de consentimiento OAuth el nombre y el logo de la app, y que esté publicada (*In production*): en *Testing* solo entran los usuarios de prueba.
 
 ## n8n
 

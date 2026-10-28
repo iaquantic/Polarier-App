@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 import {
   signInWithEmail,
   signUpWithEmail,
+  signInWithGoogle,
   signOut as authSignOut,
   requestPasswordReset as authRequestPasswordReset,
   updatePassword as authUpdatePassword,
@@ -25,6 +26,7 @@ interface AuthContextType {
   isRecovery: boolean;
   setIsRecovery: (v: boolean) => void;
   login: (email: string, password: string) => Promise<{ user: User | null }>;
+  loginGoogle: () => Promise<void>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ session: Session | null }>;
   requestPasswordReset: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
@@ -79,6 +81,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { user: result.user ?? null };
   };
 
+  const loginGoogle = async () => {
+    await signInWithGoogle();
+  };
+
   const signUp = async (email: string, password: string, fullName?: string) => {
     const result = await signUpWithEmail(email, password, fullName);
     return { session: result.session ?? null };
@@ -109,6 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isRecovery,
         setIsRecovery,
         login,
+        loginGoogle,
         signUp,
         requestPasswordReset,
         updatePassword,
