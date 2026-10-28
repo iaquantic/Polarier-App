@@ -79,6 +79,19 @@ describe("construirMeses", () => {
     expect(junio.faltan).toBe(1);
   });
 
+  it("la lencería del CD va entre la TABLA CA y lo tecleado, y sus avisos no bloquean", () => {
+    const conLenceria = [
+      ...filas,
+      fila(6, { grupo: "cd_lenceria", orden: 51, requisito: "CD · lencería del mes", polo: "La Habana", detalle: "Sin rellenar en el CD: rechazo" }),
+      fila(6, { grupo: "cd_lenceria", orden: 53, requisito: "CD · lencería del mes", polo: "Caibarién", estado: "falta", detalle: "Falta cargar la lencería de su CD de ese mes" }),
+    ];
+    const [junio] = construirMeses(2026, [6], conLenceria, []);
+    expect(junio.grupos.map((g) => g.grupo)).toEqual(["global", "tabla_ca", "cd_lenceria", "tecleado"]);
+    expect(junio.grupos[2].titulo).toBe("Lencería del CD");
+    expect(junio.grupos[2].faltan).toBe(1);
+    expect(junio.faltan).toBe(2);
+  });
+
   it("pone a cada mes su informe, si lo tiene", () => {
     const [junio, mayo] = construirMeses(2026, [6, 5], filas, [informe(5)]);
     expect(junio.informe).toBeNull();

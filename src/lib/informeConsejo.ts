@@ -1,13 +1,13 @@
 // Informe del Consejo de Dirección: lógica pura del apartado por meses.
 //
 // La base de datos dice, para cada mes, qué datos hacen falta y si están
-// (`disponibilidad_informe_consejo`, migración 013). Aquí se agrupa eso por mes
+// (`disponibilidad_informe_consejo`, migraciones 013 y 015). Aquí se agrupa eso por mes
 // y se decide qué enseña la pantalla: si se puede generar, si ya hay informe,
 // si se está generando. Reglas y origen de cada dato en
 // vault/Informe-Consejo-Origen-Datos.md.
 
 export type EstadoRequisito = 'ok' | 'falta' | 'sin_comprobar';
-export type GrupoRequisito = 'global' | 'tabla_ca' | 'tecleado';
+export type GrupoRequisito = 'global' | 'tabla_ca' | 'cd_lenceria' | 'tecleado';
 export type EstadoInforme = 'pendiente' | 'generando' | 'listo' | 'error';
 
 /** Una fila de `disponibilidad_informe_consejo(anio)`. */
@@ -90,10 +90,11 @@ export const NOMBRES_TRIMESTRE = ['I Trimestre', 'II Trimestre', 'III Trimestre'
 export const TITULO_GRUPO: Record<GrupoRequisito, string> = {
   global: 'GLOBAL',
   tabla_ca: 'TABLA CA',
+  cd_lenceria: 'Lencería del CD',
   tecleado: 'Tecleado en la TABLA CA',
 };
 
-const ORDEN_GRUPO: GrupoRequisito[] = ['global', 'tabla_ca', 'tecleado'];
+const ORDEN_GRUPO: GrupoRequisito[] = ['global', 'tabla_ca', 'cd_lenceria', 'tecleado'];
 
 /** Una generación en marcha que lleva más que esto probablemente murió sin cerrar su fila. */
 export const ATASCADO_MS = 2 * 60 * 60 * 1000;

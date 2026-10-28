@@ -89,6 +89,44 @@ Otras cosas que se vieron:
   - **P31:** polos cerrados.
 
   El documento anota también las ya respondidas al cruzar datos (P1–P2 en parte, P4–P6, P8–P9, P14–P15, P23 y P30 en parte) y las que ya no hacen falta. Se conservan los números originales.
+- **2026-10-28: llegaron respondidas las 31** («Preguntas_Informe_Mensual_CD_Corregido.docx», por WhatsApp; no está en el repo). Resumen abajo, en «Respuestas del 2026-10-28».
+
+### Respuestas del 2026-10-28
+
+Muchas respuestas dicen cómo **debería** hacerse («debe», «criterio propuesto»), no cómo se hace hoy. Sin nombres de personas: el repo es público.
+
+**Del CD (lo confirman como fuente):**
+
+| Nº | Tabla | Respuesta |
+|---|---|---|
+| P1–P2 | Mal uso | Sale de un modelo de control semanal que se consolida al cierre del mes. Su resumen mensual tiene la misma estructura que la tabla de mal uso del CD y se pasa sin tocar las cifras. Las diferencias entre el CD y la TABLA CA se concilian con el modelo de origen. Prometen el modelo como adjunto 1 (no venía) |
+| P3, P7 | kg y % de mal uso y retiro | kg = cantidad de cada prenda × su peso unitario del informe logístico. % = kg / producción del mes (mal uso: la total reportada; retiro: kg lavados). Prometen el informe con los pesos (no venía) |
+| P4–P5 | Desmanche | Registro diario en lavatín y túnel → cuadro de mando (CM) diario a las UTC → CD. El % del informe y el del CD son el mismo concepto |
+| P6 | Retiro | «Descarte» pasó a llamarse «retiro»: es lo mismo. La Habana no rellena bien ese bloque del CD |
+| P10 | Faltantes | **Suma de las diferencias negativas** de los hoteles **inventariados en el mes** (hoja «Lencería 2» del CD). Las positivas son sobrantes. Puede ser solo una parte de los hoteles del polo |
+| P16–P18 | Vehículos | Entran todos los vehículos que siguen en la contabilidad del polo: carga, personal y administrativos, incluso con la baja en trámite. Las tres categorías las fija el jefe de Transporte por vehículo. **Los polos han cambiado tanto el modelo del CD que ya no es igual en todos: hay que homogeneizarlo.** % AUSA = recibidos / base × 100 |
+| P24 | Rechazo de La Habana | Tiene que salir del CD. Si el CD de mayo venía vacío y la TABLA CA lo tenía, alguien lo tecleó a mano en la TABLA CA |
+| P25 | Montas por cliente de Varadero | Salen del GSBASE («Amanece Hoteles») y las genera cada polo. La diferencia será un error al teclearlas a mano en la TABLA CA |
+| P26 | Otros ficheros | Cada día los polos mandan a las UTC CM, ER, PT y AH (ER y AH salen del GSBASE; CM y PT son manuales). Sus consolidados deben coincidir con el CD y servirle de soporte |
+| P29 | Correcciones | Primero se corrige el CD del polo y después se pasa a la TABLA CA |
+
+**De otros informes mensuales (no vienen en el CD):**
+
+| Nº | Tabla | De dónde sale |
+|---|---|---|
+| P8–P9 | Inventarios realizados | Cada polo lo manda cada mes en un modelo, y en las UTC se hacía el consolidado. Prometen el modelo. El plan lo acuerdan Polarier, Operaciones, AT Comercial y las UTC con Gaviota; vale el plan aprobado para el período |
+| P11 | Pérdida por faltantes | La calcula Economía con el coste de cada prenda en el sistema contable (ZUN), que no es un precio único por tipo |
+| P12–P13 | Lencería en uso | La que circula (hoteles y lavandería). Economía la da como cantidad teórica, cada mes: total del sistema (ZUN y GSBASE) menos la nueva almacenada, la retirada y la inmovilizada. No sustituye al inventario físico |
+| P14–P15 | Lencería nueva | La comunican cada mes los directores de los polos y en las UTC se hacía el consolidado (el `CO ROPA NUEVA`). Prometen el modelo. En la TABLA CA 2026 no tiene sitio: el bloque de «Lencería 2» es el de inyecciones |
+| P19–P20 | Vacantes | Informe de Recursos Humanos: plantilla aprobada por Gaviota, cubiertas y necesidad ajustada al nivel de servicio. La necesidad la fijan el director, RRHH y los jefes de área y la aprueba el Consejo de Dirección de la UEB. Cambia al cubrirse o quedar libres plazas, o al revisarse la necesidad |
+| P21–P22 | Cuentas por cobrar y por pagar | Reporte de saldos y antigüedad del sistema contable (ZUM). **Fecha de corte: no la dicen claramente.** AT Comercial cierra el mes entre el día 1 y el 5 del siguiente; se entiende que es el último día del mes, disponible tras ese cierre |
+| P23 | Plan de los consumos | Modelo M001 aprobado por el GAE, del plan productivo del año; para cada período, el valor aprobado que le toque |
+| P30 | Arribos | Los compra AT Comercial; las UTC hacen el reparto por polos, lo aprueba Gaviota y se pone a disposición de los directores |
+
+**Generales:**
+- **P27:** las fuentes se actualizan a diario (montas por el GSBASE y Facturación; rechazo e inyecciones por el responsable logístico; energía por el jefe de servicios técnicos y el cuadro de mando) y se consolidan al cierre del mes. Lo controlan los directores técnicos y las UTC.
+- **P28:** los datos quedan en los informes diarios, pero **nadie confirma que se guarde el cierre de cada mes ni que las hojas auxiliares de la TABLA CA tengan histórico**. Confirma el problema: un mes pasado no se puede sacar de esas hojas.
+- **P31, polos cerrados:** todos los polos tienen contabilidad (gastos), así que salen en las tablas económicas. Los cerrados no lavan, así que todo lo que deriva de lavar va a **0**: productividad, kg lavados y procesados, diésel de producción, mal uso y todo lo logístico.
 
 **El trimestral es la suma de los tres meses, y así se ve de dónde sale cada uno (2026-10-22).** Leo preguntó si el «casi triplica» no sería comparar un mes con un trimestral. No lo era: se comparó el CD de mayo con el informe mensual de mayo. Pero al cruzar con el II Trimestre salió esto:
 

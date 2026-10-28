@@ -2,7 +2,8 @@
 Instala o actualiza en el VPS el montaje del informe del Consejo (Leslie/Consejo/).
 
 Baja de GitHub (repositorio público), fijado a un commit, el código que usan
-scripts/preparar_consejo.py y scripts/montar_consejo.py, y crea las carpetas de
+scripts/preparar_consejo.py y scripts/montar_consejo.py, el extractor de la
+lencería del CD (Leslie/CD/cd_lenceria.py, junto a agente_ca.py), y crea las carpetas de
 ejemplos con permiso de escritura para n8n (que corre con otro usuario y copia
 ahí los informes de ejemplo desde Storage). Los ejemplos no están en el
 repositorio: son informes reales.
@@ -30,6 +31,7 @@ FICHEROS = [
     "src/formato_excel.py",
     "src/tablas_informe.py",
     "src/constructores_tablas.py",
+    "src/lenceria_cd.py",
     "src/table_markers.py",
     "src/monthly_docx_ingestion.py",
     "src/template_cloner.py",
@@ -41,6 +43,10 @@ FICHEROS = [
     "config/marker_mapping.yaml",
     "templates/master/consejo_direccion_master.docx",
 ]
+# Fuera de consejo-direccion/: ruta en el repo → ruta en el VPS, relativa a Leslie/
+FICHEROS_LESLIE = {
+    "vps/Polarier/Leslie/CD/cd_lenceria.py": "CD/cd_lenceria.py",
+}
 CARPETAS_N8N = ["ejemplos/entrada", "ejemplos/informes", "ejemplos/aprobados", "ejemplos/analisis"]
 
 
@@ -58,8 +64,13 @@ def carpeta(ruta: Path, abierta: bool) -> None:
 
 
 def listar() -> list:
-    return [{"ruta": str(p.relative_to(BASE)), "bytes": p.stat().st_size, "sha256": sha(p)}
-            for p in sorted(BASE.rglob("*")) if p.is_file() and "trabajo" not in p.parts]
+    out = [{"ruta": str(p.relative_to(BASE)), "bytes": p.stat().st_size, "sha256": sha(p)}
+           for p in sorted(BASE.rglob("*")) if p.is_file() and "trabajo" not in p.parts]
+    for destino in FICHEROS_LESLIE.values():
+        p = BASE.parent / destino
+        if p.exists():
+            out.append({"ruta": f"../{destino}", "bytes": p.stat().st_size, "sha256": sha(p)})
+    return out
 
 
 def main() -> None:
@@ -81,6 +92,12 @@ def main() -> None:
         carpeta(destino.parent, abierta=False)
         destino.write_bytes(datos)
         instalados.append({"ruta": rel, "bytes": len(datos), "sha256": hashlib.sha256(datos).hexdigest()})
+    for origen, destino in FICHEROS_LESLIE.items():
+        url = f"https://raw.githubusercontent.com/{REPO}/{commit}/{origen}"
+        with urllib.request.urlopen(url, timeout=60) as r:
+            datos = r.read()
+        (BASE.parent / destino).write_bytes(datos)
+        instalados.append({"ruta": f"../{destino}", "bytes": len(datos), "sha256": hashlib.sha256(datos).hexdigest()})
     print(json.dumps({"ok": True, "commit": commit, "base": str(BASE), "instalados": instalados}))
 
 
