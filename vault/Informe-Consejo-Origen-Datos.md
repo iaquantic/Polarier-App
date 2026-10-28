@@ -100,7 +100,7 @@ Muchas respuestas dicen cómo **debería** hacerse («debe», «criterio propues
 | Nº | Tabla | Respuesta |
 |---|---|---|
 | P1–P2 | Mal uso | Sale de un modelo de control semanal que se consolida al cierre del mes. Su resumen mensual tiene la misma estructura que la tabla de mal uso del CD y se pasa sin tocar las cifras. Las diferencias entre el CD y la TABLA CA se concilian con el modelo de origen. Prometen el modelo como adjunto 1 (no venía) |
-| P3, P7 | kg y % de mal uso y retiro | kg = cantidad de cada prenda × su peso unitario del informe logístico. % = kg / producción del mes (mal uso: la total reportada; retiro: kg lavados). Prometen el informe con los pesos (no venía) |
+| P3, P7 | kg y % de mal uso y retiro | kg = cantidad de cada prenda × su peso unitario del informe logístico (la tabla de pesos llegó el 2026-10-28: `PESOS` en `lenceria_cd.py`). % = kg / producción del mes (mal uso: la total reportada; retiro: kg lavados). El informe con los pesos llegó el 2026-10-28 |
 | P4–P5 | Desmanche | Registro diario en lavatín y túnel → cuadro de mando (CM) diario a las UTC → CD. El % del informe y el del CD son el mismo concepto |
 | P6 | Retiro | «Descarte» pasó a llamarse «retiro»: es lo mismo. La Habana no rellena bien ese bloque del CD |
 | P10 | Faltantes | **Suma de las diferencias negativas** de los hoteles **inventariados en el mes** (hoja «Lencería 2» del CD). Las positivas son sobrantes. Puede ser solo una parte de los hoteles del polo |
