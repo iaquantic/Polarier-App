@@ -12,6 +12,7 @@ App «Generar informe» (mes o trimestre)
   → webhook n8n acb55dbd-…  (responde «recibido» al momento)
 n8n «Polarier Auto App», rama CON -
   1. pendiente → generando
+     + lenceria_informe_consejo (Supabase): la lencería del CD del período → --lenceria-b64 (2026-10-28)
   2. pythonrunner Leslie/Consejo/scripts/preparar_consejo.py --anio A --mes M | --trimestre T
        → trabajo/<A-MM|A-Tn>/tablas.docx  +  JSON (tablas en texto, textos que faltan, análisis de ejemplo)
   3. consejo_informes.datos = ese JSON
@@ -141,6 +142,6 @@ Sin probar todavía:
 
 ## Lo que queda abierto
 
-- **Las hojas auxiliares no tienen mes** (pendiente de analizar, decisión de Leo): un mes pasado se genera con lo tecleado hoy. Depende de las preguntas P27 y P28 de [[Informe-Consejo-Origen-Datos]].
+- **Las hojas auxiliares no tienen mes.** Las respuestas del 2026-10-28 (P28) lo confirman. Las ocho tablas de lencería que vienen en el CD salen ya de él, por mes ([[Informe-Consejo-Lenceria-CD]]). Siguen tecleadas y sin mes: lencería en uso y nueva, inventarios, arribos, cuentas, vehículos, vacantes y plan de consumos.
 - **Inventarios realizados**: la TABLA CA no tiene el plan anual ni el acumulado; esas columnas salen vacías, con aviso.
 - **Notas del mes**: si se quieren causas en el texto, haría falta una forma de darlas (por ejemplo, un campo en la app).

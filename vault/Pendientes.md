@@ -281,6 +281,12 @@ Sección nueva en la app con un apartado por proceso y un trigger propio por ram
 - [x] **Informe del Consejo:** probar «Generar informe» y «Descargar» desde la app, ya desplegada el 2026-10-23 (T-a73905b32e). **«Generar informe» probado (2026-10-26):** abril de 2026 pedido desde la app desplegada a las 17:57 UTC (`rpc/solicitar_informe_consejo` con referer de `polarierapp`), ejecución n8n **580** OK y fila en `listo` con su DOCX en Storage a las 18:13. **«Descargar» probado (2026-10-26, 22:31 UTC):** desde el navegador, `POST` y `GET /storage/v1/object/sign/informes-consejo/2026/04/…docx` → 200; el objeto es un DOCX (`wordprocessingml`, 188 kB). Queda solo: Probar un trimestre cuando alguno tenga sus tres meses completos: hoy ninguno de 2026 los tiene.
 - [x] **pythonrunner:** fuente GitHub cambiada a `main` y desplegado tras el merge de la PR 38 (2026-10-23).
 - [x] **Easypanel, `polarierapp`:** fuente cambiada de `leonardojcddev/Polarier-App` a `iaquantic/Polarier-App` y desplegada sin problemas (2026-10-23).
+- [ ] **Lencería del CD** ([[Informe-Consejo-Lenceria-CD]], en producción el 2026-10-28):
+  - Reunir los CD de 2026 de los polos activos y cargar su lencería. Sin ellos, solo mayo se puede generar.
+  - Fusionar `informe-consejo/lenceria-cd` y desplegar `polarierapp` con el grupo «Lencería del CD».
+  - Confirmar la regla de los faltantes con quien prepara la TABLA CA.
+  - Pedir los adjuntos prometidos en el formulario: pesos por prenda y modelos de mal uso, inventarios y lencería nueva.
+  - Comprobar la carga con el primer CD real que se suba desde la app.
 
 ## Ideas / futuro
 

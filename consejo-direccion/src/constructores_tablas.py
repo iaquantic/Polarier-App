@@ -13,6 +13,9 @@ Tres familias:
   - bloques tecleados: hojas auxiliares de la TABLA CA (lencería, cuentas,
     vehículos, vacantes), tal como estén. Son «sin comprobar»: no tienen mes.
   - GLOBAL: presupuesto de gastos y de transporte.
+
+Ocho tablas de lencería salen del CD (lenceria_cd.py) cuando preparar recibe la
+lencería de Supabase; si no la recibe (pruebas en local), de las hojas tecleadas.
 """
 from __future__ import annotations
 
@@ -23,6 +26,7 @@ from openpyxl.utils import get_column_letter
 
 from excel_eval import Err
 from formato_excel import formatear
+from lenceria_cd import CONSTRUCTORES_CD
 from tablas_informe import (
     MESES, Bloque, Fuentes, Periodo, Relleno, ajustar_filas, celdas, clave_polo, filas, norm,
     poner_texto, rellenar, texto_celda,
@@ -718,3 +722,18 @@ CONSTRUCTORES: Dict[str, Callable] = {
     "TABLA_VACANTES": tecleado("Datos económicos", "Centros productivos", cab_desde=0,
                                filas_cabecera_proto=1, filas_modo="rotulo", columnas_modo="posicion"),
 }
+
+
+def _desde_cd(marcador: str, tecleada: Callable) -> Callable:
+    """La tabla sale de la lencería del CD si preparar la tiene; si no, de la hoja tecleada."""
+    del_cd = CONSTRUCTORES_CD[marcador]
+
+    def construir(fu: Fuentes, per: Periodo, protos, anio_proto) -> List[Relleno]:
+        if getattr(fu, "lenceria", None) is not None:
+            return del_cd(fu, per, protos, anio_proto)
+        return tecleada(fu, per, protos, anio_proto)
+    return construir
+
+
+for _m in CONSTRUCTORES_CD:
+    CONSTRUCTORES[_m] = _desde_cd(_m, CONSTRUCTORES[_m])

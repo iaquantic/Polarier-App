@@ -16,6 +16,11 @@ Opciones:
                      (para probar en local con una TABLA CA guardada por Excel)
     --ejemplo RUTA   DOCX de tablas que sirve de prototipo (por defecto, el más reciente
                      del mismo tipo en ejemplos/entrada/)
+    --lenceria RUTA  JSON con las filas de cd_lenceria del período y del mismo período del
+                     año anterior (lo que devuelve lenceria_informe_consejo en Supabase).
+                     Con él, las ocho tablas de lencería salen del CD; sin él, de las hojas
+                     tecleadas de la TABLA CA
+    --lenceria-b64 TROZOS…  lo mismo en base64, partido en trozos (desde n8n)
 
 Salida: {"ok": true, ...} o {"ok": false, "error": "..."}; siempre con código 0 para
 que n8n pueda leer el motivo.
@@ -44,6 +49,7 @@ from docx.oxml.ns import qn  # noqa: E402
 
 from constructores_tablas import CONSTRUCTORES, SinFuente  # noqa: E402
 from excel_eval import Libro  # noqa: E402
+from lenceria_cd import Lenceria  # noqa: E402
 from table_markers import classify_tables, describe_tables, load_rules, template_table_markers  # noqa: E402
 from tablas_informe import Fuentes, Periodo, celdas, filas, texto_celda  # noqa: E402
 
@@ -143,6 +149,8 @@ def main() -> None:
     ap.add_argument("--global", dest="global_")
     ap.add_argument("--sin-global", action="store_true")
     ap.add_argument("--ejemplo")
+    ap.add_argument("--lenceria")
+    ap.add_argument("--lenceria-b64", nargs="+")
     a = ap.parse_args()
     if bool(a.mes) == bool(a.trimestre):
         raise ValueError("indica --mes o --trimestre (uno de los dos)")
@@ -161,6 +169,11 @@ def main() -> None:
     externos = {ruta_global.name: G} if G is not None else {}
     L = Libro(ruta_tabla, externos=externos)
     fu = Fuentes(L, G)
+    if a.lenceria:
+        fu.lenceria = Lenceria(json.loads(Path(a.lenceria).read_text(encoding="utf-8")))
+    elif a.lenceria_b64:
+        import base64
+        fu.lenceria = Lenceria(json.loads(base64.b64decode("".join(a.lenceria_b64)).decode("utf-8")))
 
     ejemplo = elegir_ejemplo(per, a.ejemplo)
     p_ej = periodo_de_nombre(ejemplo.name)
@@ -253,7 +266,9 @@ def main() -> None:
         "ejemplo": ejemplo.name,
         "archivo_tablas": str(ruta_docx.relative_to(RAIZ.parents[1])) if RAIZ.parents[1] in ruta_docx.parents else str(ruta_docx),
         "fuentes": {"tabla_ca": fuente_info(ruta_tabla), "global": fuente_info(ruta_global) if G is not None else None,
-                    "celdas_del_global_desde_la_cache_de_la_tabla_ca": usos},
+                    "celdas_del_global_desde_la_cache_de_la_tabla_ca": usos,
+                    "lenceria": ({"origen": "cd_lenceria", "filas": fu.lenceria.n} if fu.lenceria is not None
+                                 else {"origen": "hojas tecleadas de la TABLA CA"})},
         "tablas": salida_tablas,
         "sin_fuente": sin_fuente,
         "textos": textos,

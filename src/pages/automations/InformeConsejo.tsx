@@ -52,7 +52,7 @@ const IconoEstado = ({ estado }: { estado: EstadoRequisito }) => {
 
 /** «TABLA CA · datos del CD del mes» → «Datos del CD del mes» (el grupo ya lo dice). */
 const etiqueta = (requisito: string) => {
-  const sin = requisito.replace(/^(GLOBAL|TABLA CA) · /, "");
+  const sin = requisito.replace(/^(GLOBAL|TABLA CA|CD) · /, "");
   return sin.charAt(0).toUpperCase() + sin.slice(1);
 };
 
@@ -410,6 +410,17 @@ const InformeConsejo = () => {
                                       key={`${i.polo}-detalle`}
                                       className="pl-6 text-[12.5px] font-medium leading-relaxed"
                                       style={{ color: "var(--neo-danger)" }}
+                                    >
+                                      {i.polo}: {i.detalle}
+                                    </p>
+                                  ))}
+                                {/* Lencería del CD cargada con algún bloque sin rellenar: avisa, no bloquea */}
+                                {conPolo
+                                  .filter((i) => i.estado === "ok" && i.detalle)
+                                  .map((i) => (
+                                    <p
+                                      key={`${i.polo}-aviso`}
+                                      className="neo-text-2 pl-6 text-[12.5px] font-medium leading-relaxed"
                                     >
                                       {i.polo}: {i.detalle}
                                     </p>

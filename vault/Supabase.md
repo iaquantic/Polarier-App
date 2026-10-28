@@ -44,6 +44,15 @@ Reglas en [[Informe-Consejo-Origen-Datos]], sección «Comprobación por mes».
 
 Flujo completo en [[Informe-Consejo-Generacion]].
 
+**Migración 015 (aplicada el 2026-10-28):** la lencería del CD, por mes ([[Informe-Consejo-Lenceria-CD]]).
+
+| Cambio | Para qué |
+|---|---|
+| `cd_lenceria` | Una fila por año × mes × polo × bloque (montas ×2, rechazo, mal uso, inyecciones, desmanche, retiro, faltantes), con `estado` (`ok`, `vacio`, `no_encontrado`) y `valores` en jsonb. Sin políticas: solo service_role y las funciones |
+| `cargar_cd_lenceria(payload)` | La llama la rama `CD -` de n8n con la salida de `cd_lenceria.py`; reemplaza los ocho bloques de ese polo y mes. Solo service_role |
+| `lenceria_informe_consejo(anio, meses)` | Las filas del período y del mismo período del año anterior, para `preparar_consejo.py`. Solo service_role |
+| `disponibilidad_informe_consejo(anio)` | Grupo nuevo `cd_lenceria`: un polo con actividad sin lencería cargada es «falta»; un bloque vacío en el CD es solo aviso. Montas, rechazo, mal uso, desmanche, retiro, inyecciones y faltantes salen del grupo «tecleado» |
+
 - En `documents`, `role` distingue archivos del usuario (`user`) de los del asistente (`assistant`). "Mis Documentos" muestra solo los `assistant`.
 
 ### Módulo de auditoría

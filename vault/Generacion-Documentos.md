@@ -232,7 +232,12 @@ El contenedor n8n **no tiene Python**. Todo script se lanza con `POST http://pol
   - **Capacidad de Varadero:** 905 calculada frente a 1140 en la tabla.
   - **Horas** (Caibarién 8 frente a 10; La Habana 7,48 frente a 8) y **diésel de transporte** redondeados a mano en la tabla.
 - **Antes:** `Leslie/CD/rellenar_ca.py --archivo_cd <fichero>`, con desplazamientos fijos (`+2 columnas`). Además, tomaba el costo de la segunda fila «Lavandería» y recalculaba el VAB por códigos, en lugar de leer las filas que enlaza la tabla.
-- **Implantación** (n8n, nodos `CD - *` y `Agente TABLA CA`): `CD - Guardar` → `CD - Preparar` → `CD - ¿Preparado?` → **`Agente TABLA CA`** (Claude Sonnet 5.5, credencial «Anthropic Polarier») → `CD - Limpiar` → `CD - Leer tabla` → `CD - Empaquetar` → `CD - Responder`. Los fallos van a `CD - Error`. Desde el 2026-10-21, después de responder, van `CD - Resumir para Supabase` → `CD - Cargar en tabla_ca_meses`: actualizan qué datos tiene cada mes para el informe del Consejo ([[Informe-Consejo-Origen-Datos]]).
+- **Implantación** (n8n, nodos `CD - *` y `Agente TABLA CA`): `CD - Guardar` → `CD - Preparar` → `CD - ¿Preparado?` → **`Agente TABLA CA`** (Claude Sonnet 5.5, credencial «Anthropic Polarier») → `CD - Limpiar` → `CD - Leer tabla` → `CD - Empaquetar` → `CD - Responder`. Los fallos van a `CD - Error`. Desde el 2026-10-21, después de responder, van `CD - Resumir para Supabase` → `CD - Cargar en tabla_ca_meses`: actualizan qué datos tiene cada mes para el informe del Consejo ([[Informe-Consejo-Origen-Datos]]). Desde el 2026-10-28, además:
+  - `CD - Leer lencería` (entre el agente y `CD - Limpiar`, con el CD aún en disco) saca la lencería con `Leslie/CD/cd_lenceria.py`.
+  - Ya respondida la app, `CD - Cargar lencería` la guarda en `cd_lenceria`.
+  - Si falla, la rama sigue: la TABLA CA y la respuesta no cambian, y el fallo queda en la salida de error de la ejecución.
+
+  Ver [[Informe-Consejo-Lenceria-CD]].
   - **Herramientas** contra `Leslie/CD/agente_ca.py`: `ver_hoja_cd`, `ver_global`, `estado_tabla` y `escribir_tabla(valores, quimicos)`. El nombre del fichero lo fija la expresión del nodo, no el modelo.
   - **`preparar`** entrega:
     - el contexto (incluido el criterio de transporte);

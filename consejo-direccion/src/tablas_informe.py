@@ -116,6 +116,7 @@ class Fuentes:
     def __init__(self, tabla_ca: Libro, global_: Optional[Libro] = None):
         self.ca = tabla_ca
         self.glob = global_
+        self.lenceria = None  # lenceria_cd.Lenceria, si n8n pasa la lencería del CD
 
     # ── lectura de celdas ───────────────────────────────────────
 
