@@ -240,5 +240,10 @@ def test_prenda_por_nombre(texto, clave):
 
 
 def test_codigos_segun_el_bloque():
-    assert cl.tabla_codigos(["SP", "ALF", "TC", "TM"])["TC"] == "toalla_bano"
-    assert cl.tabla_codigos(["SP", "TA", "TB", "TC"])["TC"] == "toalla_cara"
+    cuerpo = cl.tabla_codigos(["SP", "ALF", "TC", "TM", "TB"])
+    assert (cuerpo["TC"], cuerpo["TM"], cuerpo["TB"]) == ("toalla_bano", "toalla_cara", "toalla_bidet")
+    bano = cl.tabla_codigos(["SP", "TA", "TB", "TC"])
+    assert (bano["TB"], bano["TC"]) == ("toalla_bano", "toalla_cara")
+    # bloque de inventarios de La Habana: TB y TM, sin TC
+    habana = cl.tabla_codigos(["SP", "SK", "F", "TA", "TB", "TM", "TF", "TP"])
+    assert (habana["TB"], habana["TM"]) == ("toalla_bano", "toalla_cara")

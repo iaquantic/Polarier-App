@@ -66,8 +66,8 @@ CLAVE_POLO = {"LH": "habana", "VA": "varadero", "CA": "caibarien",
 
 # Los códigos de prenda no significan lo mismo en todos los CD. En el de
 # Caibarién TC es la toalla de cuerpo (baño), TM la de mano (cara) y TB la
-# bidet; en los de Varadero y La Habana TB es la de baño y TC la de cara.
-# Se distingue por los códigos que trae el bloque: TM o ALF → modelo «cuerpo».
+# bidet; en los de Varadero y La Habana TB es la de baño y TC (o TM) la de
+# cara. Se distingue por los códigos que trae el bloque (tabla_codigos).
 CODIGOS_CUERPO = {"SP": "sabana_personal", "SK": "sabana_king", "F": "funda",
                   "ALF": "toalla_alfombra", "TA": "toalla_alfombra", "TC": "toalla_bano",
                   "TM": "toalla_cara", "TF": "toalla_facial", "TB": "toalla_bidet",
@@ -100,9 +100,15 @@ def prenda_por_nombre(texto):
 
 
 def tabla_codigos(codigos):
-    """Elige el significado de los códigos según los que trae el bloque."""
+    """Elige el significado de los códigos según los que trae el bloque.
+
+    TC y TM juntos → modelo «cuerpo» (TC = baño, TM = cara, TB = bidet). Si no, TB es la
+    de baño, y la de cara es TC o TM (el bloque de inventarios de La Habana usa TB y TM).
+    """
     cods = {str(c).strip().upper() for c in codigos if c}
-    return CODIGOS_CUERPO if cods & {"TM", "ALF"} else CODIGOS_BANO
+    if {"TC", "TM"} <= cods:
+        return CODIGOS_CUERPO
+    return {**CODIGOS_BANO, "TM": "toalla_cara"}
 
 
 class Rejilla:
