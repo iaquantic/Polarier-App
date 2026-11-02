@@ -70,7 +70,7 @@ const labelCls = "text-[11px] font-semibold uppercase tracking-wide text-muted-f
 // --- Piezas de UI ------------------------------------------------------------
 
 /** Tarjeta de sección con la franja azul de cabecera (formato Polarier). */
-const Panel = ({
+export const Panel = ({
   titulo,
   icon: Icon,
   extra,
@@ -93,7 +93,7 @@ const Panel = ({
   </section>
 );
 
-const Kpi = ({
+export const Kpi = ({
   label,
   valor,
   pie,
@@ -136,7 +136,13 @@ const ICONO_ALERTA = {
   info: Info,
 } as const;
 
-const AlertaCard = ({ a, onClick }: { a: Alerta; onClick?: () => void }) => {
+export const AlertaCard = ({
+  a,
+  onClick,
+}: {
+  a: Pick<Alerta, "severidad" | "titulo" | "detalle" | "accion">;
+  onClick?: () => void;
+}) => {
   const Icon = ICONO_ALERTA[a.severidad];
   // Barra lateral de color: rojo / ámbar para lo que hay que mirar, dorado
   // Polarier para lo meramente informativo.
@@ -284,7 +290,11 @@ const DashboardControl = () => {
       setLoading(true);
       try {
         const [d, h, dot] = await Promise.all([
-          getFormDefinitions(hotel.id),
+          // Este dashboard es el de los tres formularios antiguos: sus definiciones
+          // ya están inactivas y el parte unificado tiene otra forma.
+          getFormDefinitions(hotel.id, { incluirInactivos: true }).then((ds) =>
+            ds.filter((x) => x.tipo !== "control")
+          ),
           getSubmissionHistory(hotel.id, 500),
           // Sin dotación cargada el dashboard sigue funcionando (deduce el
           // objetivo de la lencería), así que un fallo aquí no debe tumbarlo.

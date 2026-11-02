@@ -90,15 +90,21 @@ const AuditForm = () => {
 
   // Un parte ajeno nunca se edita: guardarlo no corregiría el original, crearía
   // una copia a nombre de quien mira (la clave del upsert incluye el usuario).
-  const readOnly = fecha !== hoyStr() || autorAjeno !== null;
+  // Los formularios antiguos ya solo se consultan: sus definiciones están inactivas.
+  const readOnly = fecha !== hoyStr() || autorAjeno !== null || def?.activo === false;
 
   useEffect(() => {
     if (!activeHotel || !defId) return;
     (async () => {
       setLoading(true);
       try {
-        const defs = await getFormDefinitions(activeHotel.id);
+        const defs = await getFormDefinitions(activeHotel.id, { incluirInactivos: true });
         const found = defs.find((d) => d.id === defId) ?? null;
+        // El parte unificado tiene su propia pantalla.
+        if (found?.tipo === "control") {
+          navigate(`/auditoria/formularios/parte?fecha=${fecha}${subId ? `&sub=${subId}` : ""}`, { replace: true });
+          return;
+        }
         setDef(found);
 
         const [pr, ub, sub, dot] = await Promise.all([

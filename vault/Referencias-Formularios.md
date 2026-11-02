@@ -6,6 +6,14 @@ Control de versiones funcional: qué Excel original sirvió de referencia, qué 
 
 ---
 
+## 0. Modelo Mensual (formulario vigente desde el 2026-11-02)
+
+- **Archivo original:** `Modelo Mensual Gran Muthu.xlsx`, fuera del repositorio. 11 hojas: `Resumen`, `Datos_mes`, `Operacion`, `KPI_calidad`, `Incidencias`, `Equipos`, `Retiros_importes`, `Acciones`, `Lavado_detalle`, `Procesado_detalle`, `Inventario`.
+- **Módulo:** tipo `control`. Mapeo hoja por hoja, diferencias con el original y puesta en marcha en [[Formulario-Control]].
+- Los tres apartados siguientes son los formularios **anteriores**. Sus partes se conservan en solo lectura.
+
+---
+
 ## 1. Control de Lencería
 
 - **Archivo original:** `CONTROL LENCERÍA MUTHU AGOSTO.xlsx`

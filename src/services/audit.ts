@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 // -----------------------------------------------------------------------------
 // Tipos
 // -----------------------------------------------------------------------------
-export type FormTipo = 'produccion' | 'cuadrador' | 'lenceria';
+export type FormTipo = 'produccion' | 'cuadrador' | 'lenceria' | 'control';
 export type SubmissionEstado = 'borrador' | 'completado';
 
 export interface Prenda {
@@ -101,13 +101,17 @@ export const getDotacionLenceria = async (
 // -----------------------------------------------------------------------------
 // Definiciones de formulario
 // -----------------------------------------------------------------------------
-export const getFormDefinitions = async (hotelId: string): Promise<FormDefinition[]> => {
-  const { data, error } = await supabase
-    .from('form_definitions')
-    .select('*')
-    .eq('hotel_id', hotelId)
-    .eq('activo', true)
-    .order('tipo');
+/**
+ * Definiciones del hotel. `incluirInactivos` es para lo histórico: los formularios
+ * antiguos ya no se ofrecen para rellenar, pero sus partes se siguen pudiendo abrir.
+ */
+export const getFormDefinitions = async (
+  hotelId: string,
+  opciones: { incluirInactivos?: boolean } = {}
+): Promise<FormDefinition[]> => {
+  let consulta = supabase.from('form_definitions').select('*').eq('hotel_id', hotelId);
+  if (!opciones.incluirInactivos) consulta = consulta.eq('activo', true);
+  const { data, error } = await consulta.order('tipo');
   if (error) throw error;
   return (data ?? []) as FormDefinition[];
 };
@@ -428,4 +432,207 @@ export const solicitarInformeMensual = async (
   }
 
   return { reporte: data as MonthlyReport, disparada };
+};
+
+// -----------------------------------------------------------------------------
+// Formulario unificado de control (migración 016)
+// -----------------------------------------------------------------------------
+/** El parte diario del hotel. `null` mientras no se aplique la migración 016. */
+export const getDefinicionControl = async (hotelId: string): Promise<FormDefinition | null> => {
+  const { data, error } = await supabase
+    .from('form_definitions')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .eq('tipo', 'control')
+    .eq('activo', true)
+    .order('schema_version', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as FormDefinition | null;
+};
+
+/** Mi último parte anterior a una fecha: de ahí salen las continuaciones de ayer. */
+export const getParteAnterior = async (
+  formDefinitionId: string,
+  fecha: string
+): Promise<FormSubmission | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase
+    .from('form_submissions')
+    .select('*')
+    .eq('form_definition_id', formDefinitionId)
+    .eq('user_id', user.id)
+    .lt('fecha', fecha)
+    .order('fecha', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as FormSubmission | null;
+};
+
+export interface ControlMesFila {
+  id: string;
+  hotel_id: string;
+  anio: number;
+  mes: number;
+  data: Record<string, unknown>;
+  resumen: Record<string, unknown>;
+  resumen_at: string | null;
+  updated_at: string;
+}
+
+export const getControlMes = async (
+  hotelId: string,
+  anio: number,
+  mes: number
+): Promise<ControlMesFila | null> => {
+  const { data, error } = await supabase
+    .from('control_mes')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .eq('anio', anio)
+    .eq('mes', mes)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as ControlMesFila | null;
+};
+
+/** El último mes con documento antes del indicado: de él hereda un mes nuevo. */
+export const getControlMesAnterior = async (
+  hotelId: string,
+  anio: number,
+  mes: number
+): Promise<ControlMesFila | null> => {
+  const { data, error } = await supabase
+    .from('control_mes')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .or(`anio.lt.${anio},and(anio.eq.${anio},mes.lt.${mes})`)
+    .order('anio', { ascending: false })
+    .order('mes', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as ControlMesFila | null;
+};
+
+/** Guarda el documento del mes junto con su Resumen ya calculado, en una sola escritura. */
+export const saveControlMes = async (
+  hotelId: string,
+  anio: number,
+  mes: number,
+  datos: unknown,
+  resumen: unknown
+): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('No authenticated user');
+  const { error } = await supabase
+    .from('control_mes')
+    .upsert(
+      {
+        hotel_id: hotelId,
+        anio,
+        mes,
+        data: datos,
+        updated_by: user.id,
+        resumen,
+        resumen_at: new Date().toISOString(),
+      },
+      { onConflict: 'hotel_id,anio,mes' }
+    );
+  if (error) throw error;
+};
+
+/**
+ * Guarda la hoja Resumen ya calculada, que es lo que lee la routine del informe
+ * mensual. Solo escribe estas columnas: un upsert con `data` pisaría el documento.
+ */
+export const saveResumenMes = async (
+  hotelId: string,
+  anio: number,
+  mes: number,
+  resumen: unknown
+): Promise<void> => {
+  const { error } = await supabase
+    .from('control_mes')
+    .upsert(
+      { hotel_id: hotelId, anio, mes, resumen, resumen_at: new Date().toISOString() },
+      { onConflict: 'hotel_id,anio,mes' }
+    );
+  if (error) throw error;
+};
+
+export type TipoEventoControl = 'incidencia' | 'retiro' | 'mantenimiento' | 'accion';
+
+export interface ControlEvento {
+  id: string;
+  hotel_id: string;
+  tipo: TipoEventoControl;
+  fecha: string;
+  data: Record<string, unknown>;
+  user_id: string | null;
+  updated_at: string;
+}
+
+export const getEventosMes = async (
+  hotelId: string,
+  anio: number,
+  mes: number
+): Promise<ControlEvento[]> => {
+  const desde = `${anio}-${pad2(mes)}-01`;
+  const hasta = mes === 12 ? `${anio + 1}-01-01` : `${anio}-${pad2(mes + 1)}-01`;
+  const { data, error } = await supabase
+    .from('control_eventos')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .gte('fecha', desde)
+    .lt('fecha', hasta)
+    .order('fecha', { ascending: true })
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as ControlEvento[];
+};
+
+/** Incidencias y acciones sin cerrar, sean del mes que sean. */
+export const getEventosAbiertos = async (hotelId: string): Promise<ControlEvento[]> => {
+  const { data, error } = await supabase
+    .from('control_eventos')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .in('tipo', ['incidencia', 'accion'])
+    .neq('data->>estado', 'Cerrada')
+    .order('fecha', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as ControlEvento[];
+};
+
+export const saveEvento = async (params: {
+  id?: string;
+  hotelId: string;
+  tipo: TipoEventoControl;
+  fecha: string;
+  data: Record<string, unknown>;
+}): Promise<ControlEvento> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('No authenticated user');
+  const fila = {
+    hotel_id: params.hotelId,
+    tipo: params.tipo,
+    fecha: params.fecha,
+    data: params.data,
+    updated_by: user.id,
+  };
+  const consulta = params.id
+    ? supabase.from('control_eventos').update(fila).eq('id', params.id)
+    : supabase.from('control_eventos').insert({ ...fila, user_id: user.id });
+  const { data, error } = await consulta.select().single();
+  if (error) throw error;
+  return data as ControlEvento;
+};
+
+export const deleteEvento = async (id: string): Promise<void> => {
+  const { error } = await supabase.from('control_eventos').delete().eq('id', id);
+  if (error) throw error;
 };

@@ -112,6 +112,31 @@ const InformePreview = ({ informe, fecha, loading, onClose }: Props) => {
 const AZUL = "#1e3a8a"; // primary Polarier aproximado
 const DORADO = "#c9a227";
 
+// El texto del informe (síntesis y análisis), en el orden que trae el documento.
+const TextoHoja = ({ informe }: { informe: Informe }) =>
+  informe.secciones?.length ? (
+    <div className="mt-6 space-y-4">
+      {informe.secciones.map((sec, i) => (
+        <section key={i} className="space-y-1.5 text-[13px] leading-relaxed text-neutral-800">
+          {sec.titulo && (
+            <h3 className="text-sm font-semibold" style={{ color: AZUL }}>
+              {sec.titulo}
+            </h3>
+          )}
+          {sec.bloques.map((b, j) =>
+            b.tipo === "vineta" ? (
+              <p key={j} className="pl-4 -indent-3">
+                • {b.texto}
+              </p>
+            ) : (
+              <p key={j}>{b.texto}</p>
+            )
+          )}
+        </section>
+      ))}
+    </div>
+  ) : null;
+
 const InformeHoja = ({ informe }: { informe: Informe }) => (
   <div className="p-8 sm:p-10">
     {/* Cabecera */}
@@ -148,6 +173,8 @@ const InformeHoja = ({ informe }: { informe: Informe }) => (
         ))}
       </div>
     )}
+
+    {!informe.textoAlFinal && <TextoHoja informe={informe} />}
 
     {/* Tablas */}
     <div className="mt-6 space-y-6">
@@ -229,6 +256,8 @@ const InformeHoja = ({ informe }: { informe: Informe }) => (
         ))
       )}
     </div>
+
+    {informe.textoAlFinal && <TextoHoja informe={informe} />}
 
     {/* Pie */}
     <div className="mt-8 pt-3 border-t border-neutral-200 flex items-center justify-between text-[10px] text-neutral-400">

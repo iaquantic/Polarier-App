@@ -253,6 +253,34 @@ where id = '<id>';
 
 ---
 
+## Adenda para el formulario unificado (pendiente de aplicar a la routine)
+
+Con el formulario unificado (migración `016`, ver [[Formulario-Control]]), el prompt de arriba necesita estos cambios. **Todavía no se han hecho:** van después de aplicar la migración y desplegar, por API con `RemoteTrigger`. Los meses antiguos siguen sirviéndose igual que hasta ahora.
+
+**En 4.2, antes de las vistas**, añadir:
+
+> Lee primero el resumen oficial del mes:
+> ```sql
+> select resumen, resumen_at from control_mes
+> where hotel_id = '<hotel_id>' and anio = <anio> and mes = <mes>;
+> ```
+> Si hay fila y `resumen` no está vacío, el mes usa el formulario unificado y **sus cifras oficiales son las de `resumen`**: no las recalcules ni las sustituyas por las de las vistas. Si no hay fila, o `resumen` está vacío, sigue con las vistas como un mes antiguo.
+
+**En «Cómo leer las vistas»**, añadir:
+
+> Mes con formulario unificado:
+> - `resumen.operacion.total`: kg, turistas, recibidas, entregadas, horas previstas y trabajadas, y parada única. Solo cuentan los días cerrados con todos sus registros completos. `diasPorCompletar` dice cuántos faltan por columna: mientras falten, los totales son parciales, y dilo. `kgPorTurista` y `balance` salen como «Completar» hasta tener el mes entero; `parcial` trae lo que llevan.
+> - **«Completar» significa dato pendiente, nunca 0.** No lo trates como cero ni lo presentes como un resultado.
+> - `resumen.kpis`: los diez KPI del SLA, con `meta`, `resultado` y `cumplimiento`. `kpisCumplen` y `kpisEvaluados` son los recuentos. No calcules un índice global: el SLA no establece su ponderación.
+> - `resumen.areas`: procesado por área (conformes, manchas, roturas). **No sumes áreas**: una prenda pasa por varias.
+> - `resumen.inventario` y `resumen.articulos`: existencias frente a prendas pactadas. `resumen.incidencias`, `resumen.equipos`, `resumen.retiros` y `resumen.acciones`: sus totales. Las monedas no se suman entre sí.
+> - `resumen.sintesis`: lo que ha escrito el representante. Apóyate en ello, pero no lo copies: el informe ya lo incluye.
+> - En `audit_mes_dias`, para `tipo = 'control'`, `valor` son **kg** registrados, incluidos los días sin cerrar. Sirve para ver qué días se desvían; los totales oficiales están en `resumen`.
+
+**En 4.4**, para esos meses, el informe debe cubrir además: qué KPI no cumplen y por cuánto; cobertura del mes (días sin cerrar); incidencias y su efecto; equipos fuera de servicio y preventivos no ejecutados; faltantes y sobrantes frente a lo pactado; importes sin conciliar; y acciones vencidas.
+
+La app ya pinta las tablas a partir de los datos: el texto no debe repetirlas, sino explicar qué significan y qué conviene revisar.
+
 ## Piezas en el repositorio
 
 | Pieza | Ruta |

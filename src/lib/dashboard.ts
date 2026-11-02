@@ -166,6 +166,7 @@ const COLOR_POR_TIPO: Record<FormTipo, string> = {
   produccion: "hsl(var(--primary))",
   cuadrador: "hsl(var(--accent))",
   lenceria: "hsl(231 30% 55%)",
+  control: "hsl(var(--primary))",
 };
 
 // -----------------------------------------------------------------------------

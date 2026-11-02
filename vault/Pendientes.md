@@ -23,6 +23,11 @@ Tareas y cosas por revisar. Marca `[x]` al completar.
 
 ## Módulo de Auditoría
 
+- [ ] **Formulario unificado (2026-11-02), puesta en marcha, en este orden:** desplegar, aplicar la migración `016`, cargar las metas del SLA en `form_definitions.config.metas` y actualizar el prompt de la routine. Ver [[Formulario-Control]] y [[Routine-Informe-Mensual]].
+- [ ] **Formulario unificado:** probarlo de principio a fin con un usuario real y la base real. Hasta ahora se ha probado con tests y con las pantallas reales sobre una base simulada, y la migración sobre un Postgres local.
+- [ ] **Formulario unificado:** cuando un hotel tenga más de un supervisor, abrir la lectura de partes entre ellos (hoy cada uno solo ve los suyos, y su dashboard solo los cuenta a ellos). Ver [[Formulario-Control]].
+- [ ] **Formulario unificado:** decidir si el parte se guarda también en el dispositivo, por si se cierra la pantalla sin conexión. Hoy solo reintenta mientras siga abierta.
+
 - [x] **Generación del PDF del informe en el cliente** (jsPDF + autotable, formato Polarier). Vista previa en pantalla + descarga directa (`src/lib/informePdf.ts`, `InformePreview.tsx`). Disponible desde el histórico y desde el formulario abierto. **No depende de n8n.**
 - [x] **Envío del informe por correo (lado app)** — UI (`EnviarCorreoModal.tsx`) + servicio `src/services/informeCorreo.ts`: genera el PDF en base64 y hace POST al webhook n8n de correo (`VITE_N8N_EMAIL_WEBHOOK_URL`, instancia `automate-cuba24.app.n8n.cloud`). Ver [[Modulo-Auditoria]] y [[Integracion-n8n]].
 - [x] **Flujo n8n de correo** — montado: workflow `Enviar informe email` (`Komb1YycRFKXTvkX`) en `automate-cuba24.app.n8n.cloud`. Webhook → Convert to File (base64→PDF) → Gmail (adjunto PDF, cuerpo HTML con datos del informe + firma) → Responder. Remitente: cuenta **Gmail de Quantic** (elegido manualmente), `senderName` "Quantic - Informes". Ver [[Integracion-n8n]].
