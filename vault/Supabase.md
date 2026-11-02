@@ -117,11 +117,24 @@ supabase functions deploy disparar-informe-mensual
 
 Implementado en `chat.ts` y `storage.ts`:
 
-- **`deleteChat`** → borra en cascada: documentos del chat (archivos de Storage **+** filas) → mensajes → el chat. El borrado de Storage es **explícito**, porque el `ON DELETE CASCADE` de la BD nunca elimina archivos de Storage.
-- **`deleteDocument`** / **`deleteDocumentsByChat`** → borran archivo del bucket + fila.
+- **`deleteChat`** → borra en cascada: documentos del chat (archivos de Storage **+** filas) → mensajes → el chat. El borrado de Storage es **explícito**, porque `documents.chat_id` es `ON DELETE SET NULL`: borrar solo el chat deja la fila con `chat_id` nulo y el archivo en el bucket.
+- **`deleteDocument`** / **`deleteDocumentsByChat`** → borran archivo del bucket + fila. Si falla el borrado del archivo, la fila se queda y salta el error, para poder reintentar. Un archivo que ya no existe no da error.
+- **`uploadDocument`** → si no se puede crear la fila, borra el archivo recién subido.
 - Botón de eliminar por documento en "Mis Documentos".
 
-> ⚠️ Antes, `deleteChat` solo borraba la fila del chat, dejando mensajes y archivos huérfanos → el proyecto se llenaba. Corregido. Ver [[Decisiones]].
+> ⚠️ Antes, `deleteChat` solo borraba la fila del chat: las filas de `documents` se quedaban con `chat_id` nulo y sus archivos en el bucket. Corregido. Ver [[Decisiones]].
+
+**Los documentos no caducan** (decisión de Leo, 2026-11-02, ver [[Decisiones]]): siguen hasta que su dueño los borra.
+
+**Los archivos se borran por la API de Storage o desde el panel, nunca por SQL.** `storage.protect_delete` no deja hacerlo y, según la documentación de Supabase, un borrado por SQL no quita el fichero del bucket.
+
+**Borrar un usuario deja sus archivos.** `documents.user_id` es `ON DELETE CASCADE`: las filas se van, pero los archivos se quedan en `<user_id>/`, donde ya nadie los ve desde la app. Antes de borrar a un usuario hay que vaciar su carpeta.
+
+**Objetos sin fila.** A 2026-11-02 hay 160 en el bucket `documents`, unos 60 MB, subidos entre el 2026-04-07 y el 2026-08-19. Ninguna tabla los enlaza por ruta, y desde esa fecha no han aparecido más.
+- 106 son de usuarios ya borrados.
+- Los otros 54 son de usuarios activos y no se sabe quién borró sus filas. El `deleteChat` antiguo no lo explica, porque con `SET NULL` la fila se queda. Tampoco ningún flujo legible de n8n, que no toca esa tabla, aunque de abril a agosto no quedan versiones ni ejecuciones.
+
+La limpieza está en [[Pendientes]].
 
 ## RLS del módulo de auditoría
 
@@ -150,12 +163,12 @@ Revisión del 2026-11-02, por el aviso del asesor de seguridad (lint 0028, `anon
 
 | Función | Quién la usa | Permisos tras la 017 |
 |---|---|---|
-| `delete_old_documents` | Nadie: sin trigger, sin cron (`pg_cron` no está instalado), ni la app ni n8n (5 flujos inactivos y sin disparadores no se pudieron leer) | Solo `service_role` y el propietario |
+| `delete_old_documents` | Nadie: sin trigger, sin cron (`pg_cron` no está instalado), ni la app ni n8n (5 flujos inactivos y sin disparadores no se pudieron leer) | Solo `service_role` y el propietario. La migración `018` la elimina |
 | `handle_new_user` | Trigger `on_auth_user_created` de `auth.users` | Solo `service_role` y el propietario. Un trigger no revalida privilegios al dispararse, solo al crearlo |
 | `rls_auto_enable` | Event trigger `ensure_rls` | Igual |
 | `has_hotel_access`, `has_hotel_role`, `puede_ver_perfil` | 27 políticas RLS de 13 tablas | **Sin cambios** (`anon`, `authenticated`, `service_role`) |
 
-**`delete_old_documents` no funciona.** `storage.protect_delete`, un trigger de Supabase sobre `storage.objects`, impide borrar por SQL, así que la función falla en su primera línea y deshace todo. Por eso los documentos de más de 7 días siguen ahí: hoy no hay retención. Esa protección es lo único que impedía que cualquiera sin sesión borrara los documentos antiguos, y no es un permiso nuestro. Qué hacer con la función está en [[Pendientes]].
+**`delete_old_documents` no funciona.** `storage.protect_delete`, un trigger de Supabase sobre `storage.objects`, impide borrar por SQL, así que la función falla en su primera línea y deshace todo. Por eso los documentos de más de 7 días siguen ahí: hoy no hay retención. Esa protección es lo único que impedía que cualquiera sin sesión borrara los documentos antiguos, y no es un permiso nuestro. Se elimina con `018_retirar_delete_old_documents.sql` (decisión de Leo, 2026-11-02), pendiente de aplicar: ver [[Pendientes]].
 
 **Por qué `anon` conserva los tres de las políticas.** Todas las políticas son `TO public`, así que `anon` también las evalúa, y una política corre con los permisos de quien consulta. Sin EXECUTE, una consulta de `anon` a `hoteles` o `profiles` pasa de devolver cero filas a fallar con 42501. Quitárselo no protege nada: con `auth.uid()` a null, para `anon` nunca dan verdadero. `authenticated` los necesita para que la app funcione. Por eso el asesor seguirá avisando de estas tres: es un falso positivo asumido, igual que los avisos del lint 0029 sobre `disponibilidad_informe_consejo`, `fuentes_informe_consejo`, `solicitar_informe_consejo`, `solicitar_informe_consejo_trimestre` y `anular_solicitud_informe_consejo`, que son RPC que llama la app (`src/services/informeConsejo.ts`).
 

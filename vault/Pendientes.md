@@ -12,7 +12,9 @@ Tareas y cosas por revisar. Marca `[x]` al completar.
 - [ ] **Login con Google, Google Cloud:** la pantalla de Google muestra «Ir a zongaaygriklqsxzxfgl.supabase.co». Revisar en la pantalla de consentimiento OAuth el nombre y el logo de la app, y que esté publicada (*In production*): en *Testing* solo entran los usuarios de prueba.
 - [x] **Migración `017_permisos_security_definer.sql` aplicada** (2026-11-02, registrada como `permisos_security_definer`): quita a `anon` y `authenticated` las funciones `delete_old_documents`, `handle_new_user` y `rls_auto_enable`. El asesor de seguridad baja de 6 a 3 avisos de `anon` y de 11 a 8 de `authenticated`; los que quedan son los previstos. Simulando roles contra producción, sin escribir nada, `anon` ve cero filas sin error y `delete_old_documents` da `permission denied` a `anon` y `authenticated`. Ver [[Supabase]].
 - [ ] **Probar un alta real tras la 017 (Leo):** registrar una cuenta de prueba y comprobar que se crea su perfil. En local funciona sin el permiso, igual que el trigger de `form_submissions` desde la 006, pero en producción no se ha probado.
-- [ ] **Decidir qué hacer con `delete_old_documents`:** no la llama nadie y falla siempre, así que hoy los documentos no caducan. O se borra, o, si se quiere retención, se rehace con la API de Storage (por SQL, Supabase no deja borrar de `storage.objects`). Ver [[Supabase]].
+- [x] **Decidido qué hacer con `delete_old_documents` (Leo, 2026-11-02):** se elimina y los documentos no caducan. Ver [[Decisiones]].
+- [ ] **Aplicar la migración `018_retirar_delete_old_documents.sql` (con el OK de Leo).** No depende del despliegue de la app. Comprobado en producción: ninguna función, vista ni trigger depende de ella.
+- [ ] **Limpiar los objetos sin fila del bucket `documents` (con el OK de Leo):** 160 objetos, unos 60 MB. Antes, copia local fuera del repo, porque no se puede deshacer. Se borran por la API de Storage o desde el panel, nunca por SQL. Dos informes (4 objetos) no tienen otra copia con fila: Leo dice si los tiene en otro sitio. Ver [[Supabase]].
 
 ## n8n
 

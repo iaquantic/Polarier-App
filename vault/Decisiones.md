@@ -4,6 +4,14 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-11-02 — Los documentos no caducan
+
+- **Decisión (Leo):** sin retención automática en el bucket `documents`. Un documento sigue hasta que su dueño lo borra. Se retiran `delete_old_documents` (migración 018) y `cleanupOldDocuments`.
+- **Por qué:** nadie había decidido los 7 días. Venían del primer commit, la llamada desde «Mis Documentos» se quitó el 2026-04-29 sin motivo escrito, y la función SQL no la llama nadie y falla en su primera línea. La app ya cuenta con que los archivos sigan: «Mis Documentos» no filtra por fecha y tiene botón de borrar, el chat guarda enlaces firmados a 1 año, y la recarga de meses pasados de [[Informe-Consejo-Lenceria-CD]] usa los CD subidos. El espacio no aprieta: unos 20 MB al mes, con 100 GB incluidos en el plan Pro.
+- **Si algún día hace falta un plazo** (obligación legal o de contrato): hacerlo con la API de Storage, lanzado por un Schedule de n8n (`pg_cron` y `pg_net` no están instalados), y a no menos de 1 año por los enlaces del chat.
+- **De paso:** un fallo de Storage ya no deja archivos sin fila. `deleteDocument` y `deleteDocumentsByChat` no borran la fila si no pudieron borrar el archivo, y `uploadDocument` borra el archivo si no pudo crear la fila.
+- **Corrección:** lo que se escribió sobre `deleteChat` en la entrada «Borrado real en Supabase» no explica los archivos sin fila. `documents.chat_id` es `ON DELETE SET NULL`, así que dejaba fila y archivo. Detalle en [[Supabase]].
+
 ## 2026-11-02 — `anon` conserva EXECUTE sobre los helpers de las políticas RLS
 
 - **Qué:** la migración 017 quita EXECUTE a `anon` y `authenticated` en `delete_old_documents`, `handle_new_user` y `rls_auto_enable`, pero no toca `has_hotel_access`, `has_hotel_role` ni `puede_ver_perfil`, aunque el asesor de seguridad avise de ellas.
