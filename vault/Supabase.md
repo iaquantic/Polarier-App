@@ -130,11 +130,11 @@ Implementado en `chat.ts` y `storage.ts`:
 
 **Borrar un usuario deja sus archivos.** `documents.user_id` es `ON DELETE CASCADE`: las filas se van, pero los archivos se quedan en `<user_id>/`, donde ya nadie los ve desde la app. Antes de borrar a un usuario hay que vaciar su carpeta.
 
-**Objetos sin fila.** A 2026-11-02 hay 160 en el bucket `documents`, unos 60 MB, subidos entre el 2026-04-07 y el 2026-08-19. Ninguna tabla los enlaza por ruta, y desde esa fecha no han aparecido más.
-- 106 son de usuarios ya borrados.
-- Los otros 54 son de usuarios activos y no se sabe quién borró sus filas. El `deleteChat` antiguo no lo explica, porque con `SET NULL` la fila se queda. Tampoco ningún flujo legible de n8n, que no toca esa tabla, aunque de abril a agosto no quedan versiones ni ejecuciones.
+**Objetos sin fila.** El 2026-11-02 se borraron 160 del bucket `documents`, unos 60 MB, subidos entre el 2026-04-07 y el 2026-08-19, con copia local previa (ver [[Pendientes]]). Ninguna tabla los enlazaba por ruta. Desde entonces, cada objeto del bucket tiene su fila.
+- 106 eran de usuarios ya borrados.
+- Los otros 54 eran de usuarios activos y no se sabe quién borró sus filas. El `deleteChat` antiguo no lo explica, porque con `SET NULL` la fila se queda. Tampoco ningún flujo legible de n8n, que no toca esa tabla, aunque de abril a agosto no quedan versiones ni ejecuciones.
 
-La limpieza está en [[Pendientes]].
+Para una operación puntual con Storage desde el PC hace falta una clave secreta, porque la que hay solo está en n8n. Se crea una temporal en Settings → API Keys, se pide sin mostrarla en pantalla y se elimina al terminar.
 
 ## RLS del módulo de auditoría
 
