@@ -23,7 +23,9 @@ Tareas y cosas por revisar. Marca `[x]` al completar.
 
 ## Módulo de Auditoría
 
-- [ ] **Formulario unificado (2026-11-02), puesta en marcha, en este orden:** desplegar, aplicar la migración `016`, cargar las metas del SLA en `form_definitions.config.metas` y actualizar el prompt de la routine. Ver [[Formulario-Control]] y [[Routine-Informe-Mensual]].
+- [x] **Formulario unificado, en producción (2026-11-02):** PR 45 fusionado y desplegado, migración `016` aplicada y metas del SLA del Muthu cargadas en `form_definitions.config.metas`. Ver [[Formulario-Control]].
+- [x] **Formulario unificado:** prompt de la routine actualizado (2026-11-02, por API). Ver [[Routine-Informe-Mensual]].
+- [ ] **Formulario unificado:** comprobar el primer informe mensual real con el formulario nuevo (noviembre de 2026). El prompt no se ha podido probar con datos porque aún no hay ningún mes así.
 - [ ] **Formulario unificado:** probarlo de principio a fin con un usuario real y la base real. Hasta ahora se ha probado con tests y con las pantallas reales sobre una base simulada, y la migración sobre un Postgres local.
 - [ ] **Formulario unificado:** cuando un hotel tenga más de un supervisor, abrir la lectura de partes entre ellos (hoy cada uno solo ve los suyos, y su dashboard solo los cuenta a ellos). Ver [[Formulario-Control]].
 - [ ] **Formulario unificado:** decidir si el parte se guarda también en el dispositivo, por si se cierra la pantalla sin conexión. Hoy solo reintenta mientras siga abierta.

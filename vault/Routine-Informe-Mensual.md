@@ -50,6 +50,8 @@ Routine claude.ai  ──►  upsert monthly_reports  ──►  AuditMonth.tsx
    └── el mismo cron vacía la cola si algún /fire falló
 ```
 
+Con el formulario unificado (migración `016`, ver [[Formulario-Control]]), las cifras oficiales del mes salen de la instantánea `control_mes.resumen`. Las vistas siguen sirviendo para ver qué días se desvían, y los meses antiguos se generan igual que antes.
+
 ## La cola: quién manda
 
 `monthly_reports.solicitado_at` es **la autoridad** de qué informe hay que generar.
@@ -179,7 +181,16 @@ Después vuelve al paso 1 para releer la cola.
 update monthly_reports set estado = 'generando' where id = '<id>';
 ```
 
-*4.2 Lee los datos. Solo estas vistas: ya vienen agregadas y con los nombres resueltos. NO leas `form_submissions`.*
+*4.2 Lee los datos. Primero el resumen oficial del mes:*
+
+```sql
+select resumen, resumen_at from control_mes
+where hotel_id = '<hotel_id>' and anio = <anio> and mes = <mes>;
+```
+
+Si hay fila y `resumen` no está vacío, el mes usa el formulario unificado y **sus cifras oficiales son las de `resumen`**: no las recalcules ni las sustituyas por las de las vistas. Si no hay fila, o `resumen` está vacío, sigue con las vistas como un mes antiguo.
+
+*Después, estas vistas: ya vienen agregadas y con los nombres resueltos. NO leas `form_submissions`.*
 
 ```sql
 select * from audit_mes      where hotel_id = '<hotel_id>' and periodo = '<AAAA-MM>';
@@ -217,7 +228,20 @@ Cómo leer las vistas:
 - `borradores` son partes que nunca se cerraron: sus cifras pueden estar a medias. Por eso un día en `borrador` **no se clasifica como desviación** aunque vaya corto (migración 009): míralo como parte incompleto, no como caída de producción. Su `ratio_vs_mediana` sí viene calculado, por si quieres citar cuánto le falta.
 - `dias_con_parte` frente a `dias_mes` dice cuántos días quedaron sin registrar.
 
-*4.3 Si `audit_mes` no devuelve ninguna fila para ese hotel y periodo*, no inventes nada: pon `estado='error'`, anota el motivo y pasa a la siguiente entrada.
+Mes con formulario unificado (`tipo = 'control'`):
+
+- `resumen.operacion.total`: kg, turistas, recibidas, entregadas, horas previstas y trabajadas, y parada única. Los kg y las recibidas solo cuentan los días cerrados con todos sus registros completos. `resumen.operacion.diasPorCompletar` dice cuántos días faltan por columna: mientras falten, los totales son parciales, y dilo. `resumen.operacion.kgPorTurista` y `resumen.operacion.balance` salen como «Completar» hasta tener el mes entero; `resumen.parcial` trae lo que llevan.
+- **«Completar» significa dato pendiente, nunca 0.** No lo trates como cero ni lo presentes como un resultado. «Revisar» significa que el dato es incoherente y hay que corregirlo; «No aplica», que no hay base sobre la que medir.
+- `resumen.kpis`: los diez KPI del SLA, con `meta`, `resultado` y `cumplimiento`. `meta` y `resultado` van en tanto por uno (0,5 es 50 %). `resumen.kpisCumplen` y `resumen.kpisEvaluados` son los recuentos. No calcules un índice global: el SLA no establece su ponderación.
+- `resumen.areas`: procesado por área (conformes, manchas, roturas). **No sumes áreas**: una prenda pasa por varias.
+- `resumen.inventario` y `resumen.articulos`: existencias frente a prendas pactadas. `resumen.incidencias`, `resumen.equipos`, `resumen.retiros` y `resumen.acciones`: sus totales. Las monedas no se suman entre sí.
+- `resumen.calidad`: encuestas, reprocesos, reclamaciones y daños. `resumen.revision`: en qué estado está cada bloque del mes.
+- `resumen.sintesis`: lo que ha escrito el representante. Apóyate en ello, pero no lo copies: el informe ya lo incluye.
+- En `audit_mes` y `audit_mes_dias`, para `tipo = 'control'`, `total_valor` y `valor` son **kg** registrados, incluidos los días sin cerrar. Sirven para ver qué días se desvían; los totales oficiales están en `resumen`.
+- Si `audit_mes` trae una fila `tipo = 'control'` pero no hay `resumen`, el mes no tiene cifras oficiales guardadas: sus kg son provisionales y el informe debe decirlo.
+- En `audit_daily_detalle`, para `tipo = 'control'`, la métrica lleva delante el área o la etapa (`lavado_kg`, `secado_conforme`, `control_final_roturas`): no sumes entre áreas. `cantidad` son conteos de inventario y no se suman entre días: para eso está `audit_mes_dotacion`.
+
+*4.3 Si `audit_mes` no devuelve ninguna fila para ese hotel y periodo y tampoco hay `resumen`*, no inventes nada: pon `estado='error'`, anota el motivo y pasa a la siguiente entrada.
 
 *4.4 Redacta el informe*, dirigido al responsable del almacén del hotel. Debe cubrir:
 
@@ -227,6 +251,10 @@ Cómo leer las vistas:
 - los días que se salen de lo normal, citando la fecha y cuánto se desvían, y qué conviene comprobar en cada caso (los días con `clasificacion = 'borrador'` **no** van aquí: tienen su propio punto, para no contar dos veces la misma jornada);
 - borradores sin cerrar, si los hay: di que el parte quedó a medias y, si la cifra va corta, que lo más probable es que falten vales por anotar, no que bajara la producción;
 - pérdidas: faltantes, roturas, manchas y pendientes, con el desglose por prenda cuando aporte algo.
+
+En un mes con formulario unificado, el informe debe cubrir además: qué KPI no cumplen y por cuánto; cobertura del mes (días sin cerrar); incidencias y su efecto; equipos fuera de servicio y preventivos no ejecutados; faltantes y sobrantes frente a lo pactado; importes sin conciliar; y acciones vencidas. No hables de avance frente a la dotación: las piezas lavadas de un mes pueden superar de sobra el stock, y ese porcentaje no dice nada. Compara existencias con pactadas.
+
+En esos meses la app ya pinta las tablas a partir de los datos: el texto no debe repetirlas, sino explicar qué significan y qué conviene revisar.
 
 Reglas: afirma solo lo que sostienen las filas que has leído. No compares con otros meses, porque no los has leído. Si falta un dato, dilo en lugar de estimarlo. Nada de relleno ni de frases de cortesía.
 
@@ -247,39 +275,13 @@ where id = '<id>';
 
 `metricas` son los agregados que has usado, para poder auditar el informe después. `dotacion` es `dotacion_hotel` (o `max_inventario` si no hay dotación cargada), `inventarioContado` el último conteo de lencería del mes y `diferenciaDotacion` = `inventarioContado` − `dotacion` (0 si cuadra; omite las dos últimas si no hubo parte de lencería). La app pinta las tres en la cabecera del PDF.
 
+En un mes con formulario unificado, `dotacion` es `resumen.inventario.pactadas`, `inventarioContado` es `resumen.inventario.existencia` y `diferenciaDotacion` es `inventarioContado` − `dotacion`; omite las que salgan «Completar».
+
 *4.6 Si algo falla en una entrada*, ponla en `estado='error'` y sigue con la siguiente. Un hotel roto no debe frenar a los demás.
 
 **Paso 5 — Al terminar**, resume qué hoteles y periodos has procesado y con qué estado.
 
 ---
-
-## Adenda para el formulario unificado (pendiente de aplicar a la routine)
-
-Con el formulario unificado (migración `016`, ver [[Formulario-Control]]), el prompt de arriba necesita estos cambios. **Todavía no se han hecho:** van después de aplicar la migración y desplegar, por API con `RemoteTrigger`. Los meses antiguos siguen sirviéndose igual que hasta ahora.
-
-**En 4.2, antes de las vistas**, añadir:
-
-> Lee primero el resumen oficial del mes:
-> ```sql
-> select resumen, resumen_at from control_mes
-> where hotel_id = '<hotel_id>' and anio = <anio> and mes = <mes>;
-> ```
-> Si hay fila y `resumen` no está vacío, el mes usa el formulario unificado y **sus cifras oficiales son las de `resumen`**: no las recalcules ni las sustituyas por las de las vistas. Si no hay fila, o `resumen` está vacío, sigue con las vistas como un mes antiguo.
-
-**En «Cómo leer las vistas»**, añadir:
-
-> Mes con formulario unificado:
-> - `resumen.operacion.total`: kg, turistas, recibidas, entregadas, horas previstas y trabajadas, y parada única. Solo cuentan los días cerrados con todos sus registros completos. `diasPorCompletar` dice cuántos faltan por columna: mientras falten, los totales son parciales, y dilo. `kgPorTurista` y `balance` salen como «Completar» hasta tener el mes entero; `parcial` trae lo que llevan.
-> - **«Completar» significa dato pendiente, nunca 0.** No lo trates como cero ni lo presentes como un resultado.
-> - `resumen.kpis`: los diez KPI del SLA, con `meta`, `resultado` y `cumplimiento`. `kpisCumplen` y `kpisEvaluados` son los recuentos. No calcules un índice global: el SLA no establece su ponderación.
-> - `resumen.areas`: procesado por área (conformes, manchas, roturas). **No sumes áreas**: una prenda pasa por varias.
-> - `resumen.inventario` y `resumen.articulos`: existencias frente a prendas pactadas. `resumen.incidencias`, `resumen.equipos`, `resumen.retiros` y `resumen.acciones`: sus totales. Las monedas no se suman entre sí.
-> - `resumen.sintesis`: lo que ha escrito el representante. Apóyate en ello, pero no lo copies: el informe ya lo incluye.
-> - En `audit_mes_dias`, para `tipo = 'control'`, `valor` son **kg** registrados, incluidos los días sin cerrar. Sirve para ver qué días se desvían; los totales oficiales están en `resumen`.
-
-**En 4.4**, para esos meses, el informe debe cubrir además: qué KPI no cumplen y por cuánto; cobertura del mes (días sin cerrar); incidencias y su efecto; equipos fuera de servicio y preventivos no ejecutados; faltantes y sobrantes frente a lo pactado; importes sin conciliar; y acciones vencidas.
-
-La app ya pinta las tablas a partir de los datos: el texto no debe repetirlas, sino explicar qué significan y qué conviene revisar.
 
 ## Piezas en el repositorio
 
@@ -349,6 +351,12 @@ consulta, ni existe la tentación de un `LIKE '2026-07%'` sobre una fecha.
       no el `23 7 * * *` diario que decía la tabla de montaje: alguien lo cambió
       desde la web. Con eso, la cola solo se vacía sola una vez al mes; el resto del
       tiempo depende del trigger de API que dispara el botón de la app.
+- [x] **Prompt actualizado para el formulario unificado** (2026-11-02, por API con
+      `RemoteTrigger`, enviando `job_config.ccr` completo). Se conservaron conector,
+      modelo, entorno, cron y estado. Pasada en vacío correcta ese día (sesión
+      `cse_017aHL4ySnNyGoCAJnrjfajr`): leyó la cola, vacía, y no cambió nada.
+- [ ] **Sin probar: un informe real de un mes con formulario unificado.** Aún no hay
+      ningún mes así; el primero saldrá de noviembre de 2026.
 
 ## PDF y correo (hecho el 2026-09-03)
 
