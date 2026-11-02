@@ -146,7 +146,7 @@ El borrado requiere policies `DELETE` para `auth.uid() = user_id` en `chats`, `c
 
 Supabase da EXECUTE sobre toda función nueva de `public` a `public`, `anon`, `authenticated` y `service_role`, y PostgREST las expone en `/rest/v1/rpc/`. Al crear una función `security definer` hay que quitarlo a mano, y siempre también a `public`: `revoke ... from anon` a secas no cambia nada, porque `anon` lo hereda de ahí. Un `drop function` seguido de `create` devuelve los permisos por defecto; `create or replace` los conserva.
 
-Revisión del 2026-11-02, por el aviso del asesor de seguridad (lint 0028, `anon` puede ejecutar). Migración `017_permisos_security_definer.sql`, **pendiente de aplicar** (ver [[Pendientes]]):
+Revisión del 2026-11-02, por el aviso del asesor de seguridad (lint 0028, `anon` puede ejecutar). Migración `017_permisos_security_definer.sql`, aplicada el 2026-11-02 (registrada como `permisos_security_definer`). Falta probar un alta real (ver [[Pendientes]]):
 
 | Función | Quién la usa | Permisos tras la 017 |
 |---|---|---|
