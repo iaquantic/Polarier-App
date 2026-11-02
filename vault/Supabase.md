@@ -163,12 +163,12 @@ Revisión del 2026-11-02, por el aviso del asesor de seguridad (lint 0028, `anon
 
 | Función | Quién la usa | Permisos tras la 017 |
 |---|---|---|
-| `delete_old_documents` | Nadie: sin trigger, sin cron (`pg_cron` no está instalado), ni la app ni n8n (5 flujos inactivos y sin disparadores no se pudieron leer) | Solo `service_role` y el propietario. La migración `018` la elimina |
+| `delete_old_documents` | Nadie: sin trigger, sin cron (`pg_cron` no está instalado), ni la app ni n8n (5 flujos inactivos y sin disparadores no se pudieron leer) | **Eliminada** por la migración `018`, aplicada el 2026-11-02 |
 | `handle_new_user` | Trigger `on_auth_user_created` de `auth.users` | Solo `service_role` y el propietario. Un trigger no revalida privilegios al dispararse, solo al crearlo |
 | `rls_auto_enable` | Event trigger `ensure_rls` | Igual |
 | `has_hotel_access`, `has_hotel_role`, `puede_ver_perfil` | 27 políticas RLS de 13 tablas | **Sin cambios** (`anon`, `authenticated`, `service_role`) |
 
-**`delete_old_documents` no funciona.** `storage.protect_delete`, un trigger de Supabase sobre `storage.objects`, impide borrar por SQL, así que la función falla en su primera línea y deshace todo. Por eso los documentos de más de 7 días siguen ahí: hoy no hay retención. Esa protección es lo único que impedía que cualquiera sin sesión borrara los documentos antiguos, y no es un permiso nuestro. Se elimina con `018_retirar_delete_old_documents.sql` (decisión de Leo, 2026-11-02), pendiente de aplicar: ver [[Pendientes]].
+**`delete_old_documents` ya no existe.** No funcionaba: `storage.protect_delete`, un trigger de Supabase sobre `storage.objects`, impide borrar por SQL, así que fallaba en su primera línea y deshacía todo. Se eliminó con `018_retirar_delete_old_documents.sql` (decisión de Leo, 2026-11-02; aplicada ese día, registrada como `retirar_delete_old_documents`). Los documentos no caducan: ver «Borrado de datos».
 
 **Por qué `anon` conserva los tres de las políticas.** Todas las políticas son `TO public`, así que `anon` también las evalúa, y una política corre con los permisos de quien consulta. Sin EXECUTE, una consulta de `anon` a `hoteles` o `profiles` pasa de devolver cero filas a fallar con 42501. Quitárselo no protege nada: con `auth.uid()` a null, para `anon` nunca dan verdadero. `authenticated` los necesita para que la app funcione. Por eso el asesor seguirá avisando de estas tres: es un falso positivo asumido, igual que los avisos del lint 0029 sobre `disponibilidad_informe_consejo`, `fuentes_informe_consejo`, `solicitar_informe_consejo`, `solicitar_informe_consejo_trimestre` y `anular_solicitud_informe_consejo`, que son RPC que llama la app (`src/services/informeConsejo.ts`).
 

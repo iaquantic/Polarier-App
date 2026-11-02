@@ -12,6 +12,8 @@
 -- instalado), ni la app, ni n8n. Además falla en su primera línea, porque
 -- `storage.protect_delete` no deja borrar de `storage.objects` por SQL. Si algún día hace
 -- falta un plazo, hay que hacerlo con la API de Storage, no recuperando esta función.
+--
+-- Aplicada el 2026-11-02 como «retirar_delete_old_documents».
 
 drop function if exists public.delete_old_documents();
 
