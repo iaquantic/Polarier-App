@@ -2,6 +2,8 @@
 
 Sistema de **control de almacén hotelero** mediante formularios diarios nativos. Diseñado multi-hotel desde el inicio (preparado para polos turísticos). Ver [[Referencias-Formularios]] para el mapeo con los Excel originales.
 
+> **Desde el 2026-11-02 hay un único formulario, el parte diario de control, más un cierre mensual: ver [[Formulario-Control]].** Lo que esta nota cuenta de los «3 tipos» de formulario, del parte de lencería precargado con la dotación y del avance hacia la dotación en el dashboard es lo **anterior**: esas pantallas quedan solo para abrir los partes ya guardados. Sigue vigente lo de roles, RLS, histórico, dotación como tabla maestra y PDF.
+
 ## Concepto
 
 Un usuario **auditor** entra en la app y ve **solo** su mundo (sin chat/documentos): rellena formularios diarios de control y consulta su histórico. Los datos se guardan en Supabase; en una fase posterior se generará un informe PDF (vía n8n + pythonrunner) que se enviará por WhatsApp/email.

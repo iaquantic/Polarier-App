@@ -4,6 +4,18 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-11-02 — Un solo formulario de auditoría, a partir del Modelo Mensual
+
+- **Decisión (Leo):** unificar lencería, producción y cuadrador en un formulario basado en el Excel «Modelo Mensual», respetando sus fórmulas, y adaptar dashboard e informes.
+- **KPI con cantidad + base (Leo):** las fórmulas de `KPI_calidad` están rotas (`#REF!`). Se recupera la base que describe la propia hoja.
+- **Solo las 8 prendas del Excel (Leo):** la mantelería deja de registrarse en el parte.
+- **Partes editables hasta validar el mes (Leo):** el Excel cuenta «días por completar», y con la regla anterior un día olvidado no se podría completar nunca.
+- **Parte diario + cierre del mes**, en vez de un documento mensual: una fila por día para no mandar el mes entero en cada guardado.
+- **Las cifras las calcula solo la app**, contrastada con el Excel. La routine lee la instantánea en `control_mes.resumen`: repetir esas fórmulas en SQL obligaría a mantenerlas dos veces.
+- **Las metas del SLA fuera del repositorio**, en `form_definitions.config.metas`: son cifras del contrato y el repositorio es público.
+- **Fuera «avance hacia la dotación»:** se compara lo que compara el Excel, existencias frente a pactadas.
+- Detalle en [[Formulario-Control]].
+
 ## 2026-10-28 — Vuelve el login con Google
 
 - **Decisión (Leo):** añadir y habilitar el acceso con Google.

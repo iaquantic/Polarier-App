@@ -127,7 +127,8 @@ export const construirInformePdf = async (informe: Informe): Promise<jsPDF> => {
   // --- Secciones de texto -----------------------------------------------------
   // Solo las usa el informe mensual (prosa de la IA). Los partes diarios no
   // traen `secciones`, así que este bloque no les afecta.
-  if (informe.secciones?.length) {
+  const pintarSecciones = () => {
+    if (!informe.secciones?.length) return;
     const anchoUtil = pageW - margin * 2;
     const altoPag = doc.internal.pageSize.getHeight();
     // Salta de página si no cabe, dejando hueco al pie.
@@ -180,7 +181,9 @@ export const construirInformePdf = async (informe: Informe): Promise<jsPDF> => {
 
       y += 3;
     }
-  }
+  };
+
+  if (!informe.textoAlFinal) pintarSecciones();
 
   // --- Tablas -----------------------------------------------------------------
   for (const tabla of informe.tablas) {
@@ -228,6 +231,8 @@ export const construirInformePdf = async (informe: Informe): Promise<jsPDF> => {
     // @ts-expect-error lastAutoTable lo añade el plugin
     y = doc.lastAutoTable.finalY + 5;
   }
+
+  if (informe.textoAlFinal) pintarSecciones();
 
   if (informe.tablas.length === 0 && !informe.secciones?.length) {
     doc.setFontSize(10);

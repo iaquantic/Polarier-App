@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Loader2, FileText, Download, CheckCircle2, Circle, ChevronRight, ArrowLeft, Sparkles, Wand2, Mail } from "lucide-react";
+import { Loader2, FileText, Download, CheckCircle2, Circle, ChevronRight, ArrowLeft, Sparkles, Wand2, Mail, CalendarCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useRole } from "@/context/RoleContext";
 import {
@@ -18,7 +18,9 @@ import {
   MonthlyReport,
 } from "@/services/audit";
 import { buildInforme, Informe } from "@/lib/informe";
-import { buildInformeMensual, periodoInforme } from "@/lib/informeMensual";
+import { buildInformeMensual, periodoInforme, seccionesDelReporte } from "@/lib/informeMensual";
+import { buildInformeMes, buildInformeParte } from "@/lib/informeControl";
+import { cargarDatosMes, DatosMes, refrescarResumenMes, resumenDe } from "@/services/auditControl";
 import { descargarInformePdf } from "@/lib/informePdf";
 import InformePreview from "@/components/audit/InformePreview";
 import EnviarCorreoModal from "@/components/audit/EnviarCorreoModal";
@@ -66,6 +68,8 @@ const AuditMonth = () => {
   const [informeFecha, setInformeFecha] = useState<string>("");
   const [descargandoMensual, setDescargandoMensual] = useState(false);
   const [correoMensualOpen, setCorreoMensualOpen] = useState(false);
+  // Meses con el formulario unificado: partes, documento del mes y novedades.
+  const [datosControl, setDatosControl] = useState<DatosMes | null>(null);
 
   const [anio, mes] = anioMes.split("-").map(Number);
   const tituloMes = mes >= 1 && mes <= 12 ? `${NOMBRES_MES[mes - 1]} ${anio}` : anioMes;
@@ -83,9 +87,26 @@ const AuditMonth = () => {
         : null,
     [reporte, activeHotel]
   );
+  // Con el formulario unificado las tablas salen de los datos, así que el informe se
+  // puede descargar aunque la routine todavía no haya redactado el análisis.
+  const informeControl = useMemo(
+    () =>
+      datosControl && activeHotel && (datosControl.partes.length > 0 || datosControl.fila)
+        ? buildInformeMes({
+            resumen: resumenDe(datosControl),
+            hotel: activeHotel.nombre,
+            polo: activeHotel.polo?.nombre ?? undefined,
+            eventos: datosControl.eventos,
+            analisis: seccionesDelReporte(reporte?.estado === "listo" ? reporte : null),
+          })
+        : null,
+    [datosControl, activeHotel, reporte]
+  );
+  const informeDescarga = informeControl ?? informeMensual;
   // Si el estado dice "listo" pero no hay texto que enviar, se sigue ofreciendo
   // generarlo en vez de dejar la caja sin ningún botón.
-  const mensualListo = reporte?.estado === "listo" && informeMensual !== null;
+  const mensualListo = informeControl !== null || (reporte?.estado === "listo" && informeMensual !== null);
+  const periodo = `${anio}-${String(mes).padStart(2, "0")}`;
 
   useEffect(() => {
     if (!activeHotel || !anio || !mes) return;
@@ -94,13 +115,17 @@ const AuditMonth = () => {
       try {
         const [subs, definitions, monthly] = await Promise.all([
           getSubmissionsByMonth(activeHotel.id, anio, mes),
-          getFormDefinitions(activeHotel.id),
+          // Inactivas incluidas: los partes de los formularios antiguos se siguen abriendo.
+          getFormDefinitions(activeHotel.id, { incluirInactivos: true }),
           getMonthlyReport(activeHotel.id, anio, mes),
         ]);
         setItems(subs);
         setDefs(Object.fromEntries(definitions.map((d) => [d.id, d])));
         setReporte(monthly);
         setAutores(await getAutores(subs.map((s) => s.user_id)));
+        setDatosControl(
+          definitions.some((d) => d.tipo === "control") ? await cargarDatosMes(activeHotel.id, anio, mes) : null
+        );
       } finally {
         setLoading(false);
       }
@@ -116,6 +141,21 @@ const AuditMonth = () => {
     setInforme(null);
     setInformeFecha(s.fecha);
     try {
+      if (def.tipo === "control") {
+        const [prendas, ubicaciones] = await Promise.all([getPrendas(activeHotel.id), getUbicaciones(activeHotel.id)]);
+        setInforme(
+          buildInformeParte({
+            fecha: s.fecha,
+            data: s.data,
+            hotel: activeHotel.nombre,
+            polo: activeHotel.polo?.nombre ?? undefined,
+            prendas,
+            ubicaciones,
+            eventos: datosControl?.eventos ?? [],
+          })
+        );
+        return;
+      }
       // Lencería: catálogos + dotación fija del hotel (para la comparación del informe).
       const [prendas, ubicaciones, dotacion] =
         def.tipo === "lenceria"
@@ -174,6 +214,8 @@ const AuditMonth = () => {
     if (!activeHotel || !anio || !mes) return;
     setPidiendo(true);
     try {
+      // La routine lee la instantánea del Resumen: que esté al día antes de despertarla.
+      if (datosControl) await refrescarResumenMes(activeHotel.id, anio, mes);
       const { reporte: r, disparada } = await solicitarInformeMensual(activeHotel.id, anio, mes);
       setReporte(r);
       toast.success(
@@ -191,10 +233,10 @@ const AuditMonth = () => {
   // Descarga el informe mensual como PDF, generado en el cliente igual que el
   // de los partes diarios (no depende de n8n).
   const descargarMensual = async () => {
-    if (!informeMensual || !reporte) return;
+    if (!informeDescarga) return;
     setDescargandoMensual(true);
     try {
-      await descargarInformePdf(informeMensual, periodoInforme(reporte));
+      await descargarInformePdf(informeDescarga, reporte ? periodoInforme(reporte) : periodo);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo generar el PDF");
     } finally {
@@ -222,8 +264,31 @@ const AuditMonth = () => {
         >
           <ArrowLeft size={16} /> Volver a los meses
         </button>
-        <header className="neo-raised-sm rounded-[22px] px-5 py-4 mb-6">
+        <header className="neo-raised-sm rounded-[22px] px-5 py-4 mb-6 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-lg sm:text-xl font-extrabold text-foreground capitalize">{tituloMes}</h1>
+          {datosControl && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => navigate(`/auditoria/formularios/cierre?mes=${periodo}`)}
+                className="neo-raised-sm neo-press neo-accent inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold"
+              >
+                <CalendarCheck size={14} /> Cierre del mes
+              </button>
+              {informeControl && (
+                <button
+                  onClick={() => {
+                    setInforme(informeControl);
+                    setInformeFecha(periodo);
+                    setInformeLoading(false);
+                    setInformeOpen(true);
+                  }}
+                  className="neo-raised-sm neo-press neo-accent inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold"
+                >
+                  <FileText size={14} /> Ver informe del mes
+                </button>
+              )}
+            </div>
+          )}
         </header>
 
         {/* Informe de comportamiento mensual: lo redacta la routine de Claude en la
@@ -305,14 +370,18 @@ const AuditMonth = () => {
           <div className="space-y-3">
             {items.map((s) => {
               const def = defs[s.form_definition_id];
+              const esControl = def?.tipo === "control";
               const total = (s.totales as { general?: number })?.general ?? null;
+              const kg = esControl ? ((s.totales as { kg?: number })?.kg ?? null) : null;
               const esHoy = s.fecha === hoyStr();
               const autor = autores[s.user_id];
               // Se abre por id: así el formulario carga ESTE parte y no el propio
               // de esa fecha, que para un administrador es otro distinto.
               const abrir = () =>
                 navigate(
-                  `/auditoria/formulario/${s.form_definition_id}?fecha=${s.fecha}&sub=${s.id}`
+                  esControl
+                    ? `/auditoria/formularios/parte?fecha=${s.fecha}&sub=${s.id}`
+                    : `/auditoria/formulario/${s.form_definition_id}?fecha=${s.fecha}&sub=${s.id}`
                 );
               return (
                 <div
@@ -334,6 +403,7 @@ const AuditMonth = () => {
                         <p className="text-xs text-muted-foreground">
                           {fmtFecha(s.fecha)}
                           {total !== null && <> · Total: <span className="font-medium text-foreground">{total}</span></>}
+                          {kg !== null && <> · <span className="font-medium text-foreground">{kg.toLocaleString("es-ES", { maximumFractionDigits: 1 })} kg</span></>}
                           {autor && <> · <span className="font-medium text-foreground">{autor.nombre}</span></>}
                         </p>
                       </div>
@@ -366,10 +436,10 @@ const AuditMonth = () => {
         )}
       </div>
 
-      {correoMensualOpen && informeMensual && reporte && (
+      {correoMensualOpen && informeDescarga && (
         <EnviarCorreoModal
-          informe={informeMensual}
-          fecha={periodoInforme(reporte)}
+          informe={informeDescarga}
+          fecha={reporte ? periodoInforme(reporte) : periodo}
           onClose={() => setCorreoMensualOpen(false)}
         />
       )}

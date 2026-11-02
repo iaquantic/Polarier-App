@@ -66,6 +66,10 @@ afecta a informes:
 | `audit_daily` | Capa plana: 1 fila por parte, métricas normalizadas y nombres resueltos | `submission_id` (PK), `hotel_id`, `fecha`, `periodo`, `tipo`, `valor`, `kg`, `inventario`, `metricas` |
 | `audit_daily_detalle` | Formato largo: prenda / ubicación / métrica / valor | `submission_id`, `prenda`, `ubicacion`, `metrica`, `valor` |
 | `dotacion_lenceria` | Stock fijo de lencería del hotel por ubicación × prenda (2.877 en el Muthu). Precarga el parte de lencería y es la dotación del dashboard y del informe | `hotel_id`, `ubicacion_id`, `prenda_id`, `cantidad`; única por los tres. Escritura solo `supervisor`/`admin` vía `has_hotel_role(h, roles[])`. Migración `007` |
+| `control_mes` | Formulario unificado: lo que se rellena una vez al mes, por hotel. `resumen` es la hoja Resumen calculada por la app, y es lo que lee la routine. Lectura y escritura con acceso al hotel | `hotel_id`, `anio`, `mes` (únicos), `data` jsonb, `resumen` jsonb, `resumen_at`, `updated_by`. Migración `016` |
+| `control_eventos` | Formulario unificado: incidencias, retiros, mantenimiento y acciones. Se abren un día y se cierran otro. Lectura y escritura con acceso al hotel | `hotel_id`, `tipo`, `fecha`, `data` jsonb, `user_id`, `updated_by`. Migración `016` |
+
+Las metas del SLA de cada hotel van en `form_definitions.config.metas`, fuera de las migraciones: son cifras del contrato y el repositorio es público. Ver [[Formulario-Control]].
 
 Vistas (con `security_invoker = true`, imprescindible: una vista normal corre con
 los permisos de su dueño y **se salta la RLS**):
@@ -75,7 +79,7 @@ los permisos de su dueño y **se salta la RLS**):
 | `audit_mes` | 1 fila por hotel + periodo + tipo de formulario. Desde la 007 trae `dotacion_hotel` (stock fijo) junto a `max_inventario` (lo contado) |
 | `audit_mes_dias` | serie diaria con `mediana_mes`, `ratio_vs_mediana` y `clasificacion`; en lencería, `dotacion_hotel` y `diferencia_dotacion` (conteo − dotación) |
 | `audit_dotacion_hotel` | suma de `dotacion_lenceria` por hotel (apoyo de las otras dos) |
-| `audit_mes_dotacion` | dotación frente al **último** conteo de lencería del mes, por ubicación × prenda (`dotacion`, `contado`, `diferencia`). Solo hoteles/periodos con algún parte de lencería |
+| `audit_mes_dotacion` | dotación frente a lo contado en el mes, por ubicación × prenda (`dotacion`, `contado`, `diferencia`). En el formulario antiguo, el último parte de lencería; en el unificado, el último conteo de cada casilla, y sin conteo `contado` es null. Solo hoteles/periodos con algún parte |
 
 `audit_daily` y `audit_daily_detalle` **no se escriben nunca a mano**: las mantiene
 el trigger `trg_audit_daily` sobre `form_submissions`, vía

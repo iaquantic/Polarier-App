@@ -13,6 +13,7 @@ Vault de Obsidian con todo lo necesario recordar sobre **Polarier** (repo: `Pola
 - [[Integracion-n8n]] — Webhooks, modos prod/test, formato de respuestas.
 - [[Automatizaciones]] — **Sección «Automatizaciones»**: un apartado por proceso y un trigger propio por rama en n8n.
 - [[Modulo-Auditoria]] — Formularios de control de almacén hotelero (multi-hotel).
+- [[Formulario-Control]] — **Formulario unificado** a partir del Excel «Modelo Mensual»: parte diario, cierre del mes y qué fórmulas se respetan.
 - [[Routine-Informe-Mensual]] — Informe mensual: capa de datos plana para la IA, cola y routine de Claude en la nube.
 - [[Informe-Consejo-Direccion]] — **Informe del Consejo de Dirección**: tablas → análisis de la IA → plantilla maestra. Desde el 2026-10-22 se genera desde la app ([[Informe-Consejo-Generacion]]).
 - [[Informe-Consejo-Origen-Datos]] — De dónde sale cada tabla del informe en el GLOBAL y la TABLA CA (estudio del 2026-10-21).
@@ -48,6 +49,8 @@ La aplicación está **desplegada y conectada**:
 **Rediseño neoformista (2026-10-16):** lobby, chat y login con el fondo de iconos de lavandería: amarillo en claro y azul en oscuro. Lleva un micrófono en la barra de input (graba, revisas y envías). Leo lo aprobó sobre vistas previas. Está en main (PR 22). Documentos, Historial y Configuración ya tienen el mismo fondo. Detalle en [[Diseno-Neoformista]].
 
 **Informe del Consejo de Dirección (2026-10-21):** entra al repo el proyecto que redacta el informe mensual del Consejo de Dirección (`consejo-direccion/`), traído de `C:\Trabajo\Consejo Direccion Claude`. Funciona — el II Trimestre 2026 se regenera limpio desde su nueva ubicación — pero **sigue siendo un proyecto Python que se ejecuta a mano con Claude Code: no está integrado en la app**. El plan es que sea un apartado más de [[Automatizaciones]]. Detalle, flujo y puntos frágiles en [[Informe-Consejo-Direccion]].
+
+**Formulario unificado (2026-11-02):** lencería, producción y cuadrador pasan a ser un solo parte diario más un cierre mensual, con las fórmulas del Excel «Modelo Mensual» contrastadas contra el propio libro, y el dashboard y los informes con sus nuevos indicadores. Está en la rama `auditoria/formulario-unificado`, **a falta de desplegar y aplicar la migración `016`**. Detalle en [[Formulario-Control]].
 
 **Automatizaciones (2026-10-20):** el disparo de los documentos sale del chat. La app tiene una sección «Automatizaciones» con un apartado por proceso (Modelo 1, Tabla CA, Ocupación) y cada uno llama a su **propio webhook** en n8n, dentro del mismo workflow y sin duplicar las ramas. Cada automatización entra **solo** por su trigger: el chat conversacional sigue igual, pero si alguien sube ahí un CP, un CA o un Integral, responde diciendo en qué apartado subirlo. Detalle en [[Automatizaciones]].
 

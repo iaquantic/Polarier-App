@@ -75,6 +75,8 @@ export interface Informe {
   campos: InformeCampo[]; // datos de cabecera del parte
   tablas: InformeTabla[];
   secciones?: InformeSeccion[]; // texto (informe mensual); va antes de las tablas
+  /** El texto va detrás de las tablas: en el informe de control cierra el documento. */
+  textoAlFinal?: boolean;
 }
 
 const fmtFecha = (f: string): string =>

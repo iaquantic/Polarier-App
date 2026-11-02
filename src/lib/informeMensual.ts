@@ -154,6 +154,23 @@ const camposMetricas = (metricas: Record<string, unknown>): InformeCampo[] => {
   return campos;
 };
 
+/** Lo que redactó la routine, en secciones. Vacío si todavía no ha escrito nada. */
+export const seccionesDelReporte = (reporte: MonthlyReport | null): InformeSeccion[] => {
+  const resumen = (reporte?.resumen ?? {}) as { analisis?: unknown; valoraciones?: unknown };
+  const analisis = typeof resumen.analisis === "string" ? resumen.analisis : "";
+  const valoraciones = Array.isArray(resumen.valoraciones)
+    ? resumen.valoraciones.filter((v): v is string => typeof v === "string")
+    : [];
+  const secciones = analisis ? parsearAnalisis(analisis) : [];
+  if (valoraciones.length > 0) {
+    secciones.push({
+      titulo: "Valoraciones",
+      bloques: valoraciones.map((v) => ({ tipo: "vineta" as const, texto: limpiarInline(v) })),
+    });
+  }
+  return secciones;
+};
+
 /**
  * Construye el `Informe` del mes a partir de la fila de `monthly_reports`.
  * Devuelve `null` si el informe todavía no tiene análisis redactado.
@@ -164,22 +181,11 @@ export const buildInformeMensual = (params: {
   polo?: string;
 }): Informe | null => {
   const { reporte, hotel, polo } = params;
-  const resumen = (reporte.resumen ?? {}) as { analisis?: unknown; valoraciones?: unknown };
-  const analisis = typeof resumen.analisis === "string" ? resumen.analisis : "";
-  const valoraciones = Array.isArray(resumen.valoraciones)
-    ? resumen.valoraciones.filter((v): v is string => typeof v === "string")
-    : [];
+  const secciones = seccionesDelReporte(reporte);
 
-  if (!analisis && valoraciones.length === 0) return null;
+  if (secciones.length === 0) return null;
 
   const metricas = (reporte.metricas ?? {}) as Record<string, unknown>;
-  const secciones = analisis ? parsearAnalisis(analisis) : [];
-  if (valoraciones.length > 0) {
-    secciones.push({
-      titulo: "Valoraciones",
-      bloques: valoraciones.map((v) => ({ tipo: "vineta" as const, texto: limpiarInline(v) })),
-    });
-  }
 
   const nombreMes = reporte.mes >= 1 && reporte.mes <= 12 ? NOMBRES_MES[reporte.mes - 1] : "";
 
