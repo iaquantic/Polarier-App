@@ -106,7 +106,11 @@ export const uploadDocument = async (
     })
     .select()
     .single();
-  if (insertError) throw insertError;
+  if (insertError) {
+    // Sin fila nadie vería ni podría borrar el archivo: no se deja en el bucket.
+    await supabase.storage.from('documents').remove([filePath]);
+    throw insertError;
+  }
 
   return data;
 };
@@ -193,14 +197,16 @@ export const downloadDocument = async (filePath: string, fileName: string): Prom
 /**
  * Borra un documento concreto: primero el archivo del bucket 'documents'
  * y luego su fila en la tabla. Idempotente respecto a Storage (si el archivo
- * ya no existe, la BD igual se limpia).
+ * ya no existe, la BD igual se limpia). Si falla el borrado del archivo, la
+ * fila se queda para poder reintentar: sin ella el archivo quedaría suelto.
  */
 export const deleteDocument = async (id: string, filePath: string): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('No authenticated user');
 
   if (filePath) {
-    await supabase.storage.from('documents').remove([filePath]);
+    const { error: storageError } = await supabase.storage.from('documents').remove([filePath]);
+    if (storageError) throw storageError;
   }
 
   const { error } = await supabase
@@ -213,7 +219,8 @@ export const deleteDocument = async (id: string, filePath: string): Promise<void
 
 /**
  * Borra todos los documentos (archivos de Storage + filas) asociados a un chat.
- * Usado al eliminar un chat completo.
+ * Usado al eliminar un chat completo. Como en deleteDocument, si falla el borrado
+ * de los archivos las filas se quedan.
  */
 export const deleteDocumentsByChat = async (chatId: string): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
@@ -229,7 +236,8 @@ export const deleteDocumentsByChat = async (chatId: string): Promise<void> => {
 
   const filePaths = docs.map((d: any) => d.file_path).filter(Boolean);
   if (filePaths.length > 0) {
-    await supabase.storage.from('documents').remove(filePaths);
+    const { error: storageError } = await supabase.storage.from('documents').remove(filePaths);
+    if (storageError) throw storageError;
   }
 
   const ids = docs.map((d: any) => d.id);
@@ -238,24 +246,4 @@ export const deleteDocumentsByChat = async (chatId: string): Promise<void> => {
     .delete()
     .in('id', ids);
   if (delError) throw delError;
-};
-
-export const cleanupOldDocuments = async (): Promise<void> => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  const { data: oldDocs, error } = await supabase
-    .from('documents')
-    .select('id, file_path')
-    .lt('created_at', sevenDaysAgo.toISOString());
-
-  if (error || !oldDocs || oldDocs.length === 0) return;
-
-  // Delete files from Storage
-  const filePaths = oldDocs.map((doc: any) => doc.file_path);
-  await supabase.storage.from('documents').remove(filePaths);
-
-  // Delete records from DB
-  const ids = oldDocs.map((doc: any) => doc.id);
-  await supabase.from('documents').delete().in('id', ids);
 };

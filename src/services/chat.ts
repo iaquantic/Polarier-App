@@ -100,7 +100,8 @@ export const deleteChat = async (chatId: string): Promise<void> => {
   if (!user) throw new Error('No authenticated user');
 
   // 1. Documentos del chat: archivos de Storage + filas en la tabla.
-  //    (El cascade de la BD nunca borra archivos de Storage, por eso va explícito.)
+  //    (documents.chat_id es ON DELETE SET NULL: borrar solo el chat dejaría la fila
+  //    con chat_id nulo y el archivo en el bucket, por eso va explícito.)
   await deleteDocumentsByChat(chatId);
 
   // 2. Mensajes del chat.
