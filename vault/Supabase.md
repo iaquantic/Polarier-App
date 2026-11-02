@@ -124,7 +124,7 @@ Implementado en `chat.ts` y `storage.ts`:
 
 > ⚠️ Antes, `deleteChat` solo borraba la fila del chat: las filas de `documents` se quedaban con `chat_id` nulo y sus archivos en el bucket. Corregido. Ver [[Decisiones]].
 
-**Los documentos no caducan** (decisión de Leo, 2026-11-02, ver [[Decisiones]]): siguen hasta que su dueño los borra.
+**Los documentos y los mensajes de chat no caducan** (decisión de Leo, 2026-11-02, ver [[Decisiones]]): siguen hasta que su dueño los borra. Las funciones que borraban a 7 días se eliminaron con las migraciones `018` y `019`.
 
 **Los archivos se borran por la API de Storage o desde el panel, nunca por SQL.** `storage.protect_delete` no deja hacerlo y, según la documentación de Supabase, un borrado por SQL no quita el fichero del bucket.
 
