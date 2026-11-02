@@ -4,6 +4,12 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-11-02 — `anon` conserva EXECUTE sobre los helpers de las políticas RLS
+
+- **Qué:** la migración 017 quita EXECUTE a `anon` y `authenticated` en `delete_old_documents`, `handle_new_user` y `rls_auto_enable`, pero no toca `has_hotel_access`, `has_hotel_role` ni `puede_ver_perfil`, aunque el asesor de seguridad avise de ellas.
+- **Por qué:** sus 27 políticas son `TO public`, así que `anon` también las evalúa: sin el permiso, sus consultas a esas tablas pasarían de cero filas a error. Para `anon` nunca dan verdadero, así que quitárselo no protege nada.
+- **Descartado por ahora:** pasar las 27 políticas a `TO authenticated` para que el aviso desaparezca. Funciona (probado en local), pero toca 13 tablas solo para limpiar un aviso. Detalle en [[Supabase]].
+
 ## 2026-11-02 — Un solo formulario de auditoría, a partir del Modelo Mensual
 
 - **Decisión (Leo):** unificar lencería, producción y cuadrador en un formulario basado en el Excel «Modelo Mensual», respetando sus fórmulas, y adaptar dashboard e informes.

@@ -142,6 +142,25 @@ de ser estrictamente personal:
 
 El borrado requiere policies `DELETE` para `auth.uid() = user_id` en `chats`, `chat_messages` y `documents`. Verificado que funciona en producción.
 
+## Permisos de las funciones SECURITY DEFINER
+
+Supabase da EXECUTE sobre toda función nueva de `public` a `public`, `anon`, `authenticated` y `service_role`, y PostgREST las expone en `/rest/v1/rpc/`. Al crear una función `security definer` hay que quitarlo a mano, y siempre también a `public`: `revoke ... from anon` a secas no cambia nada, porque `anon` lo hereda de ahí. Un `drop function` seguido de `create` devuelve los permisos por defecto; `create or replace` los conserva.
+
+Revisión del 2026-11-02, por el aviso del asesor de seguridad (lint 0028, `anon` puede ejecutar). Migración `017_permisos_security_definer.sql`, **pendiente de aplicar** (ver [[Pendientes]]):
+
+| Función | Quién la usa | Permisos tras la 017 |
+|---|---|---|
+| `delete_old_documents` | Nadie: sin trigger, sin cron (`pg_cron` no está instalado), ni la app ni n8n (5 flujos inactivos y sin disparadores no se pudieron leer) | Solo `service_role` y el propietario |
+| `handle_new_user` | Trigger `on_auth_user_created` de `auth.users` | Solo `service_role` y el propietario. Un trigger no revalida privilegios al dispararse, solo al crearlo |
+| `rls_auto_enable` | Event trigger `ensure_rls` | Igual |
+| `has_hotel_access`, `has_hotel_role`, `puede_ver_perfil` | 27 políticas RLS de 13 tablas | **Sin cambios** (`anon`, `authenticated`, `service_role`) |
+
+**`delete_old_documents` no funciona.** `storage.protect_delete`, un trigger de Supabase sobre `storage.objects`, impide borrar por SQL, así que la función falla en su primera línea y deshace todo. Por eso los documentos de más de 7 días siguen ahí: hoy no hay retención. Esa protección es lo único que impedía que cualquiera sin sesión borrara los documentos antiguos, y no es un permiso nuestro. Qué hacer con la función está en [[Pendientes]].
+
+**Por qué `anon` conserva los tres de las políticas.** Todas las políticas son `TO public`, así que `anon` también las evalúa, y una política corre con los permisos de quien consulta. Sin EXECUTE, una consulta de `anon` a `hoteles` o `profiles` pasa de devolver cero filas a fallar con 42501. Quitárselo no protege nada: con `auth.uid()` a null, para `anon` nunca dan verdadero. `authenticated` los necesita para que la app funcione. Por eso el asesor seguirá avisando de estas tres: es un falso positivo asumido, igual que los avisos del lint 0029 sobre `disponibilidad_informe_consejo`, `fuentes_informe_consejo`, `solicitar_informe_consejo`, `solicitar_informe_consejo_trimestre` y `anular_solicitud_informe_consejo`, que son RPC que llama la app (`src/services/informeConsejo.ts`).
+
+Para limpiar el aviso de `anon` habría que pasar antes esas políticas a `TO authenticated` (así `anon` sigue viendo cero filas, sin error) y revocar después. Probado en local, pero no se hizo: toca 27 políticas y no aporta seguridad. Ver [[Decisiones]].
+
 ## Post-deploy: configuración de auth
 
 En **Authentication → URL Configuration** hay que registrar el dominio de producción:

@@ -10,6 +10,8 @@ Tareas y cosas por revisar. Marca `[x]` al completar.
 - [ ] **Login con Google (2026-10-28):** en Supabase → Authentication → URL Configuration, comprobar que **Redirect URLs** incluye el dominio de producción, `polarier://auth/callback` y, para probar en local, `http://localhost:5180/**`. Ver [[Supabase]].
 - [ ] **Login con Google:** probar de principio a fin con una cuenta real en local, en producción (tras desplegar) y en Android.
 - [ ] **Login con Google, Google Cloud:** la pantalla de Google muestra «Ir a zongaaygriklqsxzxfgl.supabase.co». Revisar en la pantalla de consentimiento OAuth el nombre y el logo de la app, y que esté publicada (*In production*): en *Testing* solo entran los usuarios de prueba.
+- [ ] **Aplicar la migración `017_permisos_security_definer.sql` (Leo):** quita a `anon` y `authenticated` las funciones `delete_old_documents`, `handle_new_user` y `rls_auto_enable`. Después, comprobar con una cuenta de prueba que un alta sigue creando el perfil y volver a pasar el asesor de seguridad: los avisos de `anon` deben bajar de 6 a 3. Ver [[Supabase]].
+- [ ] **Decidir qué hacer con `delete_old_documents`:** no la llama nadie y falla siempre, así que hoy los documentos no caducan. O se borra, o, si se quiere retención, se rehace con la API de Storage (por SQL, Supabase no deja borrar de `storage.objects`). Ver [[Supabase]].
 
 ## n8n
 
