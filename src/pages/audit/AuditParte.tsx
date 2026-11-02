@@ -60,6 +60,10 @@ const PASOS = ["Jornada", "Lavado", "Procesado", "Inventario", "Novedades"] as c
 type Paso = (typeof PASOS)[number];
 
 interface Carga {
+  /** Identifica el día cargado: hotel, fecha, parte concreto y quién mira. */
+  clave: string;
+  hotelId: string;
+  fecha: string;
   def: FormDefinition;
   sub: FormSubmission | null;
   partesDelMes: FormSubmission[];
@@ -73,27 +77,22 @@ interface Carga {
 }
 
 /**
- * Parte diario (`/auditoria/formularios/parte`). La fecha va en la URL y el formulario
- * se monta de nuevo por cada día, de modo que cambiar de día guarda lo pendiente del
- * anterior sin arriesgarse a escribirlo en el nuevo.
+ * Parte diario (`/auditoria/formularios/parte`). La URL dice qué día se ha pedido, pero
+ * lo que se ve y se guarda es siempre el día ya cargado (`carga`). Al elegir otro, el
+ * marco se queda y el contenido anterior se atenúa sin poder tocarse; solo se sustituye
+ * cuando lo pendiente de ese día está guardado y el nuevo ha llegado entero.
  */
 const AuditParte = () => {
   const [searchParams] = useSearchParams();
-  const fecha = searchParams.get("fecha") || hoyLocal();
+  const fechaPedida = searchParams.get("fecha") || hoyLocal();
   const subId = searchParams.get("sub");
-  return <ParteDiario key={`${fecha}|${subId ?? ""}`} fecha={fecha} subId={subId} />;
-};
-
-const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) => {
   const navigate = useNavigate();
   const { activeHotel } = useRole();
   const { user } = useAuth();
 
-  const [anio, mes] = fecha.split("-").map(Number);
-  const rango = useMemo(() => rangoMes(anio, mes), [anio, mes]);
-
   const [carga, setCarga] = useState<Carga | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  const [intento, setIntento] = useState(0);
   const [sinFormulario, setSinFormulario] = useState(false);
   const [parte, setParte] = useState<ParteData>(parteVacio);
   const [horasComoAyer, setHorasComoAyer] = useState(false);
@@ -104,64 +103,12 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
   const [, refrescoHora] = useState(0);
   const cierreGuardado = useRef<string>("Pendiente");
 
-  useEffect(() => {
-    if (!activeHotel) return;
-    let vivo = true;
-    (async () => {
-      setCargando(true);
-      try {
-        const def = await getDefinicionControl(activeHotel.id);
-        if (!def) {
-          if (vivo) setSinFormulario(true);
-          return;
-        }
-        const [sub, subsMes, prendas, ubicaciones, dotacion, previo, fila, abiertos, delMes] = await Promise.all([
-          subId ? getSubmissionById(subId) : getSubmission(def.id, fecha),
-          getSubmissionsByMonth(activeHotel.id, anio, mes),
-          getPrendas(activeHotel.id),
-          getUbicaciones(activeHotel.id),
-          getDotacionLenceria(activeHotel.id).catch(() => null),
-          getParteAnterior(def.id, fecha),
-          getControlMes(activeHotel.id, anio, mes),
-          getEventosAbiertos(activeHotel.id),
-          getEventosMes(activeHotel.id, anio, mes),
-        ]);
-        if (!vivo) return;
-        const ajeno = sub && user && sub.user_id !== user.id ? sub.user_id : null;
-        const autorAjeno = ajeno ? ((await getAutores([ajeno]))[ajeno] ?? null) : null;
-        const anterior = previo ? leerParte(previo.data) : null;
-        const inicial = sub ? leerParte(sub.data) : parteVacio();
-        if (!sub && anterior?.jornada.horas_previstas != null) {
-          inicial.jornada.horas_previstas = anterior.jornada.horas_previstas;
-          setHorasComoAyer(true);
-        }
-        setParte(inicial);
-        cierreGuardado.current = inicial.jornada.cierre;
-        const deHoy = delMes.filter((e) => e.fecha === fecha);
-        setEventos([...abiertos, ...deHoy.filter((e) => !abiertos.some((a) => a.id === e.id))]);
-        setCarga({
-          def,
-          sub,
-          // El parte que se está editando va aparte: si no, se contaría dos veces.
-          partesDelMes: subsMes.filter((s) => s.form_definition_id === def.id && s.id !== sub?.id),
-          prendas,
-          ubicaciones,
-          dotacion,
-          anterior,
-          mesValidado: leerControlMes(fila?.data).revision.operacion === "Validado",
-          eventos: abiertos,
-          autorAjeno,
-        });
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Error cargando el parte");
-      } finally {
-        if (vivo) setCargando(false);
-      }
-    })();
-    return () => {
-      vivo = false;
-    };
-  }, [activeHotel?.id, fecha, subId, user?.id, anio, mes]);
+  const clave = `${activeHotel?.id}|${fechaPedida}|${subId ?? ""}|${user?.id}`;
+  const cambiando = carga?.clave !== clave;
+  // Todo lo que se calcula o se guarda sale del día en pantalla, no del que se ha pedido.
+  const fecha = carga?.fecha ?? fechaPedida;
+  const [anio, mes] = fecha.split("-").map(Number);
+  const rango = useMemo(() => rangoMes(anio, mes), [anio, mes]);
 
   // Un parte ajeno nunca se edita (guardarlo crearía una copia a nombre de quien
   // mira) y un mes validado ya está cerrado. El futuro todavía no se puede rellenar.
@@ -177,9 +124,9 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
   const readOnly = motivoSoloLectura !== null;
 
   const guardar = async (p: ParteData) => {
-    if (!activeHotel || !carga) return;
+    if (!carga) return;
     await saveSubmission({
-      hotelId: activeHotel.id,
+      hotelId: carga.hotelId,
       formDefinitionId: carga.def.id,
       fecha,
       estado: p.jornada.cierre === "Pendiente" ? "borrador" : "completado",
@@ -189,12 +136,95 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
     // Un día abierto no cuenta en el mes: el Resumen que lee la routine solo cambia al
     // cerrarlo, al reabrirlo o al corregir uno ya cerrado.
     if (p.jornada.cierre !== "Pendiente" || cierreGuardado.current !== "Pendiente") {
-      void refrescarResumenMes(activeHotel.id, anio, mes);
+      void refrescarResumenMes(carga.hotelId, anio, mes);
     }
     cierreGuardado.current = p.jornada.cierre;
   };
 
-  const { estado, ultimo, marcarCambio, guardarAhora } = useAutoguardado(parte, guardar, !readOnly && !!carga);
+  const { estado, ultimo, marcarCambio, guardarAhora, vaciar, reiniciar } = useAutoguardado(
+    parte,
+    guardar,
+    !readOnly && !!carga && !cambiando
+  );
+
+  useEffect(() => {
+    setErrorCarga(null);
+    setSinFormulario(false);
+    setInformeOpen(false);
+    setConfirmarCierre(false);
+    // Volver al día que sigue en pantalla, antes de que llegue el otro, no pide nada.
+    if (!activeHotel || carga?.clave === clave) return;
+    let vivo = true;
+    const [anioPedido, mesPedido] = fechaPedida.split("-").map(Number);
+    (async () => {
+      let aviso = "No se han podido guardar los cambios del día anterior.";
+      try {
+        // Primero lo pendiente: lo que se lea ahora ya tiene que incluirlo.
+        await vaciar();
+        if (!vivo) return;
+        aviso = "No se ha podido abrir este día.";
+        const def = carga?.hotelId === activeHotel.id ? carga.def : await getDefinicionControl(activeHotel.id);
+        if (!vivo) return;
+        if (!def) {
+          setSinFormulario(true);
+          setCarga(null);
+          reiniciar();
+          return;
+        }
+        const [sub, subsMes, prendas, ubicaciones, dotacion, previo, fila, abiertos, delMes] = await Promise.all([
+          subId ? getSubmissionById(subId) : getSubmission(def.id, fechaPedida),
+          getSubmissionsByMonth(activeHotel.id, anioPedido, mesPedido),
+          getPrendas(activeHotel.id),
+          getUbicaciones(activeHotel.id),
+          getDotacionLenceria(activeHotel.id).catch(() => null),
+          getParteAnterior(def.id, fechaPedida),
+          getControlMes(activeHotel.id, anioPedido, mesPedido),
+          getEventosAbiertos(activeHotel.id),
+          getEventosMes(activeHotel.id, anioPedido, mesPedido),
+        ]);
+        if (!vivo) return;
+        const ajeno = sub && user && sub.user_id !== user.id ? sub.user_id : null;
+        const autorAjeno = ajeno ? ((await getAutores([ajeno]))[ajeno] ?? null) : null;
+        if (!vivo) return;
+        const anterior = previo ? leerParte(previo.data) : null;
+        const inicial = sub ? leerParte(sub.data) : parteVacio();
+        const comoAyer = !sub && anterior?.jornada.horas_previstas != null;
+        if (comoAyer) inicial.jornada.horas_previstas = anterior.jornada.horas_previstas;
+        // Todo de golpe: el parte y el día al que pertenece cambian en el mismo render.
+        reiniciar();
+        setHorasComoAyer(comoAyer);
+        setParte(inicial);
+        cierreGuardado.current = inicial.jornada.cierre;
+        const deHoy = delMes.filter((e) => e.fecha === fechaPedida);
+        setEventos([...abiertos, ...deHoy.filter((e) => !abiertos.some((a) => a.id === e.id))]);
+        setCarga({
+          clave,
+          hotelId: activeHotel.id,
+          fecha: fechaPedida,
+          def,
+          sub,
+          // El parte que se está editando va aparte: si no, se contaría dos veces.
+          partesDelMes: subsMes.filter((s) => s.form_definition_id === def.id && s.id !== sub?.id),
+          prendas,
+          ubicaciones,
+          dotacion,
+          anterior,
+          mesValidado: leerControlMes(fila?.data).revision.operacion === "Validado",
+          eventos: abiertos,
+          autorAjeno,
+        });
+      } catch (err) {
+        console.warn("No se pudo cambiar de día:", err);
+        if (vivo) setErrorCarga(aviso);
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+    // `clave` ya recoge hotel, fecha, parte y usuario. `carga` se lee al pedir otro día,
+    // pero que llegue no debe relanzar nada.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clave, intento]);
 
   // Que «hace 5 s» avance sin depender de otro render.
   useEffect(() => {
@@ -203,10 +233,12 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
   }, []);
 
   const cambiar = (cambio: Partial<ParteData>) => {
+    if (cambiando) return;
     marcarCambio();
     setParte((p) => ({ ...p, ...cambio }));
   };
   const cambiarJornada = (cambio: Partial<Jornada>) => {
+    if (cambiando) return;
     marcarCambio();
     setParte((p) => ({ ...p, jornada: { ...p.jornada, ...cambio } }));
   };
@@ -227,6 +259,7 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
 
   const cerrar = async () => {
     setConfirmarCierre(false);
+    if (cambiando) return;
     marcarCambio();
     const cerrado: ParteData = { ...parte, jornada: { ...parte.jornada, cierre: "Cerrado" } };
     setParte(cerrado);
@@ -239,6 +272,7 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
   };
 
   const guardarBorrador = async () => {
+    if (cambiando) return;
     marcarCambio();
     try {
       await guardarAhora();
@@ -256,15 +290,14 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
     .filter(Boolean)
     .join(" y ");
 
-  if (cargando) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="animate-spin text-muted-foreground" size={24} />
-      </div>
-    );
-  }
+  const avisoError = errorCarga && (
+    <div role="alert" className="neo-raised-sm rounded-[18px] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <p className="text-sm font-semibold min-w-0">{errorCarga}</p>
+      <BotonSecundario onClick={() => setIntento((n) => n + 1)}>Reintentar</BotonSecundario>
+    </div>
+  );
 
-  if (sinFormulario || !carga || !activeHotel) {
+  if (sinFormulario) {
     return (
       <div className="p-6">
         <p className="neo-raised-sm rounded-[22px] p-5 text-sm text-muted-foreground">
@@ -274,7 +307,20 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
     );
   }
 
-  const fechaLarga = new Date(`${fecha}T00:00:00`).toLocaleDateString("es-ES", {
+  // Solo la primera vez: después, el día anterior sigue en pantalla mientras llega el nuevo.
+  if (!carga || !activeHotel) {
+    return errorCarga ? (
+      <div className="p-6">{avisoError}</div>
+    ) : (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="animate-spin text-muted-foreground" size={24} />
+      </div>
+    );
+  }
+
+  // Con un poco de retraso, como `.parte-dia`: si el día llega enseguida, no llega a atenuarse.
+  const atenuado = cambiando ? "opacity-50 transition-opacity duration-150 delay-100 motion-reduce:transition-none" : "";
+  const fechaLarga = new Date(`${fechaPedida}T00:00:00`).toLocaleDateString("es-ES", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -289,13 +335,27 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
         <header className="neo-primary rounded-[22px] px-5 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-lg font-extrabold">Parte diario de control</h1>
+            {/* En móvil, una línea para cada cosa: si no, según lo largo que sea el nombre del día, la
+                cabecera ocupa una línea más o menos y todo lo de abajo salta al cambiar de día. */}
             <p className="text-sm font-medium opacity-80">
-              {activeHotel.nombre} · {fechaLarga}
-              {carga.autorAjeno && <> · Rellenado por {carga.autorAjeno.nombre}</>}
+              <span className="block sm:inline">
+                {activeHotel.nombre}
+                <span className="hidden sm:inline"> · </span>
+              </span>
+              <span className="block sm:inline">{fechaLarga}</span>
+              {!cambiando && carga.autorAjeno && (
+                <span className="block sm:inline">
+                  <span className="hidden sm:inline"> · </span>Rellenado por {carga.autorAjeno.nombre}
+                </span>
+              )}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {readOnly ? (
+            {cambiando ? (
+              <span aria-live="polite" className="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full">
+                {errorCarga ? "Sin cargar" : "Cargando…"}
+              </span>
+            ) : readOnly ? (
               <span title={motivoSoloLectura ?? undefined} className="flex items-center gap-1.5 text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full">
                 <Eye size={14} /> Solo lectura
               </span>
@@ -306,19 +366,14 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
             )}
             <button
               type="button"
+              disabled={cambiando}
               onClick={() => setInformeOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-bold neo-press bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full"
+              className="flex items-center gap-1.5 text-xs font-bold neo-press bg-white/20 hover:bg-white/30 disabled:opacity-60 px-3 py-1.5 rounded-full"
             >
               <FileText size={14} /> Ver informe del día
             </button>
           </div>
         </header>
-
-        {readOnly && (
-          <p className="neo-raised-sm rounded-[18px] px-4 py-2.5 text-sm font-semibold text-muted-foreground">
-            {motivoSoloLectura}
-          </p>
-        )}
 
         <DiasMes
           anio={anio}
@@ -328,7 +383,7 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
               ? [...carga.partesDelMes, { fecha, data: parte }]
               : carga.partesDelMes
           }
-          seleccion={fecha}
+          seleccion={fechaPedida}
           onElegir={irAFecha}
         />
 
@@ -347,7 +402,11 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
               <b className="block text-[13px] font-extrabold truncate">
                 {i + 1} · {p}
               </b>
-              <span className={`block text-[11px] font-semibold truncate ${p === paso ? "opacity-80" : "text-muted-foreground"}`}>
+              <span
+                className={`block text-[11px] font-semibold truncate ${p === paso ? "" : "text-muted-foreground"} ${
+                  atenuado || (p === paso ? "opacity-80" : "")
+                }`}
+              >
                 {resumenPaso[p]}
               </span>
             </button>
@@ -358,7 +417,7 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
             <p className="text-sm font-extrabold">
               {indice + 1} de {PASOS.length} · {paso}
             </p>
-            <span className="text-[11px] font-semibold text-muted-foreground">{resumenPaso[paso]}</span>
+            <span className={`text-[11px] font-semibold text-muted-foreground ${atenuado}`}>{resumenPaso[paso]}</span>
           </div>
           <div aria-hidden className="flex gap-1 mt-2">
             {PASOS.map((p, i) => (
@@ -367,102 +426,113 @@ const ParteDiario = ({ fecha, subId }: { fecha: string; subId: string | null }) 
           </div>
         </div>
 
-        {paso === "Jornada" && (
-          <PasoJornada
-            fecha={fecha}
-            rango={rango}
-            parte={parte}
-            horasComoAyer={horasComoAyer}
-            readOnly={readOnly}
-            onChange={cambiarJornada}
-          />
-        )}
-        {paso === "Lavado" && (
-          <PasoLavado
-            fecha={fecha}
-            rango={rango}
-            parte={parte}
-            prendas={nombresPrenda}
-            anterior={carga.anterior}
-            readOnly={readOnly}
-            onChange={(lavado) => cambiar({ lavado })}
-          />
-        )}
-        {paso === "Procesado" && (
-          <PasoProcesado
-            fecha={fecha}
-            rango={rango}
-            parte={parte}
-            prendas={nombresPrenda}
-            readOnly={readOnly}
-            onChange={(procesado) => cambiar({ procesado })}
-          />
-        )}
-        {paso === "Inventario" && (
-          <PasoInventario
-            fecha={fecha}
-            parte={parte}
-            partesDelMes={carga.partesDelMes}
-            prendas={carga.prendas}
-            ubicaciones={carga.ubicaciones}
-            dotacion={carga.dotacion}
-            pactadas={pactadasDeDotacion(carga.dotacion)}
-            readOnly={readOnly}
-            onChange={(inventario) => cambiar({ inventario })}
-          />
-        )}
-        {paso === "Novedades" && (
-          <PasoNovedades
-            hotelId={activeHotel.id}
-            fecha={fecha}
-            eventos={eventos}
-            readOnly={!!carga.autorAjeno}
-            onCambio={(e) => {
-              setEventos((prev) =>
-                prev.some((x) => x.id === e.id) ? prev.map((x) => (x.id === e.id ? e : x)) : [e, ...prev]
-              );
-              void refrescarResumenMes(activeHotel.id, anio, mes);
-            }}
-          />
-        )}
+        {avisoError}
 
-        <div className="neo-raised-sm rounded-[22px] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 sm:hidden w-full">
-            <BotonSecundario className="flex-1" disabled={indice === 0} onClick={() => setPaso(PASOS[indice - 1])}>
-              <ArrowLeft size={15} /> Anterior
-            </BotonSecundario>
-            <BotonSecundario className="flex-1" disabled={indice === PASOS.length - 1} onClick={() => setPaso(PASOS[indice + 1])}>
-              Siguiente <ArrowRight size={15} />
-            </BotonSecundario>
-          </div>
-          <p className="text-xs font-bold text-muted-foreground min-w-0 flex-1 basis-56">
-            {parte.jornada.cierre === "Cerrado" ? (
-              <Chip tono={porCorregir ? "mal" : "ok"}>
-                {porCorregir ? `Cerrada con ${porCorregir} por revisar` : "Jornada cerrada"}
-              </Chip>
-            ) : porCorregir ? (
-              `Para cerrar: ${textoPorCorregir} por corregir`
-            ) : (
-              "Al terminar el día, cierra la jornada para que cuente en el mes."
-            )}
-          </p>
-          {!readOnly && (
-            <div className="flex flex-wrap gap-2.5">
-              <BotonSecundario onClick={guardarBorrador}>
-                <Save size={15} /> Guardar borrador
-              </BotonSecundario>
-              {parte.jornada.cierre !== "Cerrado" && (
-                <BotonPrincipal
-                  onClick={() => {
-                    if (porCorregir || t.registros_lavado === 0) setConfirmarCierre(true);
-                    else void cerrar();
-                  }}
-                >
-                  <CheckCircle2 size={16} /> Cerrar jornada
-                </BotonPrincipal>
-              )}
-            </div>
+        {/* Lo único que cambia con el día. Mientras llega el nuevo se ve el anterior, sin poder tocarlo. */}
+        <div key={carga.clave} aria-busy={cambiando} {...(cambiando ? { inert: "" } : {})} className="parte-dia flex flex-col gap-4">
+          {readOnly && (
+            <p className="neo-raised-sm rounded-[18px] px-4 py-2.5 text-sm font-semibold text-muted-foreground">
+              <span>{motivoSoloLectura}</span>
+            </p>
           )}
+
+          {paso === "Jornada" && (
+            <PasoJornada
+              fecha={fecha}
+              rango={rango}
+              parte={parte}
+              horasComoAyer={horasComoAyer}
+              readOnly={readOnly}
+              onChange={cambiarJornada}
+            />
+          )}
+          {paso === "Lavado" && (
+            <PasoLavado
+              fecha={fecha}
+              rango={rango}
+              parte={parte}
+              prendas={nombresPrenda}
+              anterior={carga.anterior}
+              readOnly={readOnly}
+              onChange={(lavado) => cambiar({ lavado })}
+            />
+          )}
+          {paso === "Procesado" && (
+            <PasoProcesado
+              fecha={fecha}
+              rango={rango}
+              parte={parte}
+              prendas={nombresPrenda}
+              readOnly={readOnly}
+              onChange={(procesado) => cambiar({ procesado })}
+            />
+          )}
+          {paso === "Inventario" && (
+            <PasoInventario
+              fecha={fecha}
+              parte={parte}
+              partesDelMes={carga.partesDelMes}
+              prendas={carga.prendas}
+              ubicaciones={carga.ubicaciones}
+              dotacion={carga.dotacion}
+              pactadas={pactadasDeDotacion(carga.dotacion)}
+              readOnly={readOnly}
+              onChange={(inventario) => cambiar({ inventario })}
+            />
+          )}
+          {paso === "Novedades" && (
+            <PasoNovedades
+              hotelId={carga.hotelId}
+              fecha={fecha}
+              eventos={eventos}
+              readOnly={!!carga.autorAjeno}
+              onCambio={(e) => {
+                setEventos((prev) =>
+                  prev.some((x) => x.id === e.id) ? prev.map((x) => (x.id === e.id ? e : x)) : [e, ...prev]
+                );
+                void refrescarResumenMes(carga.hotelId, anio, mes);
+              }}
+            />
+          )}
+
+          <div className="neo-raised-sm rounded-[22px] px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 sm:hidden w-full">
+              <BotonSecundario className="flex-1" disabled={indice === 0} onClick={() => setPaso(PASOS[indice - 1])}>
+                <ArrowLeft size={15} /> Anterior
+              </BotonSecundario>
+              <BotonSecundario className="flex-1" disabled={indice === PASOS.length - 1} onClick={() => setPaso(PASOS[indice + 1])}>
+                Siguiente <ArrowRight size={15} />
+              </BotonSecundario>
+            </div>
+            <p className="text-xs font-bold text-muted-foreground min-w-0 flex-1 basis-56">
+              {parte.jornada.cierre === "Cerrado" ? (
+                <Chip tono={porCorregir ? "mal" : "ok"}>
+                  {porCorregir ? `Cerrada con ${porCorregir} por revisar` : "Jornada cerrada"}
+                </Chip>
+              ) : porCorregir ? (
+                `Para cerrar: ${textoPorCorregir} por corregir`
+              ) : (
+                "Al terminar el día, cierra la jornada para que cuente en el mes."
+              )}
+            </p>
+            {!readOnly && (
+              <div className="flex flex-wrap gap-2.5">
+                <BotonSecundario onClick={guardarBorrador}>
+                  <Save size={15} /> Guardar borrador
+                </BotonSecundario>
+                {parte.jornada.cierre !== "Cerrado" && (
+                  <BotonPrincipal
+                    onClick={() => {
+                      if (porCorregir || t.registros_lavado === 0) setConfirmarCierre(true);
+                      else void cerrar();
+                    }}
+                  >
+                    <CheckCircle2 size={16} /> Cerrar jornada
+                  </BotonPrincipal>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

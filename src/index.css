@@ -395,6 +395,27 @@
     .neo-wave > span { animation: none; }
   }
 
+  /* Parte diario al cambiar de día: las tarjetas no se mueven ni se transparentan
+     sobre el fondo; solo se atenúa y vuelve lo que hay dentro. El retraso evita que
+     se note si el día llega enseguida. */
+  .parte-dia > .neo-raised-sm > * {
+    animation: parte-dia-entra 200ms ease-out;
+  }
+  .parte-dia[aria-busy="true"] {
+    pointer-events: none;
+  }
+  .parte-dia[aria-busy="true"] > .neo-raised-sm > * {
+    opacity: 0.5;
+    transition: opacity 150ms ease 100ms;
+  }
+  @keyframes parte-dia-entra {
+    from { opacity: 0.5; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .parte-dia > .neo-raised-sm > * { animation: none; }
+    .parte-dia[aria-busy="true"] > .neo-raised-sm > * { transition: none; }
+  }
+
   .neo-text { color: var(--neo-text); }
   .neo-text-2 { color: var(--neo-text-2); }
   .neo-accent { color: var(--neo-accent); }

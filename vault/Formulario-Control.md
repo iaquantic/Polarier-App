@@ -25,6 +25,7 @@ El Excel es un libro por mes. En la app se reparte según **cuándo se rellena c
 
 - **`/auditoria/formularios`:** tarjetas «Parte de hoy» y «Cierre del mes», más el calendario del mes.
 - **`/auditoria/formularios/parte?fecha=`** (`AuditParte.tsx`): cinco pasos. Pestañas en escritorio; en móvil, «2 de 5» y Anterior/Siguiente. Guarda solo a los 2 s de dejar de escribir y reintenta si no hay conexión (`useAutoguardado`). Abrir un día para mirarlo no crea ningún parte.
+- **Cambiar de día en el parte:** la pantalla no se remonta. La URL solo dice qué día se ha pedido; lo que se ve, se calcula y se guarda es el ya cargado (`carga`). Cabecera, días y pasos se quedan quietos, y se conserva el paso en el que se estaba. El contenido anterior se atenúa sin poder tocarse y solo se sustituye cuando lo pendiente de ese día está guardado y el nuevo ha llegado entero, así que una respuesta antigua o un autoguardado no pueden caer en otro día. Si algo falla, el día anterior sigue en pantalla con «Reintentar» y se puede volver a él sin perder nada. Se atenúa lo de dentro de las tarjetas, no las tarjetas: enteras, se transparentaría el fondo.
 - **`/auditoria/formularios/cierre?mes=`** (`AuditCierre.tsx`): lo que no se rellena a diario.
 - **`/auditoria`:** `DashboardMensual`. El dashboard antiguo (`DashboardControl`) sigue a un enlace para los meses rellenados con los formularios de antes.
 

@@ -19,6 +19,8 @@ export const useAutoguardado = <T,>(valor: T, guardar: (v: T) => Promise<void>, 
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   const valorRef = useRef(valor);
   const guardarRef = useRef(guardar);
+  // Lo que está saliendo ahora mismo, para esperarlo antes de cambiar de documento.
+  const enCurso = useRef<Promise<unknown>>(Promise.resolve());
   valorRef.current = valor;
   guardarRef.current = guardar;
 
@@ -27,13 +29,19 @@ export const useAutoguardado = <T,>(valor: T, guardar: (v: T) => Promise<void>, 
     temporizador.current = null;
   };
 
+  const lanzar = useCallback((v: T) => {
+    const salida = guardarRef.current(v);
+    enCurso.current = Promise.all([enCurso.current, salida.catch(() => undefined)]);
+    return salida;
+  }, []);
+
   const ejecutar = useCallback(async () => {
     limpiar();
     if (!sucio.current) return;
     sucio.current = false;
     setEstado("guardando");
     try {
-      await guardarRef.current(valorRef.current);
+      await lanzar(valorRef.current);
       setUltimo(new Date());
       // Si se tocó algo mientras se guardaba, queda otra vuelta pendiente.
       setEstado(sucio.current ? "pendiente" : "guardado");
@@ -43,7 +51,7 @@ export const useAutoguardado = <T,>(valor: T, guardar: (v: T) => Promise<void>, 
       setEstado("error");
       temporizador.current = setTimeout(() => void ejecutar(), REINTENTO_MS);
     }
-  }, []);
+  }, [lanzar]);
 
   const marcarCambio = useCallback(() => {
     sucio.current = true;
@@ -74,17 +82,36 @@ export const useAutoguardado = <T,>(valor: T, guardar: (v: T) => Promise<void>, 
     sucio.current = false;
     setEstado("guardando");
     try {
-      await guardarRef.current(explicito ?? valorRef.current);
+      await lanzar(explicito ?? valorRef.current);
       setUltimo(new Date());
       setEstado(sucio.current ? "pendiente" : "guardado");
     } catch (e) {
       sucio.current = true;
       setEstado("error");
+      temporizador.current = setTimeout(() => void ejecutar(), REINTENTO_MS);
       throw e;
     }
+  }, [ejecutar, lanzar]);
+
+  /**
+   * Deja guardado lo pendiente antes de pasar a otro documento, esperando también lo
+   * que ya estaba saliendo. Si no se puede, lanza el error y lo pendiente sigue aquí.
+   */
+  const vaciar = useCallback(async () => {
+    limpiar();
+    await enCurso.current;
+    if (sucio.current) await guardarAhora();
+  }, [guardarAhora]);
+
+  /** Empieza otro documento, ya cargado: lo que se guarde a partir de aquí es suyo. */
+  const reiniciar = useCallback(() => {
+    limpiar();
+    sucio.current = false;
+    setEstado("guardado");
+    setUltimo(null);
   }, []);
 
-  return { estado, ultimo, marcarCambio, guardarAhora };
+  return { estado, ultimo, marcarCambio, guardarAhora, vaciar, reiniciar };
 };
 
 /** «Guardado hace 5 s». */
