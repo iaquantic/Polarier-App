@@ -15,6 +15,8 @@ const AZUL: [number, number, number] = [30, 58, 138]; // #1e3a8a
 const DORADO_BG: [number, number, number] = [245, 240, 220]; // dorado muy suave para cabeceras
 const DORADO_TX: [number, number, number] = [91, 74, 0];
 const GRIS: [number, number, number] = [110, 110, 110];
+// Barra de título, cabecera y una fila de una tabla, en mm.
+const ALTO_MINIMO_TABLA = 22;
 
 // Carga un asset (URL de Vite) a dataURL PNG para incrustarlo en el PDF.
 //
@@ -89,7 +91,8 @@ export const construirInformePdf = async (informe: Informe): Promise<jsPDF> => {
   doc.setTextColor(...DORADO_TX);
   doc.text(informe.estado, pageW - margin, y + 1, { align: "right" });
 
-  y += 7;
+  // 15 pt de título ocupan algo más de 5 mm: con menos, el subtítulo lo pisa.
+  y += 9.5;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(...GRIS);
@@ -188,6 +191,11 @@ export const construirInformePdf = async (informe: Informe): Promise<jsPDF> => {
   // --- Tablas -----------------------------------------------------------------
   for (const tabla of informe.tablas) {
     if (tabla.titulo) {
+      // La barra no se queda sola al pie: necesita debajo la cabecera y una fila.
+      if (y + ALTO_MINIMO_TABLA > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage();
+        y = margin;
+      }
       // Barra de título de sección (vale / categoría)
       autoTable(doc, {
         startY: y,

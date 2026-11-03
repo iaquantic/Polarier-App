@@ -225,7 +225,8 @@ export const tablasResumenMes = (r: ResumenMes, eventos: ControlEvento[] = []): 
     },
     {
       titulo: `Existencias frente a prendas pactadas · ${r.inventario.estado}`,
-      columnas: ["Artículo", "Pactadas", "Actuales", "Saldo (+ / −)"],
+      // Guion normal: la Helvetica del PDF no tiene el signo menos (U+2212) y saldría roto.
+      columnas: ["Artículo", "Pactadas", "Actuales", "Saldo (+ / -)"],
       filas: r.articulos.map((a) => [a.prenda, fmt(a.pactadas), fmt(a.actuales), fmt(a.saldo)]),
       total: ["Total", fmt(r.inventario.pactadas), fmt(r.inventario.existencia), ""],
       extras: [["Faltantes / sobrantes", "", fmt(r.inventario.faltantes), fmt(r.inventario.sobrantes)]],

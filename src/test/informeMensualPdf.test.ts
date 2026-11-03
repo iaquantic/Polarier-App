@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { construirInformePdf } from "@/lib/informePdf";
+import type { Informe } from "@/lib/informe";
 import { buildInformeMensual } from "@/lib/informeMensual";
 import type { MonthlyReport } from "@/services/audit";
 
@@ -23,5 +24,37 @@ describe("PDF del informe mensual", () => {
     const doc = await construirInformePdf(informe);
     expect(doc.getNumberOfPages()).toBeGreaterThan(1);
     expect(doc.output("datauristring")).toContain("base64,");
+  });
+});
+
+// Sin carga de imágenes, para no esperar el temporizador del logo en cada vuelta.
+class ImagenRota {
+  onerror?: () => void;
+  set src(_v: string) {
+    this.onerror?.();
+  }
+}
+
+describe("Cortes de página del PDF", () => {
+  it("el título de una tabla nunca se queda solo al pie", async () => {
+    vi.stubGlobal("Image", ImagenRota);
+    for (let filas = 1; filas <= 45; filas++) {
+      const informe: Informe = {
+        titulo: "T",
+        hotel: "H",
+        fechaLabel: "F",
+        estado: "E",
+        campos: [],
+        tablas: [
+          { titulo: "Relleno", columnas: ["A"], filas: Array.from({ length: filas }, () => ["x"]) },
+          { titulo: "TITULOB", columnas: ["CABECERAB"], filas: [["y"]] },
+        ],
+      };
+      const doc = await construirInformePdf(informe);
+      const paginas = Array.from((doc.internal as unknown as { pages: string[][] }).pages, (p) => (p ?? []).join(" "));
+      const conTitulo = paginas.findIndex((p) => p.includes("(TITULOB)"));
+      expect(paginas[conTitulo], `${filas} filas`).toContain("(CABECERAB)");
+    }
+    vi.unstubAllGlobals();
   });
 });
