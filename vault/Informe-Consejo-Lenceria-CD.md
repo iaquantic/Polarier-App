@@ -15,7 +15,7 @@
 > - La routine escribió los 47 textos, sin ningún «[dato no disponible]».
 > - Los textos dicen qué polo no rellenó cada bloque, por ejemplo «el retiro solo está disponible para Varadero». No se inventan esos datos y avisan de que faltan los kg y el año anterior.
 >
-> **Desde la 015, un mes solo se genera si sus polos activos tienen la lencería cargada.** Hoy solo mayo de 2026 la tiene: hacen falta los CD de los demás meses.
+> **Desde la 015, un mes solo se genera si sus polos activos tienen la lencería cargada.** Hoy (2026-11-03) la tienen mayo y julio de 2026; los de julio se subieron desde la app el 2026-10-29. Ver «Qué falta pedir».
 >
 > **Piezas:**
 > - `vps/Polarier/Leslie/CD/cd_lenceria.py`, con sus tests en `test_cd_lenceria.py`;
@@ -44,6 +44,22 @@
 > - El retiro de Varadero trae el mes en la columna rotulada «2025».
 > - Caibarién teclea solo la «Diferencia» de los inventarios.
 > - En las montas por cliente de Caibarién, el TOTAL da `#DIV/0!` cuando un solo hotel tiene turistas-día. Se usa ese hotel.
+
+## Qué falta pedir (2026-11-03)
+
+Sale de `disponibilidad_informe_consejo(2026)`. Son 30 CD:
+
+| Mes de 2026 | Polos |
+|---|---|
+| Enero y febrero | La Habana, Varadero, Caibarién, Cayo Coco, Cayo Cruz, Holguín |
+| Marzo, abril y junio | La Habana, Varadero, Caibarién |
+| Agosto, septiembre y octubre | La Habana, Varadero, Caibarién (también falta su CD en la TABLA CA) |
+
+En este PC, fuera del repositorio, solo están los de mayo de 2026 y seis de abril de 2025, que podrían dar la columna del año anterior de abril. Octubre tampoco tiene todavía el Modelo 1.
+
+**Texto listo para enviar:**
+
+> Para generar el Informe del Consejo necesitamos: (1) los CD de 2026 de la tabla de arriba, y los de 2025 si se quiere la columna del año anterior; (2) los modelos prometidos en el formulario: mal uso, inventarios y lencería nueva; (3) confirmar la regla de los faltantes. Según la respuesta P10 son la suma de las diferencias negativas de los hoteles inventariados en el mes, pero con esa regla los de mayo de 2026 no coinciden con el informe en Caibarién (6 de 8 prendas) ni en La Habana (1 de 8). ¿Es esa la regla o se ajusta después a mano? (4) ¿El «Importe» del CD es la pérdida económica de los faltantes, y en qué moneda?
 
 ## Por qué
 

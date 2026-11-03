@@ -90,6 +90,11 @@ describe("Informe del mes", () => {
     expect(i.campos.find((c) => c.label === "Representante")?.valor).toBe("Completar");
   });
 
+  it("las cabeceras solo usan caracteres que la Helvetica del PDF sabe pintar", () => {
+    const i = buildInformeMes({ resumen: resumen(), hotel: "Hotel" });
+    for (const c of i.tablas.flatMap((t) => t.columnas)) expect(c).toMatch(/^[ -ÿ—–]*$/);
+  });
+
   it("tiene las tablas de la hoja Resumen y el texto cierra el documento", () => {
     const analisis = [{ titulo: "Análisis", bloques: [{ tipo: "parrafo" as const, texto: "Texto de la routine" }] }];
     const i = buildInformeMes({ resumen: resumen(), hotel: "Hotel", analisis });
