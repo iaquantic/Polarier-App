@@ -29,7 +29,7 @@ Un usuario **auditor** entra en la app y ve **solo** su mundo (sin chat/document
 
 ## Navegación
 
-Tres páginas: **Dashboard** (`/auditoria`), **Formularios de Control** (`/auditoria/formularios`) e **Histórico** (`/auditoria/historico`), siempre con el hotel activo a la vista. El layout depende del rol (`AuditShell` en `App.tsx`, 2026-10-27):
+Tres páginas: **Dashboard** (`/auditoria`), **Parte diario de control** (`/auditoria/formularios`) e **Histórico** (`/auditoria/historico`), siempre con el hotel activo a la vista. El layout depende del rol (`AuditShell` en `App.tsx`, 2026-10-27):
 
 - **Auditor puro:** `AuditLayout`, una barra lateral reducida sin chat.
 - **Cualquier otro rol (admin, supervisor):** las mismas páginas dentro de `AppLayout`. «Auditoría» es un desplegable del sidebar normal, como «Automatizaciones», para que el módulo no parezca una aplicación aparte.
