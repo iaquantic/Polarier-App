@@ -18,11 +18,11 @@ const navItems = [
 
 const auditItems = [
   { label: "Dashboard", path: "/auditoria" },
-  { label: "Formularios de Control", path: "/auditoria/formularios" },
+  { label: "Parte diario de control", path: "/auditoria/formularios" },
   { label: "Histórico", path: "/auditoria/historico" },
 ];
 
-// "Formularios de Control" queda marcado también al rellenar un parte
+// "Parte diario de control" queda marcado también al rellenar un parte
 // (`/auditoria/formulario/:defId`, en singular). Mismo criterio que AuditLayout.
 const auditItemActive = (path: string, pathname: string) =>
   path === "/auditoria"

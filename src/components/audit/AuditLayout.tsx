@@ -8,7 +8,7 @@ import { useRole } from "@/context/RoleContext";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/auditoria" },
-  { label: "Formularios de Control", icon: ClipboardList, path: "/auditoria/formularios" },
+  { label: "Parte diario de control", icon: ClipboardList, path: "/auditoria/formularios" },
   { label: "Histórico", icon: Clock, path: "/auditoria/historico" },
 ];
 
@@ -76,7 +76,7 @@ const AuditLayout = () => {
 
         <nav className="flex-1 flex flex-col gap-1.5 px-3 overflow-y-auto min-h-0">
           {navItems.map((item) => {
-            // "Formularios de Control" queda marcado también al rellenar un parte
+            // "Parte diario de control" queda marcado también al rellenar un parte
             // (`/auditoria/formulario/:defId`, en singular).
             const active =
               item.path === "/auditoria"

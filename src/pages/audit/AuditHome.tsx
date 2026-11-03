@@ -79,7 +79,7 @@ const AuditHome = () => {
     <div className="flex-1 overflow-y-auto p-3 sm:p-6">
       <div className="max-w-3xl mx-auto flex flex-col gap-4">
         <header className="neo-raised-sm rounded-[22px] px-5 py-4">
-          <h1 className="text-lg sm:text-xl font-extrabold text-foreground">Formularios de Control</h1>
+          <h1 className="text-lg sm:text-xl font-extrabold text-foreground">Parte diario de control</h1>
           <p className="text-sm font-medium text-muted-foreground capitalize">{hoy()}</p>
         </header>
 
