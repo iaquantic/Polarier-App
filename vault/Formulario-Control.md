@@ -2,7 +2,7 @@
 
 Sustituye a los tres formularios de auditoría (lencería, producción y cuadrador). Sale del Excel «Modelo Mensual» que Leo pasó el 2026-11-02: 11 hojas, unas 20 000 fórmulas. El Excel no está en el repositorio (es público): esta nota describe su estructura, no sus valores.
 
-**En producción desde el 2026-11-02:** PR 45 fusionado y desplegado, migración `016` aplicada, metas del SLA del Muthu cargadas y prompt de la routine actualizado. Falta probarlo con un usuario real. **El formulario por hojas y la subida del Excel (2026-11-04)** están en la rama `auditoria/formulario-hojas`, con la migración `020` sin aplicar. Las previas se aprobaron en el canvas (filas «Auditoría — formulario unificado» y «formulario igual que el Excel»).
+**En producción desde el 2026-11-02:** PR 45 fusionado y desplegado, migración `016` aplicada, metas del SLA del Muthu cargadas y prompt de la routine actualizado. Falta probarlo con un usuario real. **El formulario por hojas y la subida del Excel (2026-11-04):** PR 54 fusionado y migración `020` aplicada; falta el Deploy. Las previas se aprobaron en el canvas (filas «Auditoría — formulario unificado» y «formulario igual que el Excel»).
 
 ## El formulario es el Excel
 
