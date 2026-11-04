@@ -102,7 +102,7 @@ const AuditForm = () => {
         const found = defs.find((d) => d.id === defId) ?? null;
         // El parte unificado tiene su propia pantalla.
         if (found?.tipo === "control") {
-          navigate(`/auditoria/formularios/parte?fecha=${fecha}${subId ? `&sub=${subId}` : ""}`, { replace: true });
+          navigate(`/auditoria/formularios?mes=${fecha.slice(0, 7)}&hoja=Operacion&fecha=${fecha}`, { replace: true });
           return;
         }
         setDef(found);

@@ -35,6 +35,9 @@ Tareas y cosas por revisar. Marca `[x]` al completar.
 
 - [x] **Formulario unificado, en producción (2026-11-02):** PR 45 fusionado y desplegado, migración `016` aplicada y metas del SLA del Muthu cargadas en `form_definitions.config.metas`. Ver [[Formulario-Control]].
 - [x] **Formulario unificado:** prompt de la routine actualizado (2026-11-02, por API). Ver [[Routine-Informe-Mensual]].
+- [ ] **Formulario por hojas (2026-11-04):** aplicar `020_formulario_por_hojas.sql`, fusionar y desplegar, en ese orden. Ver [[Formulario-Control]].
+- [ ] **Formulario por hojas:** repartir a los supervisores la plantilla corregida, que recupera la columna Base. Se genera con `scripts/modelo-mensual/corregir_kpi.py`.
+- [ ] **Formulario por hojas:** subir un Excel real rellenado por un supervisor. Se ha probado con el libro real sin rellenar y con datos inventados, nunca con uno lleno de verdad.
 - [ ] **Formulario unificado:** comprobar el primer informe mensual real con el formulario nuevo (noviembre de 2026). El prompt no se ha podido probar con datos porque aún no hay ningún mes así.
   - Sigue abierto el 2026-11-03: noviembre tiene dos partes en borrador sin registros. Las lecturas del prompt (`control_mes.resumen`, `audit_mes`, `audit_mes_dias`, `audit_daily_detalle`, `audit_mes_dotacion`) responden sobre un parte de prueba en una transacción revertida.
 - [ ] **Formulario unificado:** probarlo de principio a fin con un usuario real y la base real. Hasta ahora se ha probado con tests y con las pantallas reales sobre una base simulada, y la migración sobre un Postgres local.

@@ -269,7 +269,7 @@ const AuditMonth = () => {
           {datosControl && (
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => navigate(`/auditoria/formularios/cierre?mes=${periodo}`)}
+                onClick={() => navigate(`/auditoria/formularios?mes=${periodo}&hoja=Datos_mes`)}
                 className="neo-raised-sm neo-press neo-accent inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold"
               >
                 <CalendarCheck size={14} /> Cierre del mes
@@ -380,7 +380,7 @@ const AuditMonth = () => {
               const abrir = () =>
                 navigate(
                   esControl
-                    ? `/auditoria/formularios/parte?fecha=${s.fecha}&sub=${s.id}`
+                    ? `/auditoria/formularios?mes=${s.fecha.slice(0, 7)}&hoja=Operacion&fecha=${s.fecha}`
                     : `/auditoria/formulario/${s.form_definition_id}?fecha=${s.fecha}&sub=${s.id}`
                 );
               return (

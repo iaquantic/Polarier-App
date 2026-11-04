@@ -52,6 +52,8 @@ La aplicación está **desplegada y conectada**:
 
 **Formulario unificado (2026-11-02):** lencería, producción y cuadrador pasan a ser un solo parte diario más un cierre mensual, con las fórmulas del Excel «Modelo Mensual» contrastadas contra el propio libro, y el dashboard y los informes con sus nuevos indicadores. **En producción desde ese día** (PR 45, migración `016`, metas del SLA y prompt de la routine); falta probarlo con un usuario real. Detalle en [[Formulario-Control]].
 
+**Formulario por hojas (2026-11-04):** el formulario pasa a tener las 11 hojas del Excel «Modelo Mensual», con sus columnas y colores, y el supervisor puede subir el Excel relleno. Lo que se guarda no cambia. Ver [[Formulario-Control]].
+
 **Automatizaciones (2026-10-20):** el disparo de los documentos sale del chat. La app tiene una sección «Automatizaciones» con un apartado por proceso (Modelo 1, Tabla CA, Ocupación) y cada uno llama a su **propio webhook** en n8n, dentro del mismo workflow y sin duplicar las ramas. Cada automatización entra **solo** por su trigger: el chat conversacional sigue igual, pero si alguien sube ahí un CP, un CA o un Integral, responde diciendo en qué apartado subirlo. Detalle en [[Automatizaciones]].
 
 ## Cómo mantener esta memoria

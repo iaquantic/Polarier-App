@@ -107,6 +107,7 @@ supabase functions deploy disparar-informe-mensual
 | `avatars` | Fotos de perfil | público, máx 2MB |
 | `documents` | Archivos de chat | **privado** (URLs firmadas), máx 50MB, sin restricción de MIME. **Ojo:** hasta el 2026-10-12 estaba en realidad **público** en Supabase, aunque aquí ponía privado. Se cerró ese día (ver [[Pendientes]]). El límite de 50MB solo lo aplica la app (`storage.ts`): el bucket no tiene `file_size_limit` |
 | `informes-consejo` | Informes del Consejo generados | **privado**, lo leen todos los autenticados; solo escribe la service role (migración 013) |
+| `control-excel` | Cada Excel «Modelo Mensual» subido | **privado**, migración 020. Primera carpeta: el hotel. Sin política de borrado: es la evidencia de lo importado. Ver [[Formulario-Control]] |
 | ~~`informes-mensuales`~~ | ~~PDF del informe mensual~~ | **Retirado** el 2026-10-19 (migración 011 aplicada y bucket borrado): el PDF se genera en el cliente. Nunca guardó nada. |
 
 - Los archivos privados se sirven con `createSignedUrl`. n8n los descarga con la credencial `supabaseApi` «Polarier» (service_role).

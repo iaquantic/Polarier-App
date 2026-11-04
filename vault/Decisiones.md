@@ -4,6 +4,19 @@ Registro de decisiones tomadas en el proyecto, con fecha y motivo. Lo más recie
 
 ---
 
+## 2026-11-04 — El formulario es el Excel, y el Excel se puede subir
+
+Leo pide que el formulario de la app tenga el mismo formato y estructura que la tabla del Excel, «por hojas», para evitar pérdida de información, y que el supervisor pueda rellenar el Excel y subirlo.
+
+- **Hojas en vez de pasos:** las 11 hojas sustituyen al parte de 5 pasos y al cierre del mes, también en el móvil. Las ayudas pasan a botones encima de la tabla, sin añadir columnas.
+- **Se guarda igual que antes:** un parte por día, para no tocar dashboard, informes ni routine. La hoja traduce a filas planas y de vuelta sin perder lo de cada fila.
+- **Base en KPI_calidad:** se recupera en la app y en una plantilla corregida. Sin ella ningún KPI se calcula.
+- **Si el Excel y la app no coinciden:** lo vacío nunca borra. Lavado y procesado se sustituyen por día; novedades y equipos, por mes si la hoja trae filas; lo demás, casilla a casilla.
+- **El original se guarda** en un bucket privado con cada subida: una fila que no entre sigue estando en el archivo.
+- **Lector propio en vez de `exceljs`:** esa librería no abre libros con tablas si no los guardó Excel, y pesa casi 1 MB. Solo hace falta el valor de cada casilla.
+
+Ver [[Formulario-Control]].
+
 ## 2026-11-02 — Los documentos y los mensajes no caducan
 
 - **Decisión (Leo):** sin retención automática en el bucket `documents`. Un documento sigue hasta que su dueño lo borra. Se retiran `delete_old_documents` (migración 018) y `cleanupOldDocuments`.
