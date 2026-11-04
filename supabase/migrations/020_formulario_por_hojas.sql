@@ -86,16 +86,23 @@ on conflict (id) do nothing;
 
 -- La primera carpeta de la ruta es el hotel. No hay política de borrado: un Excel
 -- subido es la evidencia de lo que se importó.
+--
+-- Va con CASE y no con AND porque Postgres no garantiza el orden de un AND: si
+-- convirtiera a uuid la carpeta de un objeto de otro bucket, leer ese bucket fallaría.
 drop policy if exists "control_excel_read" on storage.objects;
 create policy "control_excel_read" on storage.objects for select
   using (
-    bucket_id = 'control-excel'
-    and has_hotel_access( (storage.foldername(name))[1]::uuid )
+    case when bucket_id = 'control-excel'
+      then has_hotel_access( (storage.foldername(name))[1]::uuid )
+      else false
+    end
   );
 
 drop policy if exists "control_excel_insert" on storage.objects;
 create policy "control_excel_insert" on storage.objects for insert
   with check (
-    bucket_id = 'control-excel'
-    and has_hotel_access( (storage.foldername(name))[1]::uuid )
+    case when bucket_id = 'control-excel'
+      then has_hotel_access( (storage.foldername(name))[1]::uuid )
+      else false
+    end
   );
