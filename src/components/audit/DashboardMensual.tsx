@@ -211,7 +211,7 @@ const DashboardMensual = ({ onVerAntiguo }: { onVerAntiguo?: () => void }) => {
   const textoFaltan = faltan > 0 ? `Faltan ${faltan} días` : "Mes completo";
 
   const abrirDia = (a: AlertaControl) =>
-    a.fecha ? () => navigate(`/auditoria/formularios/parte?fecha=${a.fecha}`) : undefined;
+    a.fecha ? () => navigate(`/auditoria/formularios?mes=${a.fecha.slice(0, 7)}&hoja=Operacion&fecha=${a.fecha}`) : undefined;
 
   const plantillaKpi = "minmax(0,2.1fr) .5fr .7fr minmax(0,1.5fr) 1.05fr";
   const plantillaArea = "minmax(0,1fr) minmax(52px,.8fr) minmax(52px,.7fr) minmax(52px,.7fr) minmax(0,1fr) 1fr";
@@ -321,7 +321,7 @@ const DashboardMensual = ({ onVerAntiguo }: { onVerAntiguo?: () => void }) => {
                       radius={[4, 4, 0, 0]}
                       className="cursor-pointer"
                       onClick={(d: { fecha?: string; futuro?: boolean }) => {
-                        if (d?.fecha && !d.futuro) navigate(`/auditoria/formularios/parte?fecha=${d.fecha}`);
+                        if (d?.fecha && !d.futuro) navigate(`/auditoria/formularios?mes=${d.fecha.slice(0, 7)}&hoja=Operacion&fecha=${d.fecha}`);
                       }}
                     >
                       {dias.map((d) => (

@@ -9,10 +9,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import Index from "./pages/Index";
 import AuditLayout from "./components/audit/AuditLayout";
 import AuditDashboard from "./pages/audit/AuditDashboard";
-import AuditHome from "./pages/audit/AuditHome";
 import AuditForm from "./pages/audit/AuditForm";
-import AuditParte from "./pages/audit/AuditParte";
-import AuditCierre from "./pages/audit/AuditCierre";
+import AuditHojas, { RedirigirCierre, RedirigirParte } from "./pages/audit/AuditHojas";
 import AuditHistory from "./pages/audit/AuditHistory";
 import AuditMonth from "./pages/audit/AuditMonth";
 import Login from "./pages/Login";
@@ -105,9 +103,9 @@ const App = () => (
                 {/* Módulo de auditoría (cualquier rol de auditoría) */}
                 <Route element={<AuditorRoute><AuditShell /></AuditorRoute>}>
                   <Route path="/auditoria" element={<AuditDashboard />} />
-                  <Route path="/auditoria/formularios" element={<AuditHome />} />
-                  <Route path="/auditoria/formularios/parte" element={<AuditParte />} />
-                  <Route path="/auditoria/formularios/cierre" element={<AuditCierre />} />
+                  <Route path="/auditoria/formularios" element={<AuditHojas />} />
+                  <Route path="/auditoria/formularios/parte" element={<RedirigirParte />} />
+                  <Route path="/auditoria/formularios/cierre" element={<RedirigirCierre />} />
                   <Route path="/auditoria/formulario/:defId" element={<AuditForm />} />
                   <Route path="/auditoria/historico" element={<AuditHistory />} />
                   <Route path="/auditoria/historico/:anioMes" element={<AuditMonth />} />

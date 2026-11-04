@@ -2,7 +2,7 @@
 
 Sistema de **control de almacén hotelero** mediante formularios diarios nativos. Diseñado multi-hotel desde el inicio (preparado para polos turísticos). Ver [[Referencias-Formularios]] para el mapeo con los Excel originales.
 
-> **Desde el 2026-11-02 hay un único formulario, el parte diario de control, más un cierre mensual: ver [[Formulario-Control]].** Lo que esta nota cuenta de los «3 tipos» de formulario, del parte de lencería precargado con la dotación y del avance hacia la dotación en el dashboard es lo **anterior**: esas pantallas quedan solo para abrir los partes ya guardados. Sigue vigente lo de roles, RLS, histórico, dotación como tabla maestra y PDF.
+> **Desde el 2026-11-02 hay un único formulario, y desde el 2026-11-04 tiene las hojas y columnas del Excel «Modelo Mensual»: ver [[Formulario-Control]].** Lo que esta nota cuenta de los «3 tipos» de formulario, del parte de lencería precargado con la dotación y del avance hacia la dotación en el dashboard es lo **anterior**: esas pantallas quedan solo para abrir los partes ya guardados. Sigue vigente lo de roles, RLS, histórico, dotación como tabla maestra y PDF.
 
 ## Concepto
 
@@ -91,7 +91,7 @@ src/lib/dashboard.ts         ← lógica del dashboard (series, acumulado, alert
 src/lib/dotacion.ts          ← dotación fija de lencería (precarga, comparación)
 src/pages/audit/
   AuditDashboard.tsx         ← inicio del auditor (/auditoria)
-  AuditHome.tsx              ← formularios del día (/auditoria/formularios)
+  AuditHojas.tsx             ← el mes como libro de 11 hojas (/auditoria/formularios)
   AuditForm.tsx              ← rellena un formulario (render por tipo)
   AuditHistory.tsx           ← histórico (entra al formulario, descarga PDF)
 ```
