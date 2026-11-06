@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Info } from "lucide-react";
-import { AUTOMATIZACIONES, fechaCorta } from "@/lib/automatizaciones";
+import { AUTOMATIZACIONES, estadoVisible, fechaCorta } from "@/lib/automatizaciones";
 import { getEjecuciones, type EjecucionAutomatizacion } from "@/services/automatizaciones";
 
 // Índice de la sección: una tarjeta por automatización y las últimas ejecuciones
@@ -11,6 +11,7 @@ const ESTADO = {
   en_curso: { texto: "En curso", color: "var(--neo-accent)" },
   completada: { texto: "Completada", color: "#1F6B3B" },
   error: { texto: "Error", color: "var(--neo-danger)" },
+  sin_respuesta: { texto: "Sin respuesta", color: "var(--neo-danger)" },
 } as const;
 
 const AutomationsHome = () => {
@@ -101,15 +102,15 @@ const AutomationsHome = () => {
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ background: ESTADO[e.estado]?.color ?? "var(--neo-accent)" }}
+                    style={{ background: ESTADO[estadoVisible(e)]?.color ?? "var(--neo-accent)" }}
                   />
                   <span className="neo-text text-[13px] font-extrabold w-[100px] shrink-0">{nombreDe(e.slug)}</span>
                   <span className="neo-text-2 text-[13px] font-semibold flex-1 min-w-0 truncate">{e.archivo_nombre}</span>
                   <span
                     className="text-xs font-bold"
-                    style={{ color: ESTADO[e.estado]?.color ?? "var(--neo-accent)" }}
+                    style={{ color: ESTADO[estadoVisible(e)]?.color ?? "var(--neo-accent)" }}
                   >
-                    {ESTADO[e.estado]?.texto ?? e.estado}
+                    {ESTADO[estadoVisible(e)]?.texto ?? e.estado}
                   </span>
                   <span className="neo-text-2 text-xs font-semibold w-[120px] text-right">{fechaCorta(e.created_at)}</span>
                   <ChevronRight size={15} className="neo-accent shrink-0" />

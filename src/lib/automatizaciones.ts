@@ -133,6 +133,32 @@ export const revisarArchivo = (
   return {};
 };
 
+/**
+ * A partir de aquí una ejecución síncrona «en curso» ya no se está esperando:
+ * la app solo deja la fila abierta cuando se corta la espera (red, proxy, pestaña
+ * cerrada), y la rama más lenta tarda alrededor de un minuto y medio.
+ */
+export const SIN_RESPUESTA_MS = 15 * 60 * 1000;
+/** Ídem para una asíncrona: la rama cierra su fila y lo normal es que lo haga mucho antes. */
+export const ATASCADA_MS = 2 * 60 * 60 * 1000;
+
+export type EstadoVisible = 'en_curso' | 'completada' | 'error' | 'sin_respuesta';
+
+/**
+ * El estado que se enseña de una ejecución. Una fila que se quedó en
+ * `en_curso` porque nadie la cerró no debe pintarse «En curso» para siempre:
+ * pasado su plazo sale «Sin respuesta». La fila no se toca, porque puede que
+ * n8n terminara igualmente.
+ */
+export const estadoVisible = (
+  e: { slug: string; estado: string; created_at: string },
+  ahora: Date = new Date()
+): EstadoVisible => {
+  if (e.estado !== 'en_curso') return e.estado as EstadoVisible;
+  const plazo = getAutomatizacion(e.slug)?.asincrona ? ATASCADA_MS : SIN_RESPUESTA_MS;
+  return ahora.getTime() - new Date(e.created_at).getTime() > plazo ? 'sin_respuesta' : 'en_curso';
+};
+
 /** Fecha de una ejecución, tal y como la pintan el índice y el detalle. */
 export const fechaCorta = (iso: string): string => {
   const d = new Date(iso);
