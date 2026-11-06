@@ -25,6 +25,11 @@ const ALTO_MINIMO_TABLA = 22;
 // `onerror` (pasa en entornos sin carga real de imágenes, y podría pasar con un
 // asset roto) la promesa se quedaría pendiente para siempre y el botón girando.
 const LOGO_TIMEOUT_MS = 3000;
+// El logo se imprime a 34 mm de ancho. Incrustado a su tamaño original (707 px)
+// y sin comprimir, un parte de una página pesaba cerca de 1 MB, y va en base64
+// por el webhook de correo. 400 px a 34 mm son unos 300 ppp: no se nota al
+// imprimir y el PDF baja a unas decenas de kB.
+const LOGO_ANCHO_PX = 400;
 
 const cargarLogo = (): Promise<{ data: string; w: number; h: number } | null> =>
   new Promise((resolve) => {
@@ -40,14 +45,16 @@ const cargarLogo = (): Promise<{ data: string; w: number; h: number } | null> =>
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      const escala = Math.min(1, LOGO_ANCHO_PX / (img.naturalWidth || LOGO_ANCHO_PX));
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * escala));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * escala));
       const ctx = canvas.getContext("2d");
       if (!ctx) return acabar(null);
-      ctx.drawImage(img, 0, 0);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       try {
-        acabar({ data: canvas.toDataURL("image/png"), w: img.naturalWidth, h: img.naturalHeight });
+        acabar({ data: canvas.toDataURL("image/png"), w: canvas.width, h: canvas.height });
       } catch {
         acabar(null);
       }
@@ -74,7 +81,8 @@ export const construirInformePdf = async (informe: Informe): Promise<jsPDF> => {
   if (logo) {
     const w = 34;
     const h = (logo.h / logo.w) * w;
-    doc.addImage(logo.data, "PNG", margin, y, w, h);
+    // "FAST": sin compresión, jsPDF guarda los píxeles del PNG en crudo.
+    doc.addImage(logo.data, "PNG", margin, y, w, h, "logo-polarier", "FAST");
     y += h + 3;
   }
 
