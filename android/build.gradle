@@ -38,10 +38,24 @@ subprojects {
     // AGP 8.13 pide com.android.tools.lint:lint-gradle:31.13.0 al ejecutar
     // extract*Annotations, pero Google no publica ese artefacto (404). Los modulos
     // de Capacitor no exportan anotaciones typedef, asi que desactivamos la
-    // extraccion. El consumidor sync*LibJars espera un typedefs.txt: se genera vacio
-    // antes del build con scripts/prepare-typedefs (ver DEPLOY / build-apk).
+    // extraccion. El consumidor sync*LibJars espera un typedefs.txt: lo crea vacio
+    // la tarea prepare*Typedefs de abajo, que va siempre antes. (Antes se creaba
+    // con un script que nunca se versiono, y tras un clean el build fallaba.)
     tasks.matching { it.name.startsWith("extract") && it.name.endsWith("Annotations") }.configureEach {
         it.enabled = false
+    }
+    ["Debug", "Release"].each { variante ->
+        def typedefs = layout.buildDirectory.file(
+            "intermediates/annotations_typedef_file/${variante.toLowerCase()}/extract${variante}Annotations/typedefs.txt")
+        def preparar = tasks.register("prepare${variante}Typedefs") {
+            outputs.file(typedefs)
+            doLast {
+                def f = typedefs.get().asFile
+                f.parentFile.mkdirs()
+                if (!f.exists()) f.text = ""
+            }
+        }
+        tasks.matching { it.name == "sync${variante}LibJars" }.configureEach { it.dependsOn(preparar) }
     }
 }
 

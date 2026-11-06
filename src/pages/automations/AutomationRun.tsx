@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowDownToLine, ChevronLeft, ChevronRight, CircleCheck,
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import FileDownloadCard from "@/components/FileDownloadCard";
-import { fechaCorta, getAutomatizacion, revisarArchivo } from "@/lib/automatizaciones";
+import { ATASCADA_MS, estadoVisible, fechaCorta, getAutomatizacion, revisarArchivo } from "@/lib/automatizaciones";
 import type { ArchivoRespuesta } from "@/lib/n8nRespuesta";
 import {
   archivoDeEjecucion,
@@ -19,8 +19,6 @@ type Fase = "reposo" | "confirmar" | "trabajando" | "en_cola" | "listo" | "error
 
 /** Cada cuánto se consulta una ejecución asíncrona en marcha. */
 const CONSULTA_MS = 15_000;
-/** A partir de aquí, una asíncrona en marcha probablemente murió sin cerrar su fila. */
-const ATASCADA_MS = 2 * 60 * 60 * 1000;
 
 const formatoTamano = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
@@ -522,7 +520,9 @@ const AutomationRun = () => {
                         className="w-2 h-2 rounded-full shrink-0"
                         style={{
                           background:
-                            e.estado === "completada" ? "#1F6B3B" : e.estado === "error" ? "var(--neo-danger)" : "var(--neo-accent)",
+                            e.estado === "completada" ? "#1F6B3B"
+                            : estadoVisible(e) === "en_curso" ? "var(--neo-accent)"
+                            : "var(--neo-danger)",
                         }}
                       />
                       <span className="neo-text text-[13px] font-extrabold flex-1 min-w-0 truncate">{e.archivo_nombre}</span>
@@ -535,7 +535,9 @@ const AutomationRun = () => {
                       <p className="neo-text-2 text-[12px] font-medium leading-snug line-clamp-3 whitespace-pre-wrap">{e.respuesta}</p>
                     ) : (
                       <p className="neo-text-2 text-[12px] font-medium">
-                        {e.estado === "en_curso" ? "En curso" : "Sin texto de respuesta"}
+                        {estadoVisible(e) === "en_curso" ? "En curso"
+                          : estadoVisible(e) === "sin_respuesta" ? "Sin respuesta: la app no llegó a recibirla"
+                          : "Sin texto de respuesta"}
                       </p>
                     )}
                   </button>

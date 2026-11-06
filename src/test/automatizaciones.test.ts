@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { AUTOMATIZACIONES, getAutomatizacion, revisarArchivo } from "@/lib/automatizaciones";
+import { AUTOMATIZACIONES, estadoVisible, getAutomatizacion, revisarArchivo } from "@/lib/automatizaciones";
 
 describe("catálogo de automatizaciones", () => {
   it("no repite slugs ni paths de webhook", () => {
@@ -71,5 +71,26 @@ describe("Informe Consejo de Dirección en el catálogo", () => {
     expect(consejo.modo).toBe("mensual");
     expect(consejo.asincrona).toBe(true);
     expect(consejo.extensiones).toEqual([]);
+  });
+});
+
+describe("estadoVisible", () => {
+  const ahora = new Date("2026-11-06T12:00:00Z");
+  const hace = (min: number) => new Date(ahora.getTime() - min * 60_000).toISOString();
+
+  it("no cambia lo que ya está cerrado", () => {
+    expect(estadoVisible({ slug: "tabla-ca", estado: "completada", created_at: hace(9999) }, ahora)).toBe("completada");
+    expect(estadoVisible({ slug: "tabla-ca", estado: "error", created_at: hace(9999) }, ahora)).toBe("error");
+  });
+
+  it("una síncrona abierta pasa a «sin respuesta» a los 15 minutos", () => {
+    expect(estadoVisible({ slug: "tabla-ca", estado: "en_curso", created_at: hace(2) }, ahora)).toBe("en_curso");
+    expect(estadoVisible({ slug: "tabla-ca", estado: "en_curso", created_at: hace(16) }, ahora)).toBe("sin_respuesta");
+  });
+
+  it("una asíncrona tiene dos horas de plazo", () => {
+    const asincrona = AUTOMATIZACIONES.find((a) => a.asincrona)!;
+    expect(estadoVisible({ slug: asincrona.slug, estado: "en_curso", created_at: hace(60) }, ahora)).toBe("en_curso");
+    expect(estadoVisible({ slug: asincrona.slug, estado: "en_curso", created_at: hace(121) }, ahora)).toBe("sin_respuesta");
   });
 });
